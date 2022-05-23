@@ -3,7 +3,10 @@ version: '3.8'
 services:
   web:
     build: .
-    command: ["./wait-for-it.sh", "db:3306", "--", "python", "/goallens/manage.py", "runserver", "0.0.0.0:8000"]
+    command: 
+      # python /goallens/manage.py runserver 0.0.0.0:8000
+      ["./wait-for-it.sh", "-t", "60", "db:5432", "--", "python", "/goallens/manage.py", "runserver", "0.0.0.0:8000"]
+
     volumes:
       - .:/goallens
     ports:
@@ -11,9 +14,16 @@ services:
     depends_on:
       - "db"
   db:
-    image: mysql:8-oracle
+    image: postgres:14.3
+    volumes:
+      - ./postgres_db:/var/lib/postgresql/data
     environment:
-      - "MYSQL_DATABASE=goallens"
-      - "MYSQL_ALLOW_EMPTY_PASSWORD=true"
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+      # - "POSTGRES_DB=postgres"
+      # - "POSTGRES_USER=postgres"
+      # - "POSTGRES_PASSWORD=postgres"
     ports:
-      - 3306:3306
+      - 5432:5432
+
+volumes:
+  postgres_db:
