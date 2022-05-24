@@ -1,10 +1,11 @@
+from unicodedata import name
 from django.db.utils import IntegrityError
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from scrapers import models
 
 
-class TestTeamModel(TestCase):
+class TestTeamModel(TransactionTestCase):
 
     def setUp(self):
         models.Team.objects.create(
@@ -30,6 +31,7 @@ class TestTeamModel(TestCase):
     def test_id_required(self):
         with self.assertRaises(IntegrityError):
             models.Team.objects.create(
+                id=None,
                 name='Liverpool',
                 short_name='Liverpool',
             )
@@ -38,6 +40,7 @@ class TestTeamModel(TestCase):
         with self.assertRaises(IntegrityError):
             models.Team.objects.create(
                 id='822bd0ba',
+                name=None,
                 short_name='Liverpool',
             )
 
@@ -46,6 +49,7 @@ class TestTeamModel(TestCase):
             models.Team.objects.create(
                 id='822bd0ba',
                 name='Liverpool',
+                short_name=None
             )
 
 
