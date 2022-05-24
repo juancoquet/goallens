@@ -2,7 +2,7 @@ from unicodedata import name
 from django.db.utils import IntegrityError
 from django.test import TestCase, TransactionTestCase
 
-from scrapers import models
+from data_sourcing import models
 
 
 class TestTeamModel(TransactionTestCase):

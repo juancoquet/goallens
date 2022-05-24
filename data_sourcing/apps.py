@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ScrapersConfig(AppConfig):
+class DataSourcingConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'scrapers'
+    name = 'data_sourcing'
