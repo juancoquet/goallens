@@ -1,8 +1,7 @@
-from unittest import skip
-
-from data_sourcing import models
 from django.db.utils import IntegrityError
 from django.test import TestCase
+
+from data_sourcing import models
 
 
 class TestTeamModel(TestCase):
