@@ -1,23 +1,16 @@
 from bs4 import BeautifulSoup # type: ignore
 from datetime import date
 import re
-from selenium.webdriver.common.by import By # type: ignore
-from selenium.webdriver.support import expected_conditions as EC # type: ignore
-from time import sleep
+import requests # type: ignore
 
 from ..base_scraper import BaseScraper
 
 
-class TeamScraper(BaseScraper):
-    """scrapes team ids, names, and short names from fbref.com."""
-
-    def _screenshot(self, filename):
-        destination = f'data_sourcing/scrapers/teams/screenshots/{filename}.png'
-        super()._screenshot(destination)
+class TeamsScraper(BaseScraper):
 
     def _capture_html(self, filename):
-        destination = f'data_sourcing/scrapers/teams/captured_html/{filename}.html'
-        super()._capture_html(destination)
+        filepath = f'data_sourcing/scrapers/teams/captured_html/{filename}.html'
+        return super()._capture_html(filepath)
 
     def get_team_ids(self, season, competition):
         """scrapes team ids from fbref.com.
@@ -40,13 +33,11 @@ class TeamScraper(BaseScraper):
                 raise ValueError(f'season must be between 2010 and {date.today().year}')
 
         comp_code = self.comp_codes[competition]
-        self.driver.get(f'https://fbref.com/en/comps/{comp_code}/')
+        url = f'https://fbref.com/en/comps/{comp_code}/'
+        self.html = requests.get(url).text
+        self.soup = BeautifulSoup(self.html, 'html.parser')
         self._go_to_season(season)
-
-        table_selector = "table[id^='results'][id$='_overall']"
-        table = self.driver.find_element(By.CSS_SELECTOR, table_selector)
-        table_html = table.get_attribute('outerHTML')
-        soup = BeautifulSoup(table_html, 'html.parser')
-        team_name_cells = soup.select('td.left[data-stat="squad"]')
+        table = self.soup.select("table[id^='results'][id$='_overall']")[0]
+        team_name_cells = table.select('td.left[data-stat="squad"]')
         team_ids = [cell.find('a').get('href').split('/')[3] for cell in team_name_cells]
         return team_ids

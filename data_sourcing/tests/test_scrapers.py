@@ -1,5 +1,5 @@
 from unittest import TestCase, skip
-from data_sourcing.scrapers.teams.teams_scraper import TeamScraper
+from data_sourcing.scrapers.teams.teams_scraper import TeamsScraper
 
 
 # need to get:
@@ -22,11 +22,7 @@ class TestTeamIDScraper(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.scraper = TeamScraper()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.scraper.terminate()
+        cls.scraper = TeamsScraper()
 
     def test_get_team_ids(self):
         output = self.scraper.get_team_ids('2019-2020', competition='Premier League')
@@ -66,11 +62,7 @@ class TestTeamShortNameScraper(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.scraper = TeamScraper()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.scraper.terminate()
+        cls.scraper = TeamsScraper()
 
     @skip
     def test_get_team_short_names(self):
@@ -90,11 +82,7 @@ class TestTeamNameScraper(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.scraper = TeamScraper()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.scraper.terminate()
+        cls.scraper = TeamsScraper()
 
     @skip
     def test_get_team_names(self):
