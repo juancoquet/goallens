@@ -1,7 +1,5 @@
-from bs4 import BeautifulSoup # type: ignore
 from datetime import date
 import re
-import requests # type: ignore
 
 from ..base_scraper import BaseScraper
 
@@ -34,8 +32,7 @@ class TeamsScraper(BaseScraper):
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/'
-        self.html = requests.get(url).text
-        self.soup = BeautifulSoup(self.html, 'html.parser')
+        self._request_url(url)
         self._go_to_season(season)
         table = self.soup.select("table[id^='results'][id$='_overall']")[0]
         team_name_cells = table.select('td.left[data-stat="squad"]')
@@ -64,8 +61,7 @@ class TeamsScraper(BaseScraper):
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/'
-        self.html = requests.get(url).text
-        self.soup = BeautifulSoup(self.html, 'html.parser')
+        self._request_url(url)
         self._go_to_season(season)
         table = self.soup.select("table[id^='results'][id$='_overall']")[0]
         team_name_cells = table.select('td.left[data-stat="squad"]')
