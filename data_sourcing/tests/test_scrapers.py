@@ -18,7 +18,7 @@ from data_sourcing.scrapers.teams.teams_scraper import TeamScraper
     # - scrape team name
 
 
-class TestTeamScraper(TestCase):
+class TestTeamIDScraper(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -37,25 +37,6 @@ class TestTeamScraper(TestCase):
             '7c21e445', '8602292d', '4ba7cbea', '2abfe087', '1c781004', # wham, av, bou, wat, nor
         ]
         self.assertEqual(len(output), 20)
-        self.assertEqual(output, expected)
-
-    @skip
-    def test_get_team_short_names(self):
-        output = self.scraper.get_team_short_names('2019-2020', competition='Premier League')
-        expected = [
-            'Liverpool', 'Manchester City', 'Manchester United', 'Chelsea', 'Leicester City',
-            'Tottenham', 'Wolves', 'Asrenal', 'Sheffield Utd', 'Burnley',
-            'Southampton', 'Everton', 'Newcastle Utd', 'Crystal Palace', 'Brighton',
-            'West Ham', 'Aston Villa', 'Bournemouth', 'Watford', 'Norwich City'
-        ]
-        self.assertEqual(len(output), 20)
-        self.assertEqual(output, expected)
-
-    @skip
-    def test_get_team_names(self):
-        output = self.scraper.get_team_names(['822bd0ba', '19538871', 'd07537b9']) # liv, mutd, bri
-        expected = ['Liverpool', 'Manchester United', 'Brighton & Hove Albion']
-        self.assertEqual(len(output), 3)
         self.assertEqual(output, expected)
 
     def test_unsupported_competition_fails(self):
@@ -79,3 +60,45 @@ class TestTeamScraper(TestCase):
             self.scraper.get_team_ids('2002-2003', competition='Premier League')
         with self.assertRaises(ValueError):
             self.scraper.get_team_ids('2998-2999', competition='Premier League')
+
+
+class TestTeamShortNameScraper(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = TeamScraper()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.scraper.terminate()
+
+    @skip
+    def test_get_team_short_names(self):
+        output = self.scraper.get_team_short_names('2019-2020', competition='Premier League')
+        expected = [
+            'Liverpool', 'Manchester City', 'Manchester United', 'Chelsea', 'Leicester City',
+            'Tottenham', 'Wolves', 'Asrenal', 'Sheffield Utd', 'Burnley',
+            'Southampton', 'Everton', 'Newcastle Utd', 'Crystal Palace', 'Brighton',
+            'West Ham', 'Aston Villa', 'Bournemouth', 'Watford', 'Norwich City'
+        ]
+        self.assertEqual(len(output), 20)
+        self.assertEqual(output, expected)
+
+
+
+class TestTeamNameScraper(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = TeamScraper()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.scraper.terminate()
+
+    @skip
+    def test_get_team_names(self):
+        output = self.scraper.get_team_names(['822bd0ba', '19538871', 'd07537b9']) # liv, mutd, bri
+        expected = ['Liverpool', 'Manchester United', 'Brighton & Hove Albion']
+        self.assertEqual(len(output), 3)
+        self.assertEqual(output, expected)
