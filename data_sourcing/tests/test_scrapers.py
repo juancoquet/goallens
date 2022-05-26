@@ -64,17 +64,38 @@ class TestTeamShortNameScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = TeamsScraper()
 
-    @skip
     def test_get_team_short_names(self):
         output = self.scraper.get_team_short_names('2019-2020', competition='Premier League')
         expected = [
-            'Liverpool', 'Manchester City', 'Manchester United', 'Chelsea', 'Leicester City',
-            'Tottenham', 'Wolves', 'Asrenal', 'Sheffield Utd', 'Burnley',
+            'Liverpool', 'Manchester City', 'Manchester Utd', 'Chelsea', 'Leicester City',
+            'Tottenham', 'Wolves', 'Arsenal', 'Sheffield Utd', 'Burnley',
             'Southampton', 'Everton', 'Newcastle Utd', 'Crystal Palace', 'Brighton',
             'West Ham', 'Aston Villa', 'Bournemouth', 'Watford', 'Norwich City'
         ]
         self.assertEqual(len(output), 20)
         self.assertEqual(output, expected)
+
+    def test_unsupported_competition_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2019-2020', competition='fantasy league')
+
+    def test_incorrect_season_format_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2019-20', competition='Premier League')
+
+    def test_incorrect_season_range_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2010-2019', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2019-2010', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2019-2019', competition='Premier League')
+
+    def test_incorrect_season_year_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2002-2003', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_short_names('2998-2999', competition='Premier League')
 
 
 
