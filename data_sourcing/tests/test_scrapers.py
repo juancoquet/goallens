@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 from data_sourcing.scrapers.teams.teams_scraper import TeamScraper
 
 
@@ -20,11 +20,13 @@ from data_sourcing.scrapers.teams.teams_scraper import TeamScraper
 
 class TestTeamScraper(TestCase):
 
-    def setUp(self):
-        self.scraper = TeamScraper()
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = TeamScraper()
 
-    def tearDown(self):
-        self.scraper.terminate()
+    @classmethod
+    def tearDownClass(cls):
+        cls.scraper.terminate()
 
     def test_get_team_ids(self):
         output = self.scraper.get_team_ids('2019-2020', competition='Premier League')
@@ -37,6 +39,7 @@ class TestTeamScraper(TestCase):
         self.assertEqual(len(output), 20)
         self.assertEqual(output, expected)
 
+    @skip
     def test_get_team_short_names(self):
         output = self.scraper.get_team_short_names('2019-2020', competition='Premier League')
         expected = [
@@ -48,12 +51,31 @@ class TestTeamScraper(TestCase):
         self.assertEqual(len(output), 20)
         self.assertEqual(output, expected)
 
+    @skip
     def test_get_team_names(self):
         output = self.scraper.get_team_names(['822bd0ba', '19538871', 'd07537b9']) # liv, mutd, bri
         expected = ['Liverpool', 'Manchester United', 'Brighton & Hove Albion']
         self.assertEqual(len(output), 3)
         self.assertEqual(output, expected)
 
-    def test_try_to_scrape_unsupported_competition_fails(self):
+    def test_unsupported_competition_fails(self):
         with self.assertRaises(ValueError):
             self.scraper.get_team_ids('2019-2020', competition='fantasy league')
+
+    def test_incorrect_season_format_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_ids('2019-20', competition='Premier League')
+
+    def test_incorrect_season_range_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_ids('2010-2019', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_ids('2019-2010', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_ids('2019-2019', competition='Premier League')
+
+    def test_incorrect_season_year_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_ids('2002-2003', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_ids('2998-2999', competition='Premier League')

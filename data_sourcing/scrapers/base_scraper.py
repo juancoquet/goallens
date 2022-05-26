@@ -48,8 +48,8 @@ class BaseScraper():
         matched_season = re.search(season_re, page_heading).group()
 
         while matched_season != season:
-            self._screenshot(matched_season)
-            self._capture_html(matched_season)
+            # self._screenshot(matched_season)
+            # self._capture_html(matched_season)
             prev_ssn_btn = self.driver.find_element_by_css_selector('a.button2.prev')
             prev_ssn_btn.click()
             sleep(1)

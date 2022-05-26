@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup # type: ignore
 from datetime import date
 import re
 from selenium.webdriver.common.by import By # type: ignore
@@ -41,9 +42,11 @@ class TeamScraper(BaseScraper):
         comp_code = self.comp_codes[competition]
         self.driver.get(f'https://fbref.com/en/comps/{comp_code}/')
         self._go_to_season(season)
-        sleep(1)
-        
+
         table_selector = "table[id^='results'][id$='_overall']"
         table = self.driver.find_element(By.CSS_SELECTOR, table_selector)
-        with open('data_sourcing/scrapers/teams/captured_html/table.html', 'w') as f:
-            f.write(table.get_attribute('outerHTML'))
+        table_html = table.get_attribute('outerHTML')
+        soup = BeautifulSoup(table_html, 'html.parser')
+        team_name_cells = soup.select('td.left[data-stat="squad"]')
+        team_ids = [cell.find('a').get('href').split('/')[3] for cell in team_name_cells]
+        return team_ids
