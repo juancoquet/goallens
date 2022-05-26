@@ -11,7 +11,7 @@ class TeamsScraper(BaseScraper):
         return super()._capture_html(filepath)
 
     def get_team_ids(self, season, competition):
-        """scrapes team ids from fbref.com.
+        """scrapes team ids.
         
         Args:
             season (str): the season to scrape, e.g. '2019-2020'
@@ -40,7 +40,7 @@ class TeamsScraper(BaseScraper):
         return team_ids
 
     def get_team_short_names(self, season, competition):
-        """scrapes team short names from fbref.com.
+        """scrapes team short names.
         
         Args:
             season (str): the season to scrape, e.g. '2019-2020'
@@ -67,3 +67,22 @@ class TeamsScraper(BaseScraper):
         team_name_cells = table.select('td.left[data-stat="squad"]')
         team_short_names = [cell.find('a').text for cell in team_name_cells]
         return team_short_names
+
+
+    def get_team_names(self, team_ids: list[str]):
+        """scrapes team names.
+        
+        Args:
+            team_ids (list[str]): list of team ids to scrape
+        """
+        team_names = {}
+        for _id in team_ids:
+            url = f'https://fbref.com/en/squads/{_id}/'
+            self._request_url(url)
+            page_heading = self.soup.find('h1').text
+            team_name_re = r'\d{4}-\d{4} (?P<team_name>.+?) Stats'
+            match = re.search(team_name_re, page_heading)
+            if match is None:
+                raise ValueError(f'could not find team name for team id {_id}: {url}')
+            team_names[_id] = match.group('team_name')
+        return team_names

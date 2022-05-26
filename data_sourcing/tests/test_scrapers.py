@@ -105,9 +105,16 @@ class TestTeamNameScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = TeamsScraper()
 
-    @skip
     def test_get_team_names(self):
-        output = self.scraper.get_team_names(['822bd0ba', '19538871', 'd07537b9']) # liv, mutd, bri
-        expected = ['Liverpool', 'Manchester United', 'Brighton & Hove Albion']
+        output = self.scraper.get_team_names(['822bd0ba', 'e2d8892c', 'd07537b9']) # liv, mutd, bri
+        expected = {
+            '822bd0ba': 'Liverpool',
+            'e2d8892c': 'Paris Saint-Germain',
+            'd07537b9': 'Brighton & Hove Albion'
+        }
         self.assertEqual(len(output), 3)
         self.assertEqual(output, expected)
+
+    def test_invalid_team_id_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.get_team_names(['invalid'])
