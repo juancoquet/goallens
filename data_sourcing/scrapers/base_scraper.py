@@ -14,11 +14,11 @@ class BaseScraper():
         self.html = None
         self.soup = None
 
-    def _request_url(self, url):
+    def _request_url(self, url, wait=3):
         response = requests.get(url)
         self.html = response.text
         self.soup = BeautifulSoup(self.html, 'html.parser')
-        sleep(3) # wait to avoid rate limits
+        sleep(wait) # wait to avoid rate limits
         return response
 
     def _capture_html(self, filepath):
