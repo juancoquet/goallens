@@ -17,18 +17,8 @@ class TeamsScraper(BaseScraper):
             season (str): the season to scrape, e.g. '2019-2020'
             competition (str): the competition to scrape, e.g. 'Premier League'
         """
-        season_re = r'\d{4}-\d{4}'
-        if competition not in self.comp_codes:
-            raise ValueError(f'competion must be one of {self.comp_codes.keys()}')
-        if not re.match(season_re, season):
-            raise ValueError('season must be in format yyyy-yyyy')
-        else:
-            start_yr = int(season[:4])
-            end_yr = int(season[-4:])
-            if end_yr - start_yr != 1:
-                raise ValueError('season must be a one year period, e.g. 2019-2020')
-            if start_yr < 2010 or end_yr > date.today().year:
-                raise ValueError(f'season must be between 2010 and {date.today().year}')
+        self._validate_season(season)
+        self._validate_competition(competition)
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/'
@@ -46,19 +36,8 @@ class TeamsScraper(BaseScraper):
             season (str): the season to scrape, e.g. '2019-2020'
             competition (str): the competition to scrape, e.g. 'Premier League'
         """
-        season_re = r'\d{4}-\d{4}'
-        if competition not in self.comp_codes:
-            valid_comps = [k for k in self.comp_codes.keys()]
-            raise ValueError(f'competion must be one of {valid_comps} – {competition} is invalid')
-        if not re.match(season_re, season):
-            raise ValueError(f'season must be in format yyyy-yyyy – {season} is invalid')
-        else:
-            start_yr = int(season[:4])
-            end_yr = int(season[-4:])
-            if end_yr - start_yr != 1:
-                raise ValueError(f'season must be a one year period, e.g. 2019-2020 – {season} is invalid')
-            if start_yr < 2010 or end_yr > date.today().year:
-                raise ValueError(f'season must be between 2010 and {date.today().year} – {season} is invalid')
+        self._validate_season(season)
+        self._validate_competition(competition)
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/'

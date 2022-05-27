@@ -1,10 +1,13 @@
-from datetime import date
+from datetime import date, time
 import re
 
 from ..base_scraper import BaseScraper
 
 
 class FixturesScraper(BaseScraper):
+    # TODO: modify all methods to handle seasons that have not been fully scheduled
+    # at the moment the methods expect every fixture to have all data available
+    # and will raise an error if a fixture is missing data (like if a match is yet to be played)
 
     def scrape_fixture_ids(self, season: str, competition: str):
         """scrapes all fixture ids for a given season and competition.
@@ -13,18 +16,8 @@ class FixturesScraper(BaseScraper):
             season (str): the season to scrape, e.g. '2019-2020'
             competition (str): the competition to scrape, e.g. 'Premier League'
         """
-        season_re = r'\d{4}-\d{4}'
-        if competition not in self.comp_codes:
-            raise ValueError(f'competion must be one of {self.comp_codes.keys()}')
-        if not re.match(season_re, season):
-            raise ValueError('season must be in format yyyy-yyyy')
-        else:
-            start_yr = int(season[:4])
-            end_yr = int(season[-4:])
-            if end_yr - start_yr != 1:
-                raise ValueError('season must be a one year period, e.g. 2019-2020')
-            if start_yr < 2010 or end_yr > date.today().year:
-                raise ValueError(f'season must be between 2010 and {date.today().year}')
+        self._validate_season(season)
+        self._validate_competition(competition)
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
@@ -44,18 +37,8 @@ class FixturesScraper(BaseScraper):
         Returns:
             dict: a dict of fixture ids mapped to datetime.date objects {fixture_id: datetime.date}
         """
-        season_re = r'\d{4}-\d{4}'
-        if competition not in self.comp_codes:
-            raise ValueError(f'competion must be one of {self.comp_codes.keys()}')
-        if not re.match(season_re, season):
-            raise ValueError('season must be in format yyyy-yyyy')
-        else:
-            start_yr = int(season[:4])
-            end_yr = int(season[-4:])
-            if end_yr - start_yr != 1:
-                raise ValueError('season must be a one year period, e.g. 2019-2020')
-            if start_yr < 2010 or end_yr > date.today().year:
-                raise ValueError(f'season must be between 2010 and {date.today().year}')
+        self._validate_season(season)
+        self._validate_competition(competition)
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
@@ -69,3 +52,57 @@ class FixturesScraper(BaseScraper):
         fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
         ids_dates = dict(zip(fixture_ids, dates))
         return ids_dates
+
+    def scrape_fixture_times(self, season: str, competition: str):
+        """scrapes all times for a given season and competition.
+        
+        Args:
+            season (str): the season to scrape, e.g. '2019-2020'
+            competition (str): the competition to scrape, e.g. 'Premier League'
+        Returns:
+            dict: a dict of fixture ids mapped to datetime.time objects {fixture_id: datetime.time}
+        """
+        self._validate_season(season)
+        self._validate_competition(competition)
+
+        comp_code = self.comp_codes[competition]
+        url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
+        self._request_url(url)
+        self._go_to_season(season)
+        table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
+        time_cells = table.select('td.right[data-stat="time"]:not(.iz)')
+        times = [cell.get('csk') for cell in time_cells]
+        times = [t.split(':') for t in times]
+        times = [time(int(t[0]), int(t[1])) for t in times]
+        match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
+        fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
+        ids_times = dict(zip(fixture_ids, times))
+        return ids_times
+
+    def scrape_fixture_team_ids(self, season:str, competition: str):
+        """scrapes home and away team ids for each fixture in a given season and competition.
+        
+        Args:
+            season (str): the season to scrape, e.g. '2019-2020'
+            competition (str): the competition to scrape, e.g. 'Premier League'
+        Returns:
+            dict: a dict of fixture ids mapped to another dict of home and away team ids:
+            {fixture_id: {'home': home_team_id, 'away': away_team_id}}
+        """
+        self._validate_season(season)
+        self._validate_competition(competition)
+
+        comp_code = self.comp_codes[competition]
+        url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
+        self._request_url(url)
+        self._go_to_season(season)
+        table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
+        home_cells = table.select('td.right[data-stat="squad_a"]:not(.iz)')
+        home_ids = [cell.find('a').get('href').split('/')[3] for cell in home_cells]
+        away_cells = table.select('td.left[data-stat="squad_b"]:not(.iz)')
+        away_ids = [cell.find('a').get('href').split('/')[3] for cell in away_cells]
+        match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
+        fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
+        fid_hid_aid = zip(fixture_ids, home_ids, away_ids)
+        team_ids = {fid: {'home': hid, 'away': aid} for fid, hid, aid in fid_hid_aid}
+        return team_ids

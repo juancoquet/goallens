@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup # type: ignore
+from datetime import date
 import re
 import requests # type: ignore
 from time import sleep
@@ -38,3 +39,20 @@ class BaseScraper():
             self._request_url(url)
             page_heading = self.soup.find('h1').text
             matched_season = re.search(season_re, page_heading).group()
+
+    def _validate_competition(self, competition):
+        if competition not in self.comp_codes:
+            valid_comps = [k for k in self.comp_codes.keys()]
+            raise ValueError(f'competion must be one of {valid_comps} – {competition} is invalid')
+
+    def _validate_season(self, season):
+        season_re = r'\d{4}-\d{4}'
+        if not re.match(season_re, season):
+            raise ValueError(f'season must be in format yyyy-yyyy – {season} is invalid')
+        else:
+            start_yr = int(season[:4])
+            end_yr = int(season[-4:])
+            if end_yr - start_yr != 1:
+                raise ValueError(f'season must be a one year period, e.g. 2019-2020 – {season} is invalid')
+            if start_yr < 2010 or end_yr > date.today().year:
+                raise ValueError(f'season must be between 2010 and {date.today().year} – {season} is invalid')

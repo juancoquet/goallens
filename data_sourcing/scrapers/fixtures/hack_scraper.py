@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup # type: ignore
-from datetime import date
+from datetime import date, time
 import requests # type: ignore
 
 
@@ -9,11 +9,16 @@ table_id = 'sched_3232_1'
 
 response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
+
 table = soup.find('table', id=table_id)
-date_cells = table.select('td.left[data-stat="date"]:not(.iz)')
-dates = [cell.get('csk') for cell in date_cells]
-dates = [date(int(d[:4]), int(d[4:6]), int(d[6:])) for d in dates]
+home_cells = table.select('td.right[data-stat="squad_a"]:not(.iz)')
+home_ids = [cell.find('a').get('href').split('/')[3] for cell in home_cells]
+away_cells = table.select('td.left[data-stat="squad_b"]:not(.iz)')
+away_ids = [cell.find('a').get('href').split('/')[3] for cell in away_cells]
 match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
 fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
-ids_dates = dict(zip(fixture_ids, dates))
-assert len(ids_dates) == 380
+# ids_dates = dict(zip(fixture_ids, times))
+fid_hid_aid = zip(fixture_ids, home_ids, away_ids)
+fixture_teams = {fid: {'home': hid, 'away': aid} for fid, hid, aid in fid_hid_aid}
+assert len(fixture_teams) == 380
+print(fixture_teams)
