@@ -10,7 +10,7 @@ class TeamsScraper(BaseScraper):
         filepath = f'data_sourcing/scrapers/teams/captured_html/{filename}.html'
         return super()._capture_html(filepath)
 
-    def get_team_ids(self, season, competition):
+    def get_team_ids(self, season: str, competition: str):
         """scrapes team ids.
         
         Args:
