@@ -106,3 +106,32 @@ class FixturesScraper(BaseScraper):
         fid_hid_aid = zip(fixture_ids, home_ids, away_ids)
         team_ids = {fid: {'home': hid, 'away': aid} for fid, hid, aid in fid_hid_aid}
         return team_ids
+
+
+    def scrape_fixture_goals(self, season: str, competition: str):
+        """scrapes home and away goals for each fixture in a given season and competition.
+        
+        Args:
+            season (str): the season to scrape, e.g. '2019-2020'
+            competition (str): the competition to scrape, e.g. 'Premier League'
+        Returns:
+            dict: a dict of fixture ids mapped to anothe dict containing home and away goals with format:
+            {fixture_id: {'home': int, 'away': int}}
+        """
+        self._validate_season(season)
+        self._validate_competition(competition)
+
+        comp_code = self.comp_codes[competition]
+        url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
+        self._request_url(url)
+        self._go_to_season(season)
+        table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
+        score_cells = table.select('td.center[data-stat="score"]:not(.iz)')
+        scores = [cell.find('a').get_text() for cell in score_cells]
+        home_goals = [int(s.split('–')[0]) for s in scores]
+        away_goals = [int(s.split('–')[1]) for s in scores]
+        match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
+        fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
+        fid_hg_ag = zip(fixture_ids, home_goals, away_goals)
+        goals = {fid: {'home': hg, 'away': ag} for fid, hg, ag in fid_hg_ag}
+        return goals
