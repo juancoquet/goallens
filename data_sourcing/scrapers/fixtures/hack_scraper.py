@@ -11,14 +11,15 @@ response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
 table = soup.find('table', id=table_id)
-score_cells = table.select('td.center[data-stat="score"]:not(.iz)')
-scores = [cell.find('a').get_text() for cell in score_cells]
-home_goals = [int(s.split('–')[0]) for s in scores]
-away_goals = [int(s.split('–')[1]) for s in scores]
+home_xG_cells = table.select('td.right[data-stat="xg_a"]')
+home_xG_cells = [cell for cell in home_xG_cells if cell.get_text() != '']
+home_xGs = [float(cell.get_text()) for cell in home_xG_cells]
+away_xG_cells = table.select('td.right[data-stat="xg_b"]')
+away_xG_cells = [cell for cell in away_xG_cells if cell.get_text() != '']
+away_xGs = [float(cell.get_text()) for cell in away_xG_cells]
 match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
 fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
-# ids_dates = dict(zip(fixture_ids, times))
-fid_hg_ag = zip(fixture_ids, home_goals, away_goals)
-goals = {fid: {'home': hg, 'away': ag} for fid, hg, ag in fid_hg_ag}
-assert len(goals) == 380
-print(goals)
+fid_hxg_axg = zip(fixture_ids, home_xGs, away_xGs)
+xGs = {fid: {'home': hxG, 'away': axG} for fid, hxG, axG in fid_hxg_axg}
+assert len(xGs) == 380
+print(xGs)

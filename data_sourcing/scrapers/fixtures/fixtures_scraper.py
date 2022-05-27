@@ -8,6 +8,7 @@ class FixturesScraper(BaseScraper):
     # TODO: modify all methods to handle seasons that have not been fully scheduled
     # at the moment the methods expect every fixture to have all data available
     # and will raise an error if a fixture is missing data (like if a match is yet to be played)
+    # TODO: consider edge cases
 
     def scrape_fixture_ids(self, season: str, competition: str):
         """scrapes all fixture ids for a given season and competition.
@@ -115,7 +116,7 @@ class FixturesScraper(BaseScraper):
             season (str): the season to scrape, e.g. '2019-2020'
             competition (str): the competition to scrape, e.g. 'Premier League'
         Returns:
-            dict: a dict of fixture ids mapped to anothe dict containing home and away goals with format:
+            dict: a dict of fixture ids mapped to another dict containing home and away goals with format:
             {fixture_id: {'home': int, 'away': int}}
         """
         self._validate_season(season)
@@ -135,3 +136,33 @@ class FixturesScraper(BaseScraper):
         fid_hg_ag = zip(fixture_ids, home_goals, away_goals)
         goals = {fid: {'home': hg, 'away': ag} for fid, hg, ag in fid_hg_ag}
         return goals
+
+    def scrape_fixture_xGs(self, season: str, competition: str):
+        """scrapes home and away xGs for each fixture in a given season and competition.
+        
+        Args:
+            season (str): the season to scrape, e.g. '2019-2020'
+            competition (str): the competition to scrape, e.g. 'Premier League'
+        Returns:
+            dict: a dict of fixture ids mapped to another dict containing home and away xGs with format:
+            {fixture_id: {'home': float, 'away': float}}
+        """
+        self._validate_season(season)
+        self._validate_competition(competition)
+
+        comp_code = self.comp_codes[competition]
+        url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
+        self._request_url(url)
+        self._go_to_season(season)
+        table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
+        home_xG_cells = table.select('td.right[data-stat="xg_a"]')
+        home_xG_cells = [cell for cell in home_xG_cells if cell.get_text() != '']
+        home_xGs = [float(cell.get_text()) for cell in home_xG_cells]
+        away_xG_cells = table.select('td.right[data-stat="xg_b"]')
+        away_xG_cells = [cell for cell in away_xG_cells if cell.get_text() != '']
+        away_xGs = [float(cell.get_text()) for cell in away_xG_cells]
+        match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
+        fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
+        fid_hxg_axg = zip(fixture_ids, home_xGs, away_xGs)
+        xGs = {fid: {'home': hxG, 'away': axG} for fid, hxG, axG in fid_hxg_axg}
+        return xGs
