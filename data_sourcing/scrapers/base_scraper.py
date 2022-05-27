@@ -9,6 +9,7 @@ class BaseScraper():
     def __init__(self):
         self.comp_codes = {
             'Premier League': 9,
+            'Championship': 10,
         }
         self.response = None
         self.html = None

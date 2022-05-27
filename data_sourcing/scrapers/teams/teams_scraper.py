@@ -48,16 +48,17 @@ class TeamsScraper(BaseScraper):
         """
         season_re = r'\d{4}-\d{4}'
         if competition not in self.comp_codes:
-            raise ValueError(f'competion must be one of {self.comp_codes.keys()}')
+            valid_comps = [k for k in self.comp_codes.keys()]
+            raise ValueError(f'competion must be one of {valid_comps} – {competition} is invalid')
         if not re.match(season_re, season):
-            raise ValueError('season must be in format yyyy-yyyy')
+            raise ValueError(f'season must be in format yyyy-yyyy – {season} is invalid')
         else:
             start_yr = int(season[:4])
             end_yr = int(season[-4:])
             if end_yr - start_yr != 1:
-                raise ValueError('season must be a one year period, e.g. 2019-2020')
+                raise ValueError(f'season must be a one year period, e.g. 2019-2020 – {season} is invalid')
             if start_yr < 2010 or end_yr > date.today().year:
-                raise ValueError(f'season must be between 2010 and {date.today().year}')
+                raise ValueError(f'season must be between 2010 and {date.today().year} – {season} is invalid')
 
         comp_code = self.comp_codes[competition]
         url = f'https://fbref.com/en/comps/{comp_code}/'
@@ -69,7 +70,7 @@ class TeamsScraper(BaseScraper):
         return team_short_names
 
 
-    def get_team_names(self, team_ids: list[str]):
+    def get_team_names(self, team_ids: list[str], print_progress=False):
         """scrapes team names.
         
         Args:
@@ -78,6 +79,8 @@ class TeamsScraper(BaseScraper):
         team_names = {}
         for _id in team_ids:
             url = f'https://fbref.com/en/squads/{_id}/'
+            if print_progress:
+                print(f'Scraping team name for {_id}')
             self._request_url(url)
             page_heading = self.soup.find('h1').text
             team_name_re = r'\d{4}-\d{4} (?P<team_name>.+?) Stats'
@@ -85,4 +88,6 @@ class TeamsScraper(BaseScraper):
             if match is None:
                 raise ValueError(f'could not find team name for team id {_id}: {url}')
             team_names[_id] = match.group('team_name')
+            if print_progress:
+                print(f'Team name for {_id}: {team_names[_id]}\n')
         return team_names

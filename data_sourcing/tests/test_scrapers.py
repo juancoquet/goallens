@@ -1,21 +1,6 @@
 from unittest import TestCase, skip
+
 from data_sourcing.scrapers.teams.teams_scraper import TeamsScraper
-
-
-# need to get:
-# - team id
-# - team name
-# - team short name
-
-# keep scrapers separate from data handlers (modules/functions that send data to the database)
-
-# for a given league on a given season:
-# - scrape all team ids from league table
-# - scrape all team short names from league table
-# - scrape all team names from league table
-    # - take list of team ids as argument
-    # - go to each team's page
-    # - scrape team name
 
 
 class TestTeamIDScraper(TestCase):
