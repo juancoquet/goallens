@@ -1,6 +1,7 @@
 from datetime import date
 import re
 
+from .models import Team
 from .scrapers.teams.teams_scraper import TeamsScraper
 
 class DBPopulator:
@@ -9,6 +10,24 @@ class DBPopulator:
         self.teams = {}
     
     def _create_seasons_teams_dict(self, seasons: list[str], competitions: list[str]) -> dict:
+        """Scrapes all teams involved in the given seasons and competitions.
+
+        Args:
+            seasons (list[str]): a list containing season strings in the format 'YYYY-YYYY'
+            competitions (list[str]): a list containing competition names
+
+        Raises:
+            ValueError: if any of the given seasons or competitions are invalid
+
+        Returns:
+            dict: a dictionary that maps scraped teams with format:
+            {'team_id': {
+                'id': 'team_id',
+                'name': 'team_name',
+                'short_name': 'team_short_name'
+                }
+            } 
+        """
         scraper = TeamsScraper()
         season_re = r'\d{4}-\d{4}'
         for competition in competitions:
@@ -43,3 +62,44 @@ class DBPopulator:
                     }
         self.teams = teams
         return teams
+
+    def add_teams_from_season_to_db(self, season: list[str], competition: list[str]):
+        """adds all teams involved in the given season and competition to the database.
+        
+        Args:
+            season (list[str]): a list containing season strings in the format 'YYYY-YYYY'
+            competition (list[str]): a list containing competition names
+        """
+        if type(season) != list:
+            raise TypeError('seasons must be passed as a list')
+        if type(competition) != list:
+            raise TypeError('competitions must be passed as a list')
+            
+        teams = self._create_seasons_teams_dict(season, competition)
+        for team in teams.values():
+            self.add_team_to_db(team['id'], team['name'], team['short_name'])
+        return teams
+
+    def add_team_to_db(self, team_id: str, team_name: str, team_short_name: str):
+        """adds a team to the database and returns the created team object. if the team already
+        exists in the database, it returns the existing team object instead.
+
+        Args:
+            team_id (str): the id of the team to be added
+            team_name (str): the name of the team to be added
+            team_short_name (str): the short name of the team to be added
+
+        Returns:
+            data_sourcing.models.Team: the created or existing team object
+        """
+        exists = Team.objects.filter(id=team_id).exists()
+        if not exists:
+            team = Team.objects.create(
+                id=team_id,
+                name=team_name,
+                short_name=team_short_name
+            )
+        else:
+            team = Team.objects.get(id=team_id)
+        return team
+
