@@ -1,7 +1,7 @@
 from django.test import TestCase # type: ignore
 from unittest import skip
 
-from data_sourcing.db_population import DBPopulator
+from data_sourcing.db_population.db_population import DBPopulator
 from data_sourcing.models import Team
 from .expected_test_results import EXPECTED_UPLOAD_DICT
 
@@ -95,7 +95,7 @@ class TestAddTeamsToDB(TestCase):
     def test_add_teams_from_season_to_db(self):
         self.assertEqual(Team.objects.count(), 0)
         
-        self.populator.add_teams_from_season_to_db(
+        self.populator.add_teams_to_db(
             season=['2018-2019'],
             competition=['Premier League'],
         )
@@ -103,12 +103,12 @@ class TestAddTeamsToDB(TestCase):
 
     def test_add_teams_from_season_to_db_args_must_be_lists(self):
         with self.assertRaises(TypeError):
-            self.populator.add_teams_from_season_to_db(
+            self.populator.add_teams_to_db(
                 season='2018-2019',
                 competition=['Premier League'],
             )
         with self.assertRaises(TypeError):
-            self.populator.add_teams_from_season_to_db(
+            self.populator.add_teams_to_db(
                 season=['2018-2019'],
                 competition='Premier League',
             )

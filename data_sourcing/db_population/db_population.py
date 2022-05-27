@@ -1,8 +1,8 @@
 from datetime import date
 import re
 
-from .models import Team
-from .scrapers.teams.teams_scraper import TeamsScraper
+from ..models import Team
+from ..scrapers.teams.teams_scraper import TeamsScraper
 
 class DBPopulator:
 
@@ -63,7 +63,7 @@ class DBPopulator:
         self.teams = teams
         return teams
 
-    def add_teams_from_season_to_db(self, season: list[str], competition: list[str]):
+    def add_teams_to_db(self, season: list[str], competition: list[str]):
         """adds all teams involved in the given season and competition to the database.
         
         Args:
@@ -74,7 +74,7 @@ class DBPopulator:
             raise TypeError('seasons must be passed as a list')
         if type(competition) != list:
             raise TypeError('competitions must be passed as a list')
-            
+
         teams = self._create_seasons_teams_dict(season, competition)
         for team in teams.values():
             self.add_team_to_db(team['id'], team['name'], team['short_name'])
