@@ -2,7 +2,7 @@ from unittest import TestCase, skip
 
 from data_sourcing.scrapers.teams.teams_scraper import TeamsScraper
 from data_sourcing.scrapers.fixtures.fixtures_scraper import FixturesScraper
-from .expected_test_results import EXPECTED_FIXTURE_IDS
+from .expected_test_results import EXPECTED_FIXTURE_IDS, EXPECTED_FIXTURE_DATES
 
 
 class TestTeamIDScraper(TestCase):
@@ -115,29 +115,85 @@ class TestFixtureIDScraper(TestCase):
         cls.scraper = FixturesScraper()
 
     def test_get_fixture_ids(self):
-        output = self.scraper.get_fixture_ids('2019-2020', competition='Premier League')
+        output = self.scraper.scrape_fixture_ids('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_IDS
         self.assertEqual(len(output), 380)
         self.assertEqual(output, expected)
 
     def test_unsupported_competition_fails(self):
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2019-2020', competition='fantasy league')
+            self.scraper.scrape_fixture_ids('2019-2020', competition='fantasy league')
 
     def test_incorrect_season_format_fails(self):
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2019-20', competition='Premier League')
+            self.scraper.scrape_fixture_ids('2019-20', competition='Premier League')
 
     def test_incorrect_season_range_fails(self):
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2010-2019', competition='Premier League')
+            self.scraper.scrape_fixture_ids('2010-2019', competition='Premier League')
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2019-2010', competition='Premier League')
+            self.scraper.scrape_fixture_ids('2019-2010', competition='Premier League')
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2019-2019', competition='Premier League')
+            self.scraper.scrape_fixture_ids('2019-2019', competition='Premier League')
 
     def test_incorrect_season_year_fails(self):
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2002-2003', competition='Premier League')
+            self.scraper.scrape_fixture_ids('2002-2003', competition='Premier League')
         with self.assertRaises(ValueError):
-            self.scraper.get_fixture_ids('2998-2999', competition='Premier League')
+            self.scraper.scrape_fixture_ids('2998-2999', competition='Premier League')
+
+
+class TestFixtureDatesScraper(TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_get_fixture_ids(self):
+        output = self.scraper.scrape_fixture_dates('2019-2020', competition='Premier League')
+        expected = EXPECTED_FIXTURE_DATES
+        self.assertEqual(len(output), 380)
+        self.assertEqual(output, expected)
+
+    def test_unsupported_competition_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2019-2020', competition='fantasy league')
+
+    def test_incorrect_season_format_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2019-20', competition='Premier League')
+
+    def test_incorrect_season_range_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2010-2019', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2019-2010', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2019-2019', competition='Premier League')
+
+    def test_incorrect_season_year_fails(self):
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2002-2003', competition='Premier League')
+        with self.assertRaises(ValueError):
+            self.scraper.scrape_fixture_dates('2998-2999', competition='Premier League')
+
+
+# TODO: scrape fixture time
+class TestFixtureTimeScraper(TestCase):
+
+
+
+
+
+# TODO: scrape fixture home team id
+# TODO: scrape fixture away team id
+# TODO: scrape fixture status
+# TODO: scrape fixture home team goals
+# TODO: scrape fixture away team goals
+# TODO: scrape fixture home xG
+# TODO: scrape fixture away xG
+
+# TODO: scrape fixture competition
+    # dont need to, competition baked into get_fixture_ids call
+# TODO: scrape fixture season
+    # dont need to, season baked into get_fixture_ids call

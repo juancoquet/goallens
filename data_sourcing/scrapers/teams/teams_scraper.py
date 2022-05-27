@@ -11,7 +11,7 @@ class TeamsScraper(BaseScraper):
         return super()._capture_html(filepath)
 
     def get_team_ids(self, season: str, competition: str):
-        """scrapes team ids.
+        """scrapes team ids for all teams in a competitin on a given season.
         
         Args:
             season (str): the season to scrape, e.g. '2019-2020'
