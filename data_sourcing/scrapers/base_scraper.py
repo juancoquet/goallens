@@ -17,6 +17,7 @@ class BaseScraper():
         self.soup = None
 
     def _request_url(self, url, wait=3):
+        # TODO: implement caching to mitigate rate limiting and without having to wait
         response = requests.get(url)
         self.html = response.text
         self.soup = BeautifulSoup(self.html, 'html.parser')

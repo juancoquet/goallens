@@ -1,7 +1,7 @@
-from datetime import date
+from datetime import date, time
 import re
 
-from ..models import Team
+from ..models import Team, Fixture
 from ..scrapers.teams.teams_scraper import TeamsScraper
 from ..scrapers.fixtures.fixtures_scraper import FixturesScraper
 
@@ -125,12 +125,23 @@ class DBPopulator:
         fixtures = {}
         for season in seasons:
             for competition in competitions:
+                print(f'Scraping fixtures for {competition} in {season}')
+                print('-' * 50)
+                print('scraping ids...')
                 ids = scraper.scrape_fixture_ids(season, competition)
+                print('scraping dates...')
                 dates = scraper.scrape_fixture_dates(season, competition)
+                print('scraping times...')
                 times = scraper.scrape_fixture_times(season, competition)
+                print('scraping team ids...')
                 team_ids = scraper.scrape_fixture_team_ids(season, competition)
+                print('scraping goals...')
                 goals = scraper.scrape_fixture_goals(season, competition)
+                print('scraping xG...')
                 xG = scraper.scrape_fixture_xGs(season, competition)
+                print(f'finished scraping for {competition} in {season}')
+                print(f'scraped {len(ids)} fixtures')
+                print('-' * 50)
                 for _id in ids:
                     fixtures[_id] = {
                         'competition': competition,
@@ -146,3 +157,87 @@ class DBPopulator:
                     }
         self.fixtures = fixtures
         return fixtures
+
+    def add_fixtures_to_db(self, seasons: list[str], competitions: list[str]):
+        """adds all fixtures for the given seasons and competitions to the database.
+
+        Args:
+            seasons (list[str]): seasons to scrape, passed as a list of strings in the format yyyy-yyyy
+            competitions (list[str]): a list containing competition names
+        """
+        if type(seasons) != list:
+            raise TypeError('seasons must be passed as a list')
+        if type(competitions) != list:
+            raise TypeError('competitions must be passed as a list')
+
+        fixtures = self._create_season_fixtures_dict(seasons, competitions)
+        for id_, data in fixtures.items():
+            self.add_fixture_to_db(
+                fixture_id=id_,
+                competition=data['competition'],
+                season=data['season'],
+                date=data['date'],
+                time=data['time'],
+                home_team_id=data['home'],
+                away_team_id=data['away'],
+                goals_home=data['goals_home'],
+                goals_away=data['goals_away'],
+                xG_home=data['xG_home'],
+                xG_away=data['xG_away']
+            )
+        return fixtures
+
+    def add_fixture_to_db(self, fixture_id: str, competition: str, season: str, date: date, time: time,
+                          home_team_id: str, away_team_id: str, goals_home: int, goals_away: int,
+                          xG_home: float, xG_away: float):
+        """adds a fixture to the database and returns the created fixture object. if the fixture already
+        exists in the database, it returns the existing fixture object instead.
+
+        Args:
+            fixture_id (str): the id of the fixture to be added
+            competition (str): the name of the competition the fixture belongs to
+            season (str): the season the fixture belongs to
+            date (datetime.date): the date of the fixture
+            time (datetime.time): the time of the fixture
+            home_team_id (str): the id of the home team
+            away_team_id (str): the id of the away team
+            goals_home (int): the number of goals scored by the home team
+            goals_away (int): the number of goals scored by the away team
+            xG_home (float): the home team's xG
+            xG_away (float): the away team's xG
+
+        Returns:
+            data_sourcing.models.Fixture: the created or existing fixture object
+        """
+        exists = Fixture.objects.filter(id=fixture_id).exists()
+        home_team = Team.objects.get(id=home_team_id)
+        away_team = Team.objects.get(id=away_team_id)
+        if not exists:
+            fixture = Fixture.objects.create(
+                id=fixture_id,
+                competition=competition,
+                season=season,
+                date=date,
+                time=time,
+                home=home_team,
+                away=away_team,
+                goals_home=goals_home,
+                goals_away=goals_away,
+                xG_home=xG_home,
+                xG_away=xG_away
+            )
+        else:
+            fixture = Fixture.objects.get(id=fixture_id)
+            fixture.competition = competition
+            fixture.season = season
+            fixture.date = date
+            fixture.time = time
+            fixture.home = home_team
+            fixture.away = away_team
+            fixture.goals_home = goals_home
+            fixture.goals_away = goals_away
+            fixture.xG_home = xG_home
+            fixture.xG_away = xG_away
+            fixture.save()
+            fixture = Fixture.objects.get(id=fixture_id)
+        return fixture
