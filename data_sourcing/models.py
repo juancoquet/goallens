@@ -32,6 +32,6 @@ class Fixture(models.Model):
 
     def __str__(self):
         score = 'vs'
-        if self.status == 'FI':
+        if (self.goals_home is not None) and (self.goals_away is not None):
             score = f'{self.goals_home}-{self.goals_away}'
         return f'{self.date} {self.competition}: {self.home.short_name} {score} {self.away.short_name}'

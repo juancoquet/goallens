@@ -3,6 +3,7 @@ import re
 
 from ..models import Team
 from ..scrapers.teams.teams_scraper import TeamsScraper
+from ..scrapers.fixtures.fixtures_scraper import FixturesScraper
 
 class DBPopulator:
 
@@ -29,21 +30,10 @@ class DBPopulator:
             } 
         """
         scraper = TeamsScraper()
-        season_re = r'\d{4}-\d{4}'
-        for competition in competitions:
-            if competition not in scraper.comp_codes:
-                valid_comps = [k for k in scraper.comp_codes.keys()]
-                raise ValueError(f'competion must be one of {valid_comps} – "{competition}" is invalid')
         for season in seasons:
-            if not re.match(season_re, season):
-                raise ValueError(f'season must be in format yyyy-yyyy – "{season}" is invalid')
-            else:
-                start_yr = int(season[:4])
-                end_yr = int(season[-4:])
-                if end_yr - start_yr != 1:
-                    raise ValueError(f'season must be a one year period, e.g. 2019-2020 – "{season}" is invalid')
-                if start_yr < 2010 or end_yr > date.today().year:
-                    raise ValueError(f'season must be between 2010 and {date.today().year} – "{season}" is invalid')
+            scraper._validate_season
+        for competition in competitions:
+            scraper._validate_competition(competition)
 
         teams = {}
         for season in seasons:
@@ -103,3 +93,56 @@ class DBPopulator:
             team = Team.objects.get(id=team_id)
         return team
 
+    def _create_season_fixtures_dict(self, seasons: list[str], competitions: list[str]) -> dict:
+        """scrapes all fixtures for the given seasons and competitions.
+
+        Args:
+            seasons (list[str]): seasons to scrape, passed as a list of strings in the format yyyy-yyyy
+            competitions (list[str]): a list containing competition names
+
+        Returns:
+            dict: a dictionary that maps a fixture id to its pertinent data with format:
+            {fixture_id: {
+                'competition': comp_name,
+                'sesaon', yyyy-yyyy,
+                'date': datetime.date,
+                'time': datetime.time,
+                'home': home_team_id,
+                'away': away_team_id,
+                'goals_home': int,
+                'goals_away': int,
+                'xG_home': float,
+                'xG_away': 'float
+                }
+            }
+        """
+        scraper = FixturesScraper()
+        for season in seasons:
+            scraper._validate_season(season)
+        for competition in competitions:
+            scraper._validate_competition(competition)
+
+        fixtures = {}
+        for season in seasons:
+            for competition in competitions:
+                ids = scraper.scrape_fixture_ids(season, competition)
+                dates = scraper.scrape_fixture_dates(season, competition)
+                times = scraper.scrape_fixture_times(season, competition)
+                team_ids = scraper.scrape_fixture_team_ids(season, competition)
+                goals = scraper.scrape_fixture_goals(season, competition)
+                xG = scraper.scrape_fixture_xGs(season, competition)
+                for _id in ids:
+                    fixtures[_id] = {
+                        'competition': competition,
+                        'season': season,
+                        'date': dates[_id],
+                        'time': times[_id],
+                        'home': team_ids[_id]['home'],
+                        'away': team_ids[_id]['away'],
+                        'goals_home': goals[_id]['home'],
+                        'goals_away': goals[_id]['away'],
+                        'xG_home': xG[_id]['home'],
+                        'xG_away': xG[_id]['away']
+                    }
+        self.fixtures = fixtures
+        return fixtures

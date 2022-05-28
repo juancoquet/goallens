@@ -4,7 +4,8 @@ from data_sourcing.scrapers.teams.teams_scraper import TeamsScraper
 from data_sourcing.scrapers.fixtures.fixtures_scraper import FixturesScraper
 from .expected_test_results import (
     EXPECTED_FIXTURE_IDS, EXPECTED_FIXTURE_DATES, EXPECTED_FIXTURE_TIMES,
-    EXPECTED_FIXTURE_TEAM_IDS, EXPECTED_FIXTURE_GOALS, EXPECTED_FIXTURE_XG
+    EXPECTED_FIXTURE_TEAM_IDS, EXPECTED_FIXTURE_GOALS, EXPECTED_FIXTURE_XG,
+    EXPECTED_NO_XG_DATA
 )
 
 
@@ -152,7 +153,7 @@ class TestFixtureDatesScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = FixturesScraper()
 
-    def test_get_fixture_ids(self):
+    def test_get_fixture_dates(self):
         output = self.scraper.scrape_fixture_dates('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_DATES
         self.assertEqual(len(output), 380)
@@ -187,7 +188,7 @@ class TestFixtureTimesScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = FixturesScraper()
 
-    def test_get_fixture_ids(self):
+    def test_get_fixture_times(self):
         output = self.scraper.scrape_fixture_times('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_TIMES
         self.assertEqual(len(output), 380)
@@ -222,7 +223,7 @@ class TestFixtureTeamIDsScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = FixturesScraper()
 
-    def test_get_fixture_ids(self):
+    def test_get_fixture_team_ids(self):
         output = self.scraper.scrape_fixture_team_ids('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_TEAM_IDS
         self.assertEqual(len(output), 380)
@@ -257,7 +258,7 @@ class TestFixtureGoalsScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = FixturesScraper()
 
-    def test_get_fixture_ids(self):
+    def test_get_fixture_goals(self):
         output = self.scraper.scrape_fixture_goals('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_GOALS
         self.assertEqual(len(output), 380)
@@ -286,19 +287,23 @@ class TestFixtureGoalsScraper(TestCase):
             self.scraper.scrape_fixture_goals('2998-2999', competition='Premier League')
 
 
-# TODO: scrape fixture home xG
-# TODO: scrape fixture away xG
 class TestFixturexGsScraper(TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.scraper = FixturesScraper()
 
-    def test_get_fixture_ids(self):
+    def test_get_fixture_xGx(self):
         output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_XG
         self.assertEqual(len(output), 380)
         self.assertEqual(output, expected)
+
+    def test_no_xG_data_returns_none_in_dict(self):
+        output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Championship')
+        expeced = EXPECTED_NO_XG_DATA
+        self.assertEqual(len(output), 552)
+        self.assertEqual(output, expeced)
 
     def test_unsupported_competition_fails(self):
         with self.assertRaises(ValueError):
@@ -321,11 +326,3 @@ class TestFixturexGsScraper(TestCase):
             self.scraper.scrape_fixture_xGs('2002-2003', competition='Premier League')
         with self.assertRaises(ValueError):
             self.scraper.scrape_fixture_xGs('2998-2999', competition='Premier League')
-
-
-
-
-# TODO: scrape fixture competition
-    # dont need to, competition baked into get_fixture_ids call
-# TODO: scrape fixture season
-    # dont need to, season baked into get_fixture_ids call
