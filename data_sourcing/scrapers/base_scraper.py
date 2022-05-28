@@ -2,8 +2,11 @@ from bs4 import BeautifulSoup # type: ignore
 from datetime import date
 import re
 import requests # type: ignore
+import requests_cache # type: ignore
 from time import sleep
 
+
+session = requests_cache.CachedSession(cache_name='req_cache', backend='sqlite', expire_after=3600)
 
 class BaseScraper():
 
@@ -17,11 +20,11 @@ class BaseScraper():
         self.soup = None
 
     def _request_url(self, url, wait=3):
-        # TODO: implement caching to mitigate rate limiting and without having to wait
-        response = requests.get(url)
+        response = session.get(url)
         self.html = response.text
         self.soup = BeautifulSoup(self.html, 'html.parser')
-        sleep(wait) # wait to avoid rate limits
+        if not(response.from_cache):
+            sleep(wait) # wait to avoid rate limits
         return response
 
     def _capture_html(self, filepath):
