@@ -6,7 +6,7 @@ import requests_cache # type: ignore
 from time import sleep
 
 
-session = requests_cache.CachedSession(cache_name='req_cache', backend='sqlite', expire_after=3600)
+session = requests_cache.CachedSession(cache_name='req_cache', backend='sqlite', expire_after=7200) # expire value in seconds
 
 class BaseScraper():
 

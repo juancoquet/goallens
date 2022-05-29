@@ -37,7 +37,7 @@ class TestPredictionModel(TestCase):
         )
 
     def setUp(self):
-        Prediction.objects.create(
+        self.pediction = Prediction.objects.create(
             fixture=self.fixture,
             forecast_hxG=Decimal('1.5'),
             forecast_axG=Decimal('2.3'),
@@ -63,3 +63,9 @@ class TestPredictionModel(TestCase):
         self.assertEqual(Prediction.objects.count(), 1)
 
     # TODO: implement remaining tests
+    def test_fk_fixture(self):
+        self.assertEqual(self.pediction.fixture, self.fixture)
+
+    def test_string_representation(self):
+        expected = f'prediction 2-3 {self.fixture.id}: {self.fixture}'
+        self.assertEqual(str(self.pediction), expected)

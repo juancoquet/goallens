@@ -3,7 +3,7 @@ screenshots/
 captured_html/
 req_cache.sqlite
 .DS_Store
-
+vim_keys.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
