@@ -9,7 +9,8 @@ def run():
         'bf7873f2', 'd260be24', '5ce80a04',
         '26ff83e6', '4ed4a295', '5290c2da', 'c9b4c96a'
     ]
-    fixtures = [Fixture.objects.get(id=fixture_id) for fixture_id in fixture_ids]
+    # fixtures = [Fixture.objects.get(id=fixture_id) for fixture_id in fixture_ids]
+    fixtures = Fixture.objects.all()
     with open('fixtures.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([

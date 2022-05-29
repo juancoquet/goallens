@@ -1,5 +1,7 @@
 import csv
 from datetime import date, time
+from decimal import Decimal
+from unittest import skip
 from django.test import TestCase
 
 from ..predictor import Predictor
@@ -17,33 +19,34 @@ class TestPredictor(TestCase):
 
     # test date fri 2022-04-30
 
-    def setUp(self):
-        self.predictor = Predictor()
-        self.populator = DBPopulator()
+    @classmethod
+    def setUpTestData(cls):
         with open('predictions/tests/teams.csv', 'r') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                self.populator.add_team_to_db(
-                    team_id=row['id'],
-                    team_name=row['team_name'],
-                    team_short_name=row['team_short_name'],
+                Team.objects.create(
+                    id=row['id'],
+                    name=row['team_name'], 
+                    short_name=row['team_short_name']
                 )
         with open('predictions/tests/fixtures.csv', 'r') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                self.populator.add_fixture_to_db(
-                    fixture_id=row['id'],
+                Fixture.objects.create(
+                    id=row['id'],
                     competition=row['competition'],
                     season=row['season'],
                     date=date.fromisoformat(row['date']),
                     time=time(int(row['time'].split(':')[0]), int(row['time'].split(':')[1])),
-                    home_team_id=row['home'],
-                    away_team_id=row['away'],
+                    home=Team.objects.get(id=row['home']),
+                    away=Team.objects.get(id=row['away']),
                     goals_home=row['goals_home'],
                     goals_away=row['goals_away'],
-                    xG_home=row['xG_home'],
-                    xG_away=row['xG_away'],
+                    xG_home=Decimal(row['xG_home']) if row['xG_home'] else None,
+                    xG_away=Decimal(row['xG_away']) if row['xG_away'] else None,
                 )
+        cls.predictor = Predictor()
+        cls.fixture = Fixture.objects.get(id='7b4b63d0')
     
     def test_get_upcoming_fixtures(self):
         fixtures = self.predictor._get_upcoming_fixtures(
@@ -74,3 +77,34 @@ class TestPredictor(TestCase):
                 competition='invalid',
                 within_days=2
             )
+
+    def test_calculate_base_forecast_xG(self):
+        xGs = self.predictor._calculate_base_forecast_xG(self.fixture)
+        expected = {'home': Decimal('2.88'), 'away': Decimal('1.48')}
+        self.assertEqual(xGs, expected)
+
+    def test_calculate_base_forecast_xG_with_no_past_xG_data(self):
+        fixture = Fixture.objects.get(id='ae30a29c')
+        xGs = self.predictor._calculate_base_forecast_xG(fixture)
+        expected = {'home': Decimal('1.0'), 'away': Decimal('2.0')}
+        self.assertEqual(xGs, expected)
+
+    def test_get_past_5_home_fixtures(self):
+        fixtures = self.predictor._get_home_team_past_5_fixtures(self.fixture)
+        ids = ['f94c5f85', 'a93c0c92', 'd1bcaf2b', '5ce80a04', 'af522ca3']
+        expected = [Fixture.objects.get(id=id) for id in ids]
+        self.assertEqual(fixtures, expected)
+
+    def test_get_past_5_away_fixtures(self):
+        fixtures = self.predictor._get_away_team_past_5_fixtures(self.fixture)
+        ids = ['bc4f902e', 'd2e9e9e3', '1016efad', 'c1dc9202', 'bf7873f2']
+        expected = [Fixture.objects.get(id=id) for id in ids]
+        self.assertEqual(fixtures, expected)
+
+    def test_not_enough_past_fixtures_raises(self):
+        with self.assertRaises(ValueError):
+            fixture = Fixture.objects.get(id='f34dd009')
+            fixtures = self.predictor._get_away_team_past_5_fixtures(fixture)
+        with self.assertRaises(ValueError):
+            fixture = Fixture.objects.get(id='072bfc99')
+            fixtures = self.predictor._get_home_team_past_5_fixtures(fixture)
