@@ -62,7 +62,6 @@ class TestPredictionModel(TestCase):
     def test_create_new_model(self):
         self.assertEqual(Prediction.objects.count(), 1)
 
-    # TODO: implement remaining tests
     def test_fk_fixture(self):
         self.assertEqual(self.pediction.fixture, self.fixture)
 
