@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     # local
     'data_sourcing.apps.DataSourcingConfig',
+    'predictions.apps.PredictionsConfig',
 ]
 
 MIDDLEWARE = [

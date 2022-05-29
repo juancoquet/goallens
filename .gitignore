@@ -2,6 +2,7 @@ postgres_db/
 screenshots/
 captured_html/
 req_cache.sqlite
+.DS_Store
 
 
 # Byte-compiled / optimized / DLL files
