@@ -1,5 +1,6 @@
 import datetime as dt
 from decimal import Decimal
+from turtle import home
 from django.db.models import Q
 import math
 
@@ -91,60 +92,53 @@ class Predictor:
         Returns:
             dict: {'home': home_defensive_score, 'away': away_defensive_score}
         """
-        home_past_games = self._get_home_team_past_n_fixtures(fixture, n=past_games)
-        away_past_games = self._get_away_team_past_n_fixtures(fixture, n=past_games)
+        unweighted_home_score = self._defensive_score_helper(fixture, past_games, 'home')
+        home_weighting_delta = 1 - unweighted_home_score
+        home_weighted_delta = home_weighting_delta * weight
+        home_weighted_score = round((1 - home_weighted_delta), 2)
 
-        home_past_games_ga = []
-        home_past_games_xga = []
-        for f in home_past_games:
-            if f.away == fixture.home: # if was away in the fixture, append home team's stats
-                if f.xG_home is not None:
-                    home_past_games_ga.append(f.goals_home)
-                    home_past_games_xga.append(float(f.xG_home))
-                else: # if no xG data, use goals scored (renders a neutral defensive score)
-                    home_past_games_ga.append(f.goals_home)
-                    home_past_games_xga.append(f.goals_home)
-            else: # if was home in the fixture, append away team's stats
-                if f.xG_away is not None:
-                    home_past_games_ga.append(f.goals_away)
-                    home_past_games_xga.append(float(f.xG_away))
-                else: # if no xG data, use goals scored (renders a neutral defensive score)
-                    home_past_games_ga.append(f.goals_away)
-                    home_past_games_xga.append(f.goals_away)
-        total_home_ga = sum(home_past_games_ga)
-        total_home_xga = sum(home_past_games_xga)
-        unweighted_home_score = total_home_ga / math.floor(total_home_xga)
-        weighting_delta = 1 - unweighted_home_score
-        weighted_delta = weighting_delta * weight
-        weighted_home_score = 1 - weighted_delta
+        unweighted_away_score = self._defensive_score_helper(fixture, past_games, 'away')
+        away_weighting_delta = 1 - unweighted_away_score
+        away_weighted_delta = away_weighting_delta * weight
+        away_weighted_score = round((1 - away_weighted_delta), 2)
+        return {'home': home_weighted_score, 'away': away_weighted_score}
 
-        away_past_games_ga = []
-        away_past_games_xga = []
-        for f in away_past_games:
-            if f.away == fixture.away: # if was away in the fixture, append home team's stats
+    def _defensive_score_helper(self, fixture, n_games, home_or_away: str):
+        """helper function for calculating defensive scores.
+
+        Args:
+            fixture (data_sourcing.models.Fixture): fixture to calculate defensive scores for.
+            home_or_away (str): 'home' or 'away'.
+
+        Returns:
+            float: defensive score for the given team.
+        """
+        h_or_a = {'home': fixture.home, 'away': fixture.away}
+        if home_or_away == 'home':
+            past_games = self._get_home_team_past_n_fixtures(fixture, n_games)
+        else:
+            past_games = self._get_away_team_past_n_fixtures(fixture, n_games)
+        past_games_ga = []
+        past_games_xga = []
+        for f in past_games:
+            if f.away == h_or_a[home_or_away]:
                 if f.xG_home is not None:
-                    away_past_games_ga.append(f.goals_home)
-                    away_past_games_xga.append(float(f.xG_home))
-                else: # if no xG data, use goals scored (renders a neutral defensive score)
-                    away_past_games_ga.append(f.goals_home)
-                    away_past_games_xga.append(f.goals_home)
-            else: # if was home in the fixture, append away team's stats
+                    past_games_ga.append(f.goals_home)
+                    past_games_xga.append(float(f.xG_home))
+                else:
+                    past_games_ga.append(f.goals_home)
+                    past_games_xga.append(f.goals_home)
+            else:
                 if f.xG_away is not None:
-                    away_past_games_ga.append(f.goals_away)
-                    away_past_games_xga.append(float(f.xG_away))
-                else: # if no xG data, use goals scored (renders a neutral defensive score)
-                    away_past_games_ga.append(f.goals_away)
-                    away_past_games_xga.append(f.goals_away)
-        total_away_ga = sum(away_past_games_ga)
-        total_away_xga = sum(away_past_games_xga)
-        unweighted_away_score = total_away_ga / math.floor(total_away_xga)
-        weighting_delta = 1 - unweighted_away_score
-        weighted_delta = weighting_delta * weight
-        weighted_away_score = 1 - weighted_delta
-        
-        weighted_home_score = round(weighted_home_score, 2)
-        weighted_away_score = round(weighted_away_score, 2)
-        return {'home': weighted_home_score, 'away': weighted_away_score}
+                    past_games_ga.append(f.goals_away)
+                    past_games_xga.append(float(f.xG_away))
+                else:
+                    past_games_ga.append(f.goals_away)
+                    past_games_xga.append(f.goals_away)
+        total_ga = sum(past_games_ga)
+        total_xga = sum(past_games_xga)
+        unweighted_score = total_ga / math.floor(total_xga)
+        return unweighted_score
 
     def _get_home_team_past_n_fixtures(self, fixture, n=5):
         past_n_fixtures = Fixture.objects.filter(
