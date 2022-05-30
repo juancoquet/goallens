@@ -82,6 +82,10 @@ class TestPredictor(TestCase):
         xGs = self.predictor._calculate_base_forecast_xG(self.fixture)
         expected = {'home': Decimal('2.88'), 'away': Decimal('1.48')}
         self.assertEqual(xGs, expected)
+        fixture = Fixture.objects.get(id='620ebbfd')
+        xGs = self.predictor._calculate_base_forecast_xG(fixture)
+        expected = {'home': Decimal('0.48'), 'away': Decimal('1.18')}
+        self.assertEqual(xGs, expected)
 
     def test_calculate_base_forecast_xG_with_no_past_xG_data(self):
         fixture = Fixture.objects.get(id='ae30a29c')
@@ -90,13 +94,13 @@ class TestPredictor(TestCase):
         self.assertEqual(xGs, expected)
 
     def test_get_past_5_home_fixtures(self):
-        fixtures = self.predictor._get_home_team_past_5_fixtures(self.fixture)
+        fixtures = self.predictor._get_home_team_past_n_fixtures(self.fixture)
         ids = ['f94c5f85', 'a93c0c92', 'd1bcaf2b', '5ce80a04', 'af522ca3']
         expected = [Fixture.objects.get(id=id) for id in ids]
         self.assertEqual(fixtures, expected)
 
     def test_get_past_5_away_fixtures(self):
-        fixtures = self.predictor._get_away_team_past_5_fixtures(self.fixture)
+        fixtures = self.predictor._get_away_team_past_n_fixtures(self.fixture)
         ids = ['bc4f902e', 'd2e9e9e3', '1016efad', 'c1dc9202', 'bf7873f2']
         expected = [Fixture.objects.get(id=id) for id in ids]
         self.assertEqual(fixtures, expected)
@@ -104,7 +108,23 @@ class TestPredictor(TestCase):
     def test_not_enough_past_fixtures_raises(self):
         with self.assertRaises(ValueError):
             fixture = Fixture.objects.get(id='f34dd009')
-            fixtures = self.predictor._get_away_team_past_5_fixtures(fixture)
+            fixtures = self.predictor._get_away_team_past_n_fixtures(fixture)
         with self.assertRaises(ValueError):
             fixture = Fixture.objects.get(id='072bfc99')
-            fixtures = self.predictor._get_home_team_past_5_fixtures(fixture)
+            fixtures = self.predictor._get_home_team_past_n_fixtures(fixture)
+
+    def test_calculate_defensive_scores(self):
+        defensive_scores = self.predictor._calculate_defensive_scores(self.fixture, past_games=5)
+        expected = {'home': 1.0, 'away': 0.71}
+        self.assertEqual(defensive_scores, expected)
+
+    def test_calculate_defesive_score_no_xG_data(self):
+        fixture = Fixture.objects.get(id='ae30a29c')
+        defensive_scores = self.predictor._calculate_defensive_scores(fixture, past_games=5)
+        expected = {'home': 1.0, 'away': 1.0}
+
+    # TODO: test weighted
+    def test_calculate_defensive_scores_weighted(self):
+        defensive_scores = self.predictor._calculate_defensive_scores(self.fixture, past_games=5, weight=0.5)
+        expected = {'home': 1.0, 'away': 0.86}
+        self.assertEqual(defensive_scores, expected)
