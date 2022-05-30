@@ -4,7 +4,7 @@ from decimal import Decimal
 from unittest import skip
 from django.test import TestCase
 
-from ..predictor import Predictor
+from ..predictor import NotEnoughDataError, Predictor
 from data_sourcing.db_population.db_population import DBPopulator
 from data_sourcing.models import Fixture, Team
 
@@ -79,18 +79,18 @@ class TestPredictor(TestCase):
             )
 
     def test_calculate_base_forecast_xG(self):
-        xGs = self.predictor._calculate_base_forecast_xG(self.fixture)
-        expected = {'home': Decimal('2.88'), 'away': Decimal('1.48')}
+        xGs = self.predictor._calculate_base_forecast_xGs(self.fixture)
+        expected = {'home': 2.88, 'away': 1.48}
         self.assertEqual(xGs, expected)
         fixture = Fixture.objects.get(id='620ebbfd')
-        xGs = self.predictor._calculate_base_forecast_xG(fixture)
-        expected = {'home': Decimal('0.48'), 'away': Decimal('1.18')}
+        xGs = self.predictor._calculate_base_forecast_xGs(fixture)
+        expected = {'home': 0.48, 'away': 1.18}
         self.assertEqual(xGs, expected)
 
     def test_calculate_base_forecast_xG_with_no_past_xG_data(self):
         fixture = Fixture.objects.get(id='ae30a29c')
-        xGs = self.predictor._calculate_base_forecast_xG(fixture)
-        expected = {'home': Decimal('1.0'), 'away': Decimal('2.0')}
+        xGs = self.predictor._calculate_base_forecast_xGs(fixture)
+        expected = {'home': 1.0, 'away': 2.0}
         self.assertEqual(xGs, expected)
 
     def test_get_past_5_home_fixtures(self):
@@ -159,3 +159,13 @@ class TestPredictor(TestCase):
         home_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'home', past_games=10, weight=0.5)
         expected = 1.13
         self.assertEqual(home_perfomance, expected)
+
+    def test_forecast_xGs(self):
+        xGs = self.predictor._forecast_xGs(self.fixture)
+        expected = {'home': 3.83, 'away': 1.69}
+        self.assertEqual(xGs, expected)
+        
+    def test_forecast_xG_with_not_enough_past_game_data(self):
+        with self.assertRaises(NotEnoughDataError):
+            fixture = Fixture.objects.get(id='b015cd93')
+            xGs = self.predictor._forecast_xGs(fixture)

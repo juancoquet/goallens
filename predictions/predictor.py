@@ -1,7 +1,5 @@
-from cmath import e
 import datetime as dt
 from decimal import Decimal
-from turtle import home
 from django.db.models import Q
 import math
 
@@ -13,6 +11,21 @@ class Predictor:
 
     def __init__(self):
         self.upcoming_fixtures = []
+
+    
+    
+    def _forecast_xGs(self, fixture: Fixture, suppression_weight=1, conversion_weight=1, h_a_weight=1,
+                      past_games=5, h_a_past_games=10):
+        base_xGs = self._calculate_base_forecast_xGs(fixture)
+        suppression_scores = self._calculate_chance_suppression_scores(fixture, past_games, suppression_weight)
+        conversion_scores = self._calculate_chance_conversion_scores(fixture, past_games, conversion_weight)
+        home_performance = self._calculate_home_away_performance(fixture, 'home', h_a_past_games, h_a_weight)
+        away_performance = self._calculate_home_away_performance(fixture, 'away', h_a_past_games, h_a_weight)
+        home_xG = base_xGs['home'] * suppression_scores['away'] * conversion_scores['home'] * home_performance
+        away_xG = base_xGs['away'] * suppression_scores['home'] * conversion_scores['away'] * away_performance
+        home_xG = round(home_xG, 2)
+        away_xG = round(away_xG, 2)
+        return {'home': home_xG, 'away': away_xG}
 
     def _get_upcoming_fixtures(self, date: dt.date, competition, within_days=2):
         if competition not in COMP_CODES:
@@ -28,7 +41,7 @@ class Predictor:
         ).order_by('date')
         return fixtures
 
-    def _calculate_base_forecast_xG(self, fixture):
+    def _calculate_base_forecast_xGs(self, fixture):
         """gets the average xG of the last 5 games for each team involced in a
         given fixture. if there is no past xG data, then goals scored is used instead.
 
@@ -73,7 +86,7 @@ class Predictor:
                 away_avg_xG = sum(away_past_5_xGs) / len(away_past_5_xGs)
             except ZeroDivisionError:
                 away_avg_xG = Decimal('0.0')
-        return {'home': home_avg_xG, 'away': away_avg_xG}
+        return {'home': float(home_avg_xG), 'away': float(away_avg_xG)}
 
     def _calculate_chance_suppression_scores(self, fixture, past_games=5, weight=1):
         """calculates the chance suppression scores for a given fixture. chance suppression
@@ -225,7 +238,7 @@ class Predictor:
             date__lt=fixture.date,
         ).order_by('-date')[:n]
         if len(past_n_fixtures) < n:
-            raise(ValueError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
+            raise(NotEnoughDataError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
         return list(past_n_fixtures)
 
     def _get_away_team_past_n_fixtures(self, fixture, n=5):
@@ -234,7 +247,7 @@ class Predictor:
             date__lt=fixture.date,
         ).order_by('-date')[:n]
         if len(past_n_fixtures) < n:
-            raise(ValueError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
+            raise(NotEnoughDataError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
         return list(past_n_fixtures)
 
     def _calculate_home_away_performance(self, fixture, home_or_away, past_games=10, weight=1):
@@ -249,6 +262,9 @@ class Predictor:
         Returns:
             float: recent home/away performance for the given team.
         """
+        if home_or_away != 'home' and home_or_away != 'away':
+            raise(ValueError(f'home_or_away must be "home" or "away"'))
+
         if home_or_away == 'home':
             home_team = fixture.home
             past_n_home_fixtures = Fixture.objects.filter(
@@ -281,3 +297,8 @@ class Predictor:
         weighted_delta = weight_delta * weight
         weighted_result = round((1 + weighted_delta), 2)
         return weighted_result
+        
+
+class NotEnoughDataError(ValueError):
+    """raised when there are not enough data points to process a fixture."""
+    pass
