@@ -11,13 +11,7 @@ from data_sourcing.models import Fixture, Team
 
 class TestPredictor(TestCase):
 
-    # get fixtures within next n days
-        # take a date (default tot today) as an argument
-        # take n as an argument, default to 2 (passed date + 2 days)
-        # return list of fixtures within that period
-    # use fixture data to make necessary calculations
-
-    # test date fri 2022-04-30
+    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
@@ -169,3 +163,20 @@ class TestPredictor(TestCase):
         with self.assertRaises(NotEnoughDataError):
             fixture = Fixture.objects.get(id='b015cd93')
             xGs = self.predictor._forecast_xGs(fixture)
+
+    def test_generate_predictions(self):
+        predictions = self.predictor.generate_prediction(self.fixture)
+        expected = {
+            'fixture': self.fixture,
+            'forecast_xGs': {'home': 3.83, 'away': 1.69},
+            'prob_0_goals': {'home': 0.0217, 'away': 0.1845},
+            'prob_1_goals': {'home': 0.0831, 'away': 0.3118},
+            'prob_2_goals': {'home': 0.1592, 'away': 0.2635},
+            'prob_3_goals': {'home': 0.2033, 'away': 0.1484},
+            'prob_4_goals': {'home': 0.1946, 'away': 0.0627},
+            'prob_5_goals': {'home': 0.1491, 'away': 0.0212},
+            'prob_6_goals': {'home': 0.0952, 'away': 0.0060},
+            'prob_7_goals': {'home': 0.0521, 'away': 0.0014},
+            'likely_scoreline': {'home': 3, 'away': 1}
+        }
+        self.assertEqual(predictions, expected)

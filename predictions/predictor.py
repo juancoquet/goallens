@@ -2,6 +2,7 @@ import datetime as dt
 from decimal import Decimal
 from django.db.models import Q
 import math
+from scipy.stats import poisson # type: ignore
 
 from data_sourcing.models import Fixture
 from supported_comps import COMP_CODES
@@ -9,10 +10,39 @@ from supported_comps import COMP_CODES
 
 class Predictor:
 
-    def __init__(self):
-        self.upcoming_fixtures = []
+    def generate_prediction(self, fixture, suppression_weight=1, conversion_weight=1, h_a_weight=1,
+                             past_games=5, h_a_past_games=10):
+        forecast_xGs = self._forecast_xGs(
+            fixture,
+            suppression_weight=suppression_weight,
+            conversion_weight=conversion_weight,
+            h_a_weight=h_a_weight,
+            past_games=past_games,
+            h_a_past_games=h_a_past_games
+        )
+        goal_probs = {}
+        for goals in range(8):
+            home = round(poisson.pmf(goals, forecast_xGs['home']), 4)
+            away = round(poisson.pmf(goals, forecast_xGs['away']), 4)
+            goal_probs[f'prob_{goals}_goals'] = {'home': home, 'away': away}
+        prediction = {'fixture': fixture, 'forecast_xGs': forecast_xGs}
 
-    
+        likely_home, likely_away = None, None
+        max_prob_home, max_prob_away = 0, 0
+
+        for goals, (_, probs) in enumerate(goal_probs.items()):
+            # get most likely scoreline
+            if probs['home'] > max_prob_home:
+                likely_home = goals
+                max_prob_home = probs['home']
+            if probs['away'] > max_prob_away:
+                likely_away = goals
+                max_prob_away = probs['away']
+            # add probabilities to prediction
+            prediction[f'prob_{goals}_goals'] = probs
+
+        prediction['likely_scoreline'] = {'home': likely_home, 'away': likely_away}
+        return prediction
     
     def _forecast_xGs(self, fixture: Fixture, suppression_weight=1, conversion_weight=1, h_a_weight=1,
                       past_games=5, h_a_past_games=10):
