@@ -237,7 +237,7 @@ class Predictor:
             raise(ValueError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
         return list(past_n_fixtures)
 
-    def _calculate_home_away_performance(self, fixture, home_or_away, past_games=10):
+    def _calculate_home_away_performance(self, fixture, home_or_away, past_games=10, weight=1):
         """calculates the recent home/away goalscoring performance for a team in the given fixture.
         e.g. if passed 'home', it will calculate recent home performance for the home team in the
         given fixture.
@@ -262,7 +262,7 @@ class Predictor:
             home_goals = [f.goals_home for f in past_n_home_fixtures]
             away_goals = [f.goals_away for f in past_n_away_fixtures]
             agnostic = (sum(home_goals) + sum(away_goals)) / 2
-            return round(sum(home_goals) / agnostic, 2)
+            result = sum(home_goals) / agnostic
         else:
             away_team = fixture.away
             past_n_home_fixtures = Fixture.objects.filter(
@@ -276,4 +276,8 @@ class Predictor:
             home_goals = [f.goals_home for f in past_n_home_fixtures]
             away_goals = [f.goals_away for f in past_n_away_fixtures]
             agnostic = (sum(home_goals) + sum(away_goals)) / 2
-            return round(sum(away_goals) / agnostic, 2)
+            result = sum(away_goals) / agnostic
+        weight_delta = result - 1
+        weighted_delta = weight_delta * weight
+        weighted_result = round((1 + weighted_delta), 2)
+        return weighted_result

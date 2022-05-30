@@ -154,3 +154,8 @@ class TestPredictor(TestCase):
         away_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'away', past_games=10)
         expected = 1.0
         self.assertEqual(away_perfomance, expected)
+
+    def test_calculate_home_away_performance_weighted(self):
+        home_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'home', past_games=10, weight=0.5)
+        expected = 1.13
+        self.assertEqual(home_perfomance, expected)
