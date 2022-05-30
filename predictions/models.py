@@ -15,6 +15,7 @@ class Prediction(models.Model):
     prob_hg_4 = models.DecimalField(max_digits=4, decimal_places=2)
     prob_hg_5 = models.DecimalField(max_digits=4, decimal_places=2)
     prob_hg_6 = models.DecimalField(max_digits=4, decimal_places=2)
+    prob_hg_7 = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     prob_ag_0 = models.DecimalField(max_digits=4, decimal_places=2)
     prob_ag_1 = models.DecimalField(max_digits=4, decimal_places=2)
     prob_ag_2 = models.DecimalField(max_digits=4, decimal_places=2)
@@ -22,6 +23,7 @@ class Prediction(models.Model):
     prob_ag_4 = models.DecimalField(max_digits=4, decimal_places=2)
     prob_ag_5 = models.DecimalField(max_digits=4, decimal_places=2)
     prob_ag_6 = models.DecimalField(max_digits=4, decimal_places=2)
+    prob_ag_7 = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     likely_hg = models.SmallIntegerField()
     likely_ag = models.SmallIntegerField()
 
