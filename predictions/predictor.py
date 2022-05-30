@@ -236,3 +236,44 @@ class Predictor:
         if len(past_n_fixtures) < n:
             raise(ValueError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
         return list(past_n_fixtures)
+
+    def _calculate_home_away_performance(self, fixture, home_or_away, past_games=10):
+        """calculates the recent home/away goalscoring performance for a team in the given fixture.
+        e.g. if passed 'home', it will calculate recent home performance for the home team in the
+        given fixture.
+        
+        Args:
+            home_or_away (str): 'home' or 'away'.
+            past_games (int): number of past games to use to calculate the performance.
+
+        Returns:
+            float: recent home/away performance for the given team.
+        """
+        if home_or_away == 'home':
+            home_team = fixture.home
+            past_n_home_fixtures = Fixture.objects.filter(
+                home=home_team,
+                date__lt=fixture.date,
+            ).order_by('-date')[:past_games]
+            past_n_away_fixtures = Fixture.objects.filter(
+                away=home_team,
+                date__lt=fixture.date,
+            ).order_by('-date')[:past_games]
+            home_goals = [f.goals_home for f in past_n_home_fixtures]
+            away_goals = [f.goals_away for f in past_n_away_fixtures]
+            agnostic = (sum(home_goals) + sum(away_goals)) / 2
+            return round(sum(home_goals) / agnostic, 2)
+        else:
+            away_team = fixture.away
+            past_n_home_fixtures = Fixture.objects.filter(
+                home=away_team,
+                date__lt=fixture.date,
+            ).order_by('-date')[:past_games]
+            past_n_away_fixtures = Fixture.objects.filter(
+                away=away_team,
+                date__lt=fixture.date,
+            ).order_by('-date')[:past_games]
+            home_goals = [f.goals_home for f in past_n_home_fixtures]
+            away_goals = [f.goals_away for f in past_n_away_fixtures]
+            agnostic = (sum(home_goals) + sum(away_goals)) / 2
+            return round(sum(away_goals) / agnostic, 2)

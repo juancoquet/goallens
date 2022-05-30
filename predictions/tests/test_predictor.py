@@ -144,3 +144,13 @@ class TestPredictor(TestCase):
         conversion_scores = self.predictor._calculate_chance_conversion_scores(self.fixture, past_games=5, weight=0.5)
         expected = {'home': 1.25, 'away': 1.07}
         self.assertEqual(conversion_scores, expected)
+
+    def test_calculate_home_performance_score(self):
+        home_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'home', past_games=10)
+        expected = 1.25
+        self.assertEqual(home_perfomance, expected)
+
+    def test_calculate_away_performance_score(self):
+        away_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'away', past_games=10)
+        expected = 1.0
+        self.assertEqual(away_perfomance, expected)
