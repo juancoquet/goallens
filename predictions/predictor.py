@@ -206,37 +206,51 @@ class Predictor:
             base_suppression = 1
         return base_suppression
 
-    def _calculate_chance_conversion_scores(self, fixture, past_games=5, weight=1):
+    def _calculate_chance_conversion_scores(self, fixture, past_games=5, range=1):
         """calculates the chance conversion scores for a given fixture. chance conversion
-        represents a team's ability to convert their goal scoring chances. the process is:
+        represents a team's ability to convert their goal scoring chances. values within a given
+        range centered at 1 are calculated, e.g. from 0.5 to 1.5 (range=1) or from 0.75 to 1.25 
+        (range=0.5) the process is:
             1. get the past n games for each team involved in the fixture
             2. get the total G and xG for the past n games
-            3. get unweighted score with G/xG
+            3. get base score with G/xG
         To weight score:
-            1. get the difference between 1 and the unweighted score
-            2. multiply the difference by the weight
-            3. subtract the multiplied difference from 1
-
+            if G/xG > 1:
+                1. turn into a percentage with 1/base score
+                2. invert the percentage with 1 - percentage
+                3. add 1 to (inverse * 1/2(range))
+            else:
+                1. invert the percentage with 1 - percentage (G/xG is already a percentage if its <= 1)
+                2. 1 - (inverse * 1/2(range))
         scores > 1 = good, < 1 = bad.
 
         Args:
             fixture (data_sourcing.models.Fixture): fixture to calculate conversion scores for.
             past_games (int): number of past games to use to calculate conversion scores.
-            weight (int): weight to apply to the chance conversion scores.
-
+            range (int | float): the range around 1 within which conversion scores will be calculated. eg a range of 1
+            will yield scores between 0.5 and 1.5.
         Returns:
             dict: {'home': home_chance_conversion_score, 'away': away_chance_conversion_score}
         """
-        unweighted_home_score = self._conversion_score_helper(fixture, past_games, 'home')
-        home_weighting_delta = unweighted_home_score - 1
-        home_weighted_delta = home_weighting_delta * weight
-        home_weighted_score = round((1 + home_weighted_delta), 2)
+        home_base_conversion = self._conversion_score_helper(fixture, past_games, 'home')
+        if home_base_conversion > 1:
+            percentage = 1 / home_base_conversion
+            inverse = 1 - percentage
+            home_conversion = 1 + (inverse * (0.5 * range))
+        else:
+            inverse = 1 - home_base_conversion
+            home_conversion = 1 - (inverse * (0.5 * range))
 
-        unweighted_away_score = self._conversion_score_helper(fixture, past_games, 'away')
-        away_weighting_delta = unweighted_away_score - 1
-        away_weighted_delta = away_weighting_delta * weight
-        away_weighted_score = round((1 + away_weighted_delta), 2)
-        return {'home': home_weighted_score, 'away': away_weighted_score}
+        away_base_conversion = self._conversion_score_helper(fixture, past_games, 'away')
+        if away_base_conversion > 1:
+            percentage = 1 / away_base_conversion
+            inverse = 1 - percentage
+            away_conversion = 1 + (inverse * (0.5 * range))
+        else:
+            inverse = 1 - away_base_conversion
+            away_conversion = 1 - (inverse * (0.5 * range))
+
+        return {'home': round(home_conversion, 2), 'away': round(away_conversion, 2)}
 
     def _conversion_score_helper(self, fixture, n_games, home_or_away: str):
         """helper function for calculating chance conversion scores.
@@ -273,10 +287,10 @@ class Predictor:
         total_g = sum(past_games_g)
         total_xg = sum(past_games_xg)
         try:
-            unweighted_score = total_g / math.floor(total_xg)
+            base_conversion = total_g / math.floor(total_xg)
         except ZeroDivisionError:
-            unweighted_score = 1
-        return unweighted_score
+            base_conversion = 1
+        return base_conversion
 
     def _get_home_team_past_n_fixtures(self, fixture, n=5):
         past_n_fixtures = Fixture.objects.filter(

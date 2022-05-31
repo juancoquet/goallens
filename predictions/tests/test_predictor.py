@@ -110,22 +110,7 @@ class TestPredictor(TestCase):
             fixture = Fixture.objects.get(id='072bfc99')
             fixtures = self.predictor._get_home_team_past_n_fixtures(fixture)
 
-    def test_calculate_chance_conversion_scores(self):
-        conversion_scores = self.predictor._calculate_chance_conversion_scores(self.fixture, past_games=5)
-        expected = {'home': 1.5, 'away': 1.14}
-        self.assertEqual(conversion_scores, expected)
-
-    def test_calculate_chance_conversion_scores_no_xG_data(self):
-        fixture = Fixture.objects.get(id='ae30a29c')
-        conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5)
-        expected = {'home': 1.0, 'away': 1.0}
-        self.assertEqual(conversion_scores, expected)
-
-    def test_calculate_chance_conversion_scores_weighted(self):
-        conversion_scores = self.predictor._calculate_chance_conversion_scores(self.fixture, past_games=5, weight=0.5)
-        expected = {'home': 1.25, 'away': 1.07}
-        self.assertEqual(conversion_scores, expected)
-
+    
     def test_calculate_home_performance_score(self):
         home_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'home', past_games=10)
         expected = 1.25
@@ -224,3 +209,55 @@ class TestSuppressionScores(TestCase):
         defensive_scores = self.predictor._calculate_chance_suppression_scores(fixture, past_games=5, range=0.5)
         expected = {'home': 1.08, 'away': 1.05}
         self.assertEqual(defensive_scores, expected)
+
+
+class TestConversionScores(TestCase):
+
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        with open('predictions/tests/teams.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Team.objects.create(
+                    id=row['id'],
+                    name=row['team_name'], 
+                    short_name=row['team_short_name']
+                )
+        with open('predictions/tests/fixtures.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Fixture.objects.create(
+                    id=row['id'],
+                    competition=row['competition'],
+                    season=row['season'],
+                    date=date.fromisoformat(row['date']),
+                    time=time(int(row['time'].split(':')[0]), int(row['time'].split(':')[1])),
+                    home=Team.objects.get(id=row['home']),
+                    away=Team.objects.get(id=row['away']),
+                    goals_home=row['goals_home'],
+                    goals_away=row['goals_away'],
+                    xG_home=Decimal(row['xG_home']) if row['xG_home'] else None,
+                    xG_away=Decimal(row['xG_away']) if row['xG_away'] else None,
+                )
+        cls.predictor = Predictor()
+        cls.fixture = Fixture.objects.get(id='7b4b63d0')
+
+    def test_calculate_chance_conversion_scores(self):
+        fixture = Fixture.objects.get(id='59b3ee40')
+        conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5)
+        expected = {'home': 0.67, 'away': 1.18}
+        self.assertEqual(conversion_scores, expected)
+
+    def test_calculate_chance_conversion_scores_no_xG_data(self):
+        fixture = Fixture.objects.get(id='ae30a29c')
+        conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5)
+        expected = {'home': 1.0, 'away': 1.0}
+        self.assertEqual(conversion_scores, expected)
+
+    def test_calculate_chance_conversion_scores_custom_range(self):
+        fixture = Fixture.objects.get(id='59b3ee40')
+        conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5, range=0.5)
+        expected = {'home': 0.83, 'away': 1.09}
+        self.assertEqual(conversion_scores, expected)
