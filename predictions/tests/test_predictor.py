@@ -128,7 +128,7 @@ class TestPredictor(TestCase):
 
     def test_forecast_xGs(self):
         xGs = self.predictor._forecast_xGs(self.fixture)
-        expected = {'home': 3.83, 'away': 1.69}
+        expected = {'home': 3.62, 'away': 1.57}
         self.assertEqual(xGs, expected)
         
     def test_forecast_xG_with_not_enough_past_game_data(self):
@@ -140,15 +140,15 @@ class TestPredictor(TestCase):
         predictions = self.predictor.generate_prediction(self.fixture)
         expected = {
             'fixture': self.fixture,
-            'forecast_xGs': {'home': 3.83, 'away': 1.69},
-            'prob_0_goals': {'home': 0.0217, 'away': 0.1845},
-            'prob_1_goals': {'home': 0.0831, 'away': 0.3118},
-            'prob_2_goals': {'home': 0.1592, 'away': 0.2635},
-            'prob_3_goals': {'home': 0.2033, 'away': 0.1484},
-            'prob_4_goals': {'home': 0.1946, 'away': 0.0627},
-            'prob_5_goals': {'home': 0.1491, 'away': 0.0212},
-            'prob_6_goals': {'home': 0.0952, 'away': 0.0060},
-            'prob_7_goals': {'home': 0.0521, 'away': 0.0014},
+            'forecast_xGs': {'home': 3.62, 'away': 1.57},
+            'prob_0_goals': {'home': 0.0268, 'away': 0.2080},
+            'prob_1_goals': {'home': 0.0970, 'away': 0.3266},
+            'prob_2_goals': {'home': 0.1755, 'away': 0.2564},
+            'prob_3_goals': {'home': 0.2118, 'away': 0.1342},
+            'prob_4_goals': {'home': 0.1916, 'away': 0.0527},
+            'prob_5_goals': {'home': 0.1387, 'away': 0.0165},
+            'prob_6_goals': {'home': 0.0837, 'away': 0.0043},
+            'prob_7_goals': {'home': 0.0433, 'away': 0.0010},
             'likely_scoreline': {'home': 3, 'away': 1}
         }
         self.assertEqual(predictions, expected)

@@ -8,8 +8,9 @@ fixture = Fixture.objects.get(id='7b4b63d0')
 
 def run():
     print(fixture)
-    # predictor._calculate_chance_suppression_scores(fixture)
-    # print('suppression:', predictor._calculate_chance_suppression_scores(fixture)) # problem is here
+    predictor._calculate_chance_suppression_scores(fixture)
+    print('suppression:', predictor._calculate_chance_suppression_scores(fixture))
+    print('conversion:', predictor._calculate_chance_conversion_scores(fixture))
     prediction = predictor.generate_prediction(fixture=fixture)
 
     for k, v in prediction.items():
@@ -19,15 +20,7 @@ def run():
 
 
 
-
-# for bri 0-2 tot 59b3ee40 range=1
-# home g=1, xg=3.8
-# base_conv = 0.3333
-# inverse = 0.6667
-# home_conversion = 0.6667
-
-# away g=14, xg=9.3
-# base conv = 1.5556
-# percentage = 0.6429
-# inverse = 0.3571
-# away_conversion = 1.1786
+# mci base xG = 2.88
+# av suppression = 0.86
+# mci conversion = 1.17
+# mci performance = 1.25
