@@ -29,6 +29,32 @@ class FixturesScraper(BaseScraper):
         fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
         return fixture_ids
 
+    def scrape_fixture_notes(self, season: str, competition: str):
+        """scrapes all notes for a given season and competition.
+        
+        Args:
+            season (str): the season to scrape, e.g. '2019-2020'
+            competition (str): the competition to scrape, e.g. 'Premier League'
+        Returns:
+            dict: a dict of fixture ids mapped to strings {fixture_id: str}
+        """
+        self._validate_season(season)
+        self._validate_competition(competition)
+
+        comp_code = self.comp_codes[competition]
+        url = f'https://fbref.com/en/comps/{comp_code}/schedule/'
+        self._request_url(url)
+        self._go_to_season(season)
+        table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
+        match_report_cells = table.select('td.left[data-stat="match_report"]')
+        notes_cells = table.select('td.left[data-stat="notes"]')
+        notes_cells = [c for i, c in enumerate(notes_cells) if not 'iz' in match_report_cells[i].get('class')]
+        match_report_cells = [c for c in match_report_cells if not 'iz' in c.get('class')]
+        notes = [cell.get_text() for cell in notes_cells]
+        fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
+        ids_notes = dict(zip(fixture_ids, notes))
+        return ids_notes
+
     def scrape_fixture_dates(self, season: str, competition: str):
         """scrapes all fixture dates for a given season and competition.
         
@@ -63,6 +89,19 @@ class FixturesScraper(BaseScraper):
         Returns:
             dict: a dict of fixture ids mapped to datetime.time objects {fixture_id: datetime.time}
         """
+        def _parse_time(time_str: str):
+            try:
+                hhmmss = time_str.split(':')
+            except AttributeError:
+                hhmmss = [None] * 3
+            try:
+                hh = int(hhmmss[0])
+                mm = int(hhmmss[1])
+                t = time(hh, mm)
+            except (ValueError, TypeError):
+                t = None
+            return t
+
         self._validate_season(season)
         self._validate_competition(competition)
 
@@ -71,11 +110,12 @@ class FixturesScraper(BaseScraper):
         self._request_url(url)
         self._go_to_season(season)
         table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
-        time_cells = table.select('td.right[data-stat="time"]:not(.iz)')
+        match_report_cells = table.select('td.left[data-stat="match_report"]')
+        time_cells = table.select('td.right[data-stat="time"]')
+        time_cells = [c for i, c in enumerate(time_cells) if not 'iz' in match_report_cells[i].get('class')]
+        match_report_cells = [c for c in match_report_cells if not 'iz' in c.get('class')]
         times = [cell.get('csk') for cell in time_cells]
-        times = [t.split(':') for t in times]
-        times = [time(int(t[0]), int(t[1])) for t in times]
-        match_report_cells = table.select('td.left[data-stat="match_report"]:not(.iz)')
+        times = [_parse_time(t) for t in times]
         fixture_ids = [cell.find('a').get('href').split('/')[3] for cell in match_report_cells]
         ids_times = dict(zip(fixture_ids, times))
         return ids_times

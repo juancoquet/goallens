@@ -129,6 +129,8 @@ class DBPopulator:
                 print('-' * 50)
                 print('scraping ids...')
                 ids = scraper.scrape_fixture_ids(season, competition)
+                print('scraping notes...')
+                notes = scraper.scrape_fixture_notes(season, competition)
                 print('scraping dates...')
                 dates = scraper.scrape_fixture_dates(season, competition)
                 print('scraping times...')
@@ -139,10 +141,11 @@ class DBPopulator:
                 goals = scraper.scrape_fixture_goals(season, competition)
                 print('scraping xG...')
                 xG = scraper.scrape_fixture_xGs(season, competition)
-                print(f'finished scraping for {competition} in {season}')
-                print(f'scraped {len(ids)} fixtures')
-                print('-' * 50)
+                cancelled = 0
                 for _id in ids:
+                    if notes[_id] == 'Match Cancelled':
+                        cancelled += 1
+                        continue
                     fixtures[_id] = {
                         'competition': competition,
                         'season': season,
@@ -155,6 +158,9 @@ class DBPopulator:
                         'xG_home': xG[_id]['home'],
                         'xG_away': xG[_id]['away']
                     }
+                print(f'scraped {len(ids) - cancelled} fixtures')
+                print(f'finished scraping for {competition} in {season}')
+                print('-' * 50)
         self.fixtures = fixtures
         return fixtures
 
