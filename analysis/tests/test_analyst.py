@@ -57,3 +57,19 @@ class TestAnalyst(TestCase):
         }
         self.assertEqual(outcomes, expected)
         
+    def test_combine_predictions_and_outcomes(self):
+        prediction = self.predictor.generate_prediction(self.fixture)
+        pred_copy = prediction.copy()
+        outcomes = self.analyst.check_prediction_outcomes(prediction)
+        combined = self.analyst._combine_predictions_and_outcomes(pred_copy, outcomes)
+        expected = {
+            0.0567: 0, 0.2952: 0,
+            0.1627: 0, 0.3602: 0,
+            0.2335: 0, 0.2197: 1,
+            0.2234: 1, 0.0893: 0,
+            0.1603: 0, 0.0273: 0,
+            0.092:  0, 0.0066: 0,
+            0.044:  0, 0.0014: 0,
+            0.018:  0, 0.0002: 0
+        }
+        self.assertEqual(combined, expected)
