@@ -1,7 +1,7 @@
 import datetime as dt
 from decimal import Decimal
 from email.mime import base
-from django.db.models import Q
+from django.db.models import Q # type: ignore
 import math
 from scipy.stats import poisson # type: ignore
 
@@ -47,13 +47,38 @@ class Predictor:
     
     def _forecast_xGs(self, fixture: Fixture, suppression_weight=1, conversion_weight=1, h_a_weight=1,
                       past_games=5, h_a_past_games=10):
+        """generates a forecast xG for each team with the following formula:
+        fxG = ((bfxG * conversion) + (o_bfxGA * o_suppression)) / 2 * h_a_performance
+        where b=base, f=forecast, o=opposition
+
+        Args:
+            fixture (Fixture): the fixture for which to generate fxGs
+            suppression_weight (int, optional): value to weight the suppression scores. Defaults to 1.
+            conversion_weight (int, optional): valus to weight the conversion scores. Defaults to 1.
+            h_a_weight (int, optional): value to weight the home/away performance. Defaults to 1.
+            past_games (int, optional): the number of past games to use when calculating the base xG. Defaults to 5.
+            h_a_past_games (int, optional): the number of past games to use when calculating h/a performance. Defaults to 10.
+
+        Returns:
+            dict: {'home': fxG (float), 'away': fxG (float)}
+        """
         base_xGs = self._calculate_base_forecast_xGs(fixture)
+        base_xGAs = self._calculate_base_forecast_xGAs(fixture)
         suppression_scores = self._calculate_chance_suppression_scores(fixture, past_games, suppression_weight)
         conversion_scores = self._calculate_chance_conversion_scores(fixture, past_games, conversion_weight)
         home_performance = self._calculate_home_away_performance(fixture, 'home', h_a_past_games, h_a_weight)
         away_performance = self._calculate_home_away_performance(fixture, 'away', h_a_past_games, h_a_weight)
-        home_xG = base_xGs['home'] * suppression_scores['away'] * conversion_scores['home'] * home_performance
-        away_xG = base_xGs['away'] * suppression_scores['home'] * conversion_scores['away'] * away_performance
+        
+        home_xG = (
+            ((base_xGs['home'] * conversion_scores['home']) + 
+            (base_xGAs['away'] * suppression_scores['away'])) / 2
+        ) * home_performance
+
+        away_xG = (
+            ((base_xGs['away'] * conversion_scores['away']) +
+            (base_xGAs['home'] * suppression_scores['home'])) / 2
+        ) * away_performance
+
         home_xG = round(home_xG, 2)
         away_xG = round(away_xG, 2)
         return {'home': home_xG, 'away': away_xG}
@@ -118,6 +143,44 @@ class Predictor:
             except ZeroDivisionError:
                 away_avg_xG = Decimal('0.0')
         return {'home': float(home_avg_xG), 'away': float(away_avg_xG)}
+
+    def _calculate_base_forecast_xGAs(self, fixture):
+        home_past_5 = self._get_home_team_past_n_fixtures(fixture)
+        home_past_5_xGAs = []
+        for f in home_past_5:
+            if f.home == fixture.home: # if is home team
+                if f.xG_away is not None: # opposition xG data (xGA) available
+                    home_past_5_xGAs.append(f.xG_away)
+                else: # no opposition xG data (xGA) available
+                    home_past_5_xGAs.append(f.goals_away)
+            else: # if is away team
+                if f.xG_home is not None: # opposition xG data (xGA) available
+                    home_past_5_xGAs.append(f.xG_home)
+                else: # no opposition xG data (xGA) available
+                    home_past_5_xGAs.append(f.goals_home)
+            try:
+                home_avg_xGAs = sum(home_past_5_xGAs) / len(home_past_5_xGAs)
+            except ZeroDivisionError:
+                home_avg_xGAs = float(0)
+
+        away_past_5 = self._get_away_team_past_n_fixtures(fixture)
+        away_past_5_xGAs = []
+        for f in away_past_5:
+            if f.home == fixture.away:
+                if f.xG_away is not None:
+                    away_past_5_xGAs.append(f.xG_away)
+                else:
+                    away_past_5_xGAs.append(f.goals_away)
+            else:
+                if f.xG_home is not None:
+                    away_past_5_xGAs.append(f.xG_home)
+                else:
+                    away_past_5_xGAs.append(f.goals_home)
+            try:
+                away_avg_xGAs = sum(away_past_5_xGAs) / len(away_past_5_xGAs)
+            except ZeroDivisionError:
+                away_avg_xGAs = float(0)
+        return {'home': float(home_avg_xGAs), 'away': float(away_avg_xGAs)}
 
     def _calculate_chance_suppression_scores(self, fixture, past_games=5, range=1):
         """calculates the chance suppression scores for a given fixture. chance suppression

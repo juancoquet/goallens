@@ -2,7 +2,7 @@ import csv
 from datetime import date, time
 from decimal import Decimal
 from unittest import skip
-from django.test import TestCase
+from django.test import TestCase # type: ignore
 
 from ..predictor import NotEnoughDataError, Predictor
 from data_sourcing.db_population.db_population import DBPopulator
@@ -128,7 +128,7 @@ class TestPredictor(TestCase):
 
     def test_forecast_xGs(self):
         xGs = self.predictor._forecast_xGs(self.fixture)
-        expected = {'home': 3.62, 'away': 1.57}
+        expected = {'home': 2.87, 'away': 1.22}
         self.assertEqual(xGs, expected)
         
     def test_forecast_xG_with_not_enough_past_game_data(self):
@@ -140,16 +140,16 @@ class TestPredictor(TestCase):
         predictions = self.predictor.generate_prediction(self.fixture)
         expected = {
             'fixture': self.fixture,
-            'forecast_xGs': {'home': 3.62, 'away': 1.57},
-            'prob_0_goals': {'home': 0.0268, 'away': 0.2080},
-            'prob_1_goals': {'home': 0.0970, 'away': 0.3266},
-            'prob_2_goals': {'home': 0.1755, 'away': 0.2564},
-            'prob_3_goals': {'home': 0.2118, 'away': 0.1342},
-            'prob_4_goals': {'home': 0.1916, 'away': 0.0527},
-            'prob_5_goals': {'home': 0.1387, 'away': 0.0165},
-            'prob_6_goals': {'home': 0.0837, 'away': 0.0043},
-            'prob_7_goals': {'home': 0.0433, 'away': 0.0010},
-            'likely_scoreline': {'home': 3, 'away': 1}
+            'forecast_xGs': {'home': 2.87, 'away': 1.22},
+            'prob_0_goals': {'home': 0.0567, 'away': 0.2952},
+            'prob_1_goals': {'home': 0.1627, 'away': 0.3602},
+            'prob_2_goals': {'home': 0.2335, 'away': 0.2197},
+            'prob_3_goals': {'home': 0.2234, 'away': 0.0893},
+            'prob_4_goals': {'home': 0.1603, 'away': 0.0273},
+            'prob_5_goals': {'home': 0.092, 'away': 0.0066},
+            'prob_6_goals': {'home': 0.044, 'away': 0.0014},
+            'prob_7_goals': {'home': 0.018, 'away': 0.0002},
+            'likely_scoreline': {'home': 2, 'away': 1}
         }
         self.assertEqual(predictions, expected)
 
@@ -261,3 +261,48 @@ class TestConversionScores(TestCase):
         conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5, range=0.5)
         expected = {'home': 0.83, 'away': 1.09}
         self.assertEqual(conversion_scores, expected)
+
+
+class TestForecastxGA(TestCase):
+
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        with open('predictions/tests/teams.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Team.objects.create(
+                    id=row['id'],
+                    name=row['team_name'], 
+                    short_name=row['team_short_name']
+                )
+        with open('predictions/tests/fixtures.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Fixture.objects.create(
+                    id=row['id'],
+                    competition=row['competition'],
+                    season=row['season'],
+                    date=date.fromisoformat(row['date']),
+                    time=time(int(row['time'].split(':')[0]), int(row['time'].split(':')[1])),
+                    home=Team.objects.get(id=row['home']),
+                    away=Team.objects.get(id=row['away']),
+                    goals_home=row['goals_home'],
+                    goals_away=row['goals_away'],
+                    xG_home=Decimal(row['xG_home']) if row['xG_home'] else None,
+                    xG_away=Decimal(row['xG_away']) if row['xG_away'] else None,
+                )
+        cls.predictor = Predictor()
+        cls.fixture = Fixture.objects.get(id='7b4b63d0')
+
+    def test_calculate_base_forecast_xGA(self):
+        xGAs = self.predictor._calculate_base_forecast_xGAs(self.fixture)
+        expected = {'home': 0.88, 'away': 1.42}
+        self.assertEqual(xGAs, expected)
+        
+    def test_calculate_base_forecast_xGA_with_no_past_xG_data(self):
+        fixture = Fixture.objects.get(id='ae30a29c')
+        xGAs = self.predictor._calculate_base_forecast_xGAs(fixture)
+        expected = {'home': 1.2, 'away': 1.2}
+        self.assertEqual(xGAs, expected)
