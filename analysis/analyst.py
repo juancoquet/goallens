@@ -2,11 +2,13 @@ from cmath import nan
 from datetime import date
 from decimal import Decimal
 import math
+from matplotlib import pyplot as plt # type: ignore
 import pandas as pd # type: ignore
+import pickle
 import re
 
 from data_sourcing.models import Fixture
-from predictions.predictor import Predictor
+from predictions.predictor import NotEnoughDataError, Predictor
 from supported_comps import PREDICTION_LEAGUES
 
 
@@ -17,7 +19,110 @@ class Analyst:
         self.strikerates = None
         self.mse = None
 
-    def check_prediction_outcomes(self, prediction: dict):
+    def create_analysis_df(self, seasons: list[str], competitions: list[str]):
+        """creates a dataframe where each row is a prediction probability and its respective outcome,
+        for all predictions in given seasons and competitions.
+        
+        Args:
+            seasons (list[str]): the seasons to analyse, formatted ['YYYY-YYYY']
+            competitions (list[str]): the competitions to analyse
+        """
+        if type(seasons) != list:
+            raise TypeError('seasons must be a list of strings with format ["yyyy-yyyy"]')
+        if type(competitions) != list:
+            raise TypeError('competitions must be a list of strings')
+        for season in seasons:
+            self._validate_season(season)
+        for competition in competitions:
+            self._validate_competition(competition)
+
+        predictor = Predictor()
+        data = {'probability': [], 'outcome': []}
+        
+        for season in seasons:
+            for competition in competitions:
+                fixtures = Fixture.objects.filter(competition=competition, season=season)
+                for fixture in fixtures:
+                    print(f'processing {fixture.id}, {len(data["probability"])} records so far')
+                    try:
+                        prediction = predictor.generate_prediction(fixture)
+                    except NotEnoughDataError:
+                        continue
+                    pred_copy = prediction.copy()
+                    outcomes = self._check_prediction_outcomes(prediction)
+                    combined = self._combine_predictions_and_outcomes(pred_copy, outcomes)
+                    for prob, outcome in combined:
+                        data['probability'].append(prob)
+                        data['outcome'].append(outcome)
+                    
+        df = pd.DataFrame(data)
+        print(f'{len(df)} predictions analysed')
+        self.df = df
+        return df
+
+    def calculate_strikerates(self, df: pd.DataFrame):
+        """calculates the strikerates for probability ranges of 2.5%. If there are no predictions within
+        a particular range, the mean prediction value and stirke rate for the range are set to None.
+        Args:
+            df (pd.DataFrame): the dataframe to analyse, which should have been created by Analyst.create_analysis_df().
+        Returns:
+            dict: a dict of the form {percent_range: {'mean_prediction': mean(probs_within_range), 'strikerate': strikerate}, ...}
+        """
+        strikerates = {}
+        lower_bound = 0.0
+        while lower_bound < 100:
+            upper_bound = lower_bound + 2.5
+            l_bound = lower_bound / 100
+            u_bound = upper_bound / 100
+            preds_within_range = df[(df['probability'] >= l_bound) & (df['probability'] < u_bound)]
+            mean_prediction = preds_within_range['probability'].mean()
+            if math.isnan(mean_prediction):
+                mean_prediction = None
+            try:
+                strikerate = len(preds_within_range[preds_within_range['outcome'] == 1]) / len(preds_within_range)
+            except ZeroDivisionError:
+                strikerate = None
+            strikerates[f'{lower_bound}-{upper_bound}'] = {'mean_prediction': mean_prediction, 'strikerate': strikerate}
+            lower_bound += 2.5
+        self.strikerates = strikerates
+        return strikerates
+
+
+    
+    
+    def mean_squared_error(self, strikerates: dict):
+        """calculates the mean squared error for the given strikerates.
+        Args:
+            strikerates (dict): the strikerates to calculate the MSE for. should be a dict output
+            by Analyst.calculate_strikerates().
+        Returns:
+            float: the mean squared error
+        """
+        mse = 0
+        count = 0
+        for preds_and_strikerates in strikerates.values():
+            observed = preds_and_strikerates['strikerate']
+            predicted = preds_and_strikerates['mean_prediction']
+            if observed is None or predicted is None:
+                continue
+            mse += (observed - predicted) ** 2
+            count += 1
+        mse /= count
+        mse = round(mse, 4)
+        self.mse = mse
+        return mse
+
+    def pickle_data(self):
+        """pickle the dataframe, mse, and strikerates.
+        """
+        with open('analysis/data/data.pickle', 'wb') as f:
+            pickle.dump(self.df, f)
+        with open('analysis/data/mse.pickle', 'wb') as f:
+            pickle.dump(self.mse, f)
+        with open('analysis/data/strikerates.pickle', 'wb') as f:
+            pickle.dump(self.strikerates, f)
+
+    def _check_prediction_outcomes(self, prediction: dict):
         """check the outcomes of a prediction.
         reads the probabilities forecasted for each number of goals for home and away teams,
         and compares them to the actual result of the fixture.
@@ -71,92 +176,6 @@ class Analyst:
             combined.append((away_prob, away_outcome))
 
         return combined
-        
-    def create_analysis_df(self, seasons: list[str], competitions: list[str]):
-        """creates a dataframe where each row is a prediction probability and its respective outcome,
-        for all predictions in given seasons and competitions.
-        
-        Args:
-            seasons (list[str]): the seasons to analyse, formatted ['YYYY-YYYY']
-            competitions (list[str]): the competitions to analyse
-        """
-        if type(seasons) != list:
-            raise TypeError('seasons must be a list of strings with format ["yyyy-yyyy"]')
-        if type(competitions) != list:
-            raise TypeError('competitions must be a list of strings')
-        for season in seasons:
-            self._validate_season(season)
-        for competition in competitions:
-            self._validate_competition(competition)
-
-        predictor = Predictor()
-        data = {'probability': [], 'outcome': []}
-        
-        for season in seasons:
-            for competition in competitions:
-                fixtures = Fixture.objects.filter(competition=competition, season=season)
-                for fixture in fixtures:
-                    prediction = predictor.generate_prediction(fixture)
-                    pred_copy = prediction.copy()
-                    outcomes = self.check_prediction_outcomes(prediction)
-                    combined = self._combine_predictions_and_outcomes(pred_copy, outcomes)
-                    for prob, outcome in combined:
-                        data['probability'].append(prob)
-                        data['outcome'].append(outcome)
-                    
-        df = pd.DataFrame(data)
-        self.df = df
-        return df
-
-    def calculate_strikerates(self, df: pd.DataFrame):
-        """calculates the strikerates for probability ranges of 2.5%. If there are no predictions within
-        a particular range, the mean prediction value and stirke rate for the range are set to None.
-        Args:
-            df (pd.DataFrame): the dataframe to analyse, which should have been created by Analyst.create_analysis_df().
-        Returns:
-            dict: a dict of the form {percent_range: {'mean_prediction': mean(probs_within_range), 'strikerate': strikerate}, ...}
-        """
-        strikerates = {}
-        lower_bound = 0.0
-        while lower_bound < 100:
-            upper_bound = lower_bound + 2.5
-            l_bound = lower_bound / 100
-            u_bound = upper_bound / 100
-            preds_within_range = df[(df['probability'] >= l_bound) & (df['probability'] < u_bound)]
-            mean_prediction = preds_within_range['probability'].mean()
-            if math.isnan(mean_prediction):
-                mean_prediction = None
-            try:
-                strikerate = len(preds_within_range[preds_within_range['outcome'] == 1]) / len(preds_within_range)
-            except ZeroDivisionError:
-                strikerate = None
-            strikerates[f'{lower_bound}-{upper_bound}'] = {'mean_prediction': mean_prediction, 'strikerate': strikerate}
-            lower_bound += 2.5
-        self.strikerates = strikerates
-        return strikerates
-
-    def mean_squared_error(self, strikerates: dict):
-        """calculates the mean squared error for the given strikerates.
-        Args:
-            strikerates (dict): the strikerates to calculate the MSE for. should be a dict output
-            by Analyst.calculate_strikerates().
-        Returns:
-            float: the mean squared error
-        """
-        mse = 0
-        count = 0
-        for preds_and_strikerates in strikerates.values():
-            observed = preds_and_strikerates['strikerate']
-            predicted = preds_and_strikerates['mean_prediction']
-            if observed is None or predicted is None:
-                continue
-            mse += (observed - predicted) ** 2
-            count += 1
-        mse /= count
-        mse = round(mse, 4)
-        self.mse = mse
-        return mse
-
 
     def _validate_competition(self, competition):
         if competition not in PREDICTION_LEAGUES:

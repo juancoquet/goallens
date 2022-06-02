@@ -401,7 +401,10 @@ class Predictor:
             home_goals = [f.goals_home for f in past_n_home_fixtures]
             away_goals = [f.goals_away for f in past_n_away_fixtures]
             agnostic = (sum(home_goals) + sum(away_goals)) / 2
-            result = sum(home_goals) / agnostic
+            try:
+                result = sum(home_goals) / agnostic
+            except ZeroDivisionError:
+                result = 1.0
         else:
             away_team = fixture.away
             past_n_home_fixtures = Fixture.objects.filter(
@@ -415,7 +418,10 @@ class Predictor:
             home_goals = [f.goals_home for f in past_n_home_fixtures]
             away_goals = [f.goals_away for f in past_n_away_fixtures]
             agnostic = (sum(home_goals) + sum(away_goals)) / 2
-            result = sum(away_goals) / agnostic
+            try:
+                result = sum(away_goals) / agnostic
+            except ZeroDivisionError:
+                result = 1.0
         weight_delta = result - 1
         weighted_delta = weight_delta * weight
         weighted_result = round((1 + weighted_delta), 2)

@@ -121,6 +121,12 @@ class TestPredictor(TestCase):
         expected = 1.0
         self.assertEqual(away_perfomance, expected)
 
+    def test_calculate_h_a_performance_no_goals_scored(self):
+        fixture = Fixture.objects.get(id='63496f6c')
+        perf = self.predictor._calculate_home_away_performance(fixture, 'away', past_games=10)
+        expected = 1.0
+        self.assertEqual(perf, expected)
+
     def test_calculate_home_away_performance_weighted(self):
         home_perfomance = self.predictor._calculate_home_away_performance(self.fixture, 'home', past_games=10, weight=0.5)
         expected = 1.13

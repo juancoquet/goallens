@@ -46,7 +46,7 @@ class TestAnalyst(TestCase):
 
     def test_check_prediction_outcomes(self):
         prediction = self.predictor.generate_prediction(self.fixture)
-        outcomes = self.analyst.check_prediction_outcomes(prediction)
+        outcomes = self.analyst._check_prediction_outcomes(prediction)
         expected = {
             '0_goals': {'home': 0, 'away': 0},
             '1_goals': {'home': 0, 'away': 0},
@@ -60,7 +60,7 @@ class TestAnalyst(TestCase):
         self.assertEqual(outcomes, expected)
         fixture = Fixture.objects.get(id='ad903480')
         prediction = self.predictor.generate_prediction(fixture)
-        outcomes = self.analyst.check_prediction_outcomes(prediction)
+        outcomes = self.analyst._check_prediction_outcomes(prediction)
         expected = {
             '0_goals': {'home': 0, 'away': 0},
             '1_goals': {'home': 0, 'away': 1},
@@ -76,7 +76,7 @@ class TestAnalyst(TestCase):
     def test_combine_predictions_and_outcomes(self):
         prediction = self.predictor.generate_prediction(self.fixture)
         pred_copy = prediction.copy()
-        outcomes = self.analyst.check_prediction_outcomes(prediction)
+        outcomes = self.analyst._check_prediction_outcomes(prediction)
         combined = self.analyst._combine_predictions_and_outcomes(pred_copy, outcomes)
         expected = [
             (0.0567, 0), (0.2952, 0),
