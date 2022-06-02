@@ -14,6 +14,8 @@ class Analyst:
 
     def __init__(self):
         self.df = None
+        self.strikerates = None
+        self.mse = None
 
     def check_prediction_outcomes(self, prediction: dict):
         """check the outcomes of a prediction.
@@ -130,7 +132,31 @@ class Analyst:
                 strikerate = None
             strikerates[f'{lower_bound}-{upper_bound}'] = {'mean_prediction': mean_prediction, 'strikerate': strikerate}
             lower_bound += 2.5
+        self.strikerates = strikerates
         return strikerates
+
+    def mean_squared_error(self, strikerates: dict):
+        """calculates the mean squared error for the given strikerates.
+        Args:
+            strikerates (dict): the strikerates to calculate the MSE for. should be a dict output
+            by Analyst.calculate_strikerates().
+        Returns:
+            float: the mean squared error
+        """
+        mse = 0
+        count = 0
+        for preds_and_strikerates in strikerates.values():
+            observed = preds_and_strikerates['strikerate']
+            predicted = preds_and_strikerates['mean_prediction']
+            if observed is None or predicted is None:
+                continue
+            mse += (observed - predicted) ** 2
+            count += 1
+        mse /= count
+        mse = round(mse, 4)
+        self.mse = mse
+        return mse
+
 
     def _validate_competition(self, competition):
         if competition not in PREDICTION_LEAGUES:

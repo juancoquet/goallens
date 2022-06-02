@@ -166,3 +166,14 @@ class TestAnalyst(TestCase):
             '97.5-100.0': {'mean_prediction': None, 'strikerate': None},
         }
         self.assertEqual(result, expected)
+
+    def test_mean_squared_error(self):
+        data = {
+            'probability': [0.0001, 0.024, 0.12, 0.31, 0.324],
+            'outcome': [0, 0, 1, 0, 1]
+        }
+        df = pd.DataFrame(data)
+        strikerates = self.analyst.calculate_strikerates(df)
+        result = self.analyst.mean_squared_error(strikerates)
+        expected = 0.2693
+        self.assertEqual(result, expected)
