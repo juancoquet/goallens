@@ -10,3 +10,11 @@ COMP_CODES = {
     'Serie A': 11,
     'Serie B': 18,
 }
+
+PREDICTION_LEAGUES = {
+    'Premier League': 9,
+    'La Liga': 12,
+    'Bundesliga': 20,
+    'Ligue 1': 13,
+    'Serie A': 11,
+}
