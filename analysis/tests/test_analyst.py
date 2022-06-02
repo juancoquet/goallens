@@ -1,7 +1,9 @@
+from cmath import nan
 import csv
 from decimal import Decimal
 from datetime import date, time
 from django.test import TestCase # type: ignore
+import pandas as pd # type: ignore
 
 from ..analyst import Analyst
 from data_sourcing.models import Fixture, Team
@@ -113,3 +115,54 @@ class TestAnalyst(TestCase):
             self.analyst.create_analysis_df(seasons=['2003-2004'], competitions=['Premier League'])
         with self.assertRaises(ValueError):
             self.analyst.create_analysis_df(seasons=['2998-2999'], competitions=['Premier League'])
+
+    def test_calculate_strike_rates(self):
+        data = {
+            'probability': [0.0001, 0.024, 0.12, 0.31, 0.324],
+            'outcome': [0, 0, 1, 0, 1]
+        }
+        df = pd.DataFrame(data)
+        result = self.analyst.calculate_strikerates(df)
+        expected = {
+            '0.0-2.5': {'mean_prediction': 0.01205, 'strikerate': 0.0},
+            '2.5-5.0': {'mean_prediction': None, 'strikerate': None},
+            '5.0-7.5': {'mean_prediction': None, 'strikerate': None},
+            '7.5-10.0': {'mean_prediction': None, 'strikerate': None},
+            '10.0-12.5': {'mean_prediction': 0.12, 'strikerate': 1.0},
+            '12.5-15.0': {'mean_prediction': None, 'strikerate': None},
+            '15.0-17.5': {'mean_prediction': None, 'strikerate': None},
+            '17.5-20.0': {'mean_prediction': None, 'strikerate': None},
+            '20.0-22.5': {'mean_prediction': None, 'strikerate': None},
+            '22.5-25.0': {'mean_prediction': None, 'strikerate': None},
+            '25.0-27.5': {'mean_prediction': None, 'strikerate': None},
+            '27.5-30.0': {'mean_prediction': None, 'strikerate': None},
+            '30.0-32.5': {'mean_prediction': 0.317, 'strikerate': 0.5},
+            '32.5-35.0': {'mean_prediction': None, 'strikerate': None},
+            '35.0-37.5': {'mean_prediction': None, 'strikerate': None},
+            '37.5-40.0': {'mean_prediction': None, 'strikerate': None},
+            '40.0-42.5': {'mean_prediction': None, 'strikerate': None},
+            '42.5-45.0': {'mean_prediction': None, 'strikerate': None},
+            '45.0-47.5': {'mean_prediction': None, 'strikerate': None},
+            '47.5-50.0': {'mean_prediction': None, 'strikerate': None},
+            '50.0-52.5': {'mean_prediction': None, 'strikerate': None},
+            '52.5-55.0': {'mean_prediction': None, 'strikerate': None},
+            '55.0-57.5': {'mean_prediction': None, 'strikerate': None},
+            '57.5-60.0': {'mean_prediction': None, 'strikerate': None},
+            '60.0-62.5': {'mean_prediction': None, 'strikerate': None},
+            '62.5-65.0': {'mean_prediction': None, 'strikerate': None},
+            '65.0-67.5': {'mean_prediction': None, 'strikerate': None},
+            '67.5-70.0': {'mean_prediction': None, 'strikerate': None},
+            '70.0-72.5': {'mean_prediction': None, 'strikerate': None},
+            '72.5-75.0': {'mean_prediction': None, 'strikerate': None},
+            '75.0-77.5': {'mean_prediction': None, 'strikerate': None},
+            '77.5-80.0': {'mean_prediction': None, 'strikerate': None},
+            '80.0-82.5': {'mean_prediction': None, 'strikerate': None},
+            '82.5-85.0': {'mean_prediction': None, 'strikerate': None},
+            '85.0-87.5': {'mean_prediction': None, 'strikerate': None},
+            '87.5-90.0': {'mean_prediction': None, 'strikerate': None},
+            '90.0-92.5': {'mean_prediction': None, 'strikerate': None},
+            '92.5-95.0': {'mean_prediction': None, 'strikerate': None},
+            '95.0-97.5': {'mean_prediction': None, 'strikerate': None},
+            '97.5-100.0': {'mean_prediction': None, 'strikerate': None},
+        }
+        self.assertEqual(result, expected)

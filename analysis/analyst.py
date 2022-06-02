@@ -1,5 +1,7 @@
+from cmath import nan
 from datetime import date
 from decimal import Decimal
+import math
 import pandas as pd # type: ignore
 import re
 
@@ -104,6 +106,31 @@ class Analyst:
         self.df = df
         return df
 
+    def calculate_strikerates(self, df: pd.DataFrame):
+        """calculates the strikerates for probability ranges of 2.5%. If there are no predictions within
+        a particular range, the mean prediction value and stirke rate for the range are set to None.
+        Args:
+            df (pd.DataFrame): the dataframe to analyse, which should have been created by Analyst.create_analysis_df().
+        Returns:
+            dict: a dict of the form {percent_range: {'mean_prediction': mean(probs_within_range), 'strikerate': strikerate}, ...}
+        """
+        strikerates = {}
+        lower_bound = 0.0
+        while lower_bound < 100:
+            upper_bound = lower_bound + 2.5
+            l_bound = lower_bound / 100
+            u_bound = upper_bound / 100
+            preds_within_range = df[(df['probability'] >= l_bound) & (df['probability'] < u_bound)]
+            mean_prediction = preds_within_range['probability'].mean()
+            if math.isnan(mean_prediction):
+                mean_prediction = None
+            try:
+                strikerate = len(preds_within_range[preds_within_range['outcome'] == 1]) / len(preds_within_range)
+            except ZeroDivisionError:
+                strikerate = None
+            strikerates[f'{lower_bound}-{upper_bound}'] = {'mean_prediction': mean_prediction, 'strikerate': strikerate}
+            lower_bound += 2.5
+        return strikerates
 
     def _validate_competition(self, competition):
         if competition not in PREDICTION_LEAGUES:
