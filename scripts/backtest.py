@@ -29,3 +29,4 @@ bt = BackTester(
 )
 
 bt.back_test_params()
+bt.save_results()
