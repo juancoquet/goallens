@@ -1,8 +1,11 @@
+from cProfile import label
 from matplotlib import pyplot as plt
 import pickle
 
+from numpy import percentile
 
-def plot(strikerates, mse, title=None):
+
+def plot(strikerates, mse, df, title=None):
         """plots strikerate data.
         
         Args:
@@ -15,16 +18,27 @@ def plot(strikerates, mse, title=None):
 
         mean_predictions = []
         strikerates_list = []
-        for value in strikerates.values():
+        volume = []
+        for key, value in strikerates.items():
             if value['mean_prediction'] is not None:
                 mean_predictions.append(value['mean_prediction'])
+
+                lower_bound, upper_bound = (float(x) / 100 for x in key.split('-'))
+                total = (len(df[(df['probability'] >= lower_bound) & (df['probability'] < upper_bound)]))
+                percentage = (total / len(df))
+                volume.append(percentage)
+
             if value['strikerate'] is not None:
                 strikerates_list.append(value['strikerate'])
+            
 
-        plt.plot(mean_predictions, strikerates_list, color='green', linestyle='-', marker='.')
-        plt.xlabel('Mean Predictions')
-        plt.ylabel('Strikerate')
-        plt.annotate('MSE: ' + str(mse), xy=(0.8, 0.05), xycoords='axes fraction', fontsize=12)
+        plt.fill_between(mean_predictions, volume, color='red', alpha=0.25, label='volume distribution')
+        plt.plot(mean_predictions, strikerates_list, color='green', linestyle='-', marker='.', label='strikerate')
+        
+        plt.xlabel('mean predictions')
+        plt.ylabel('strikerate')
+        plt.annotate('wMSE (x100): ' + str(mse), xy=(0.02, 0.82), xycoords='axes fraction', fontsize=12)
+        plt.legend()
         plt.grid(True)
         
         plt.show()
@@ -35,4 +49,6 @@ with open('analysis/data/strikerates.pickle', 'rb') as f:
     strikerates = pickle.load(f)
 with open('analysis/data/mse.pickle', 'rb') as f:
     mse = pickle.load(f)
-plot(strikerates, mse, title='Strikerate vs Mean Prediction')
+with open('analysis/data/data.pickle', 'rb') as f:
+    df = pickle.load(f)
+plot(strikerates, mse, df, title='Strikerate vs Mean Prediction')

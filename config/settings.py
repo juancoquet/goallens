@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # third party apps
     'django_extensions',
     # local
+    'analysis.apps.AnalysisConfig',
     'data_sourcing.apps.DataSourcingConfig',
     'predictions.apps.PredictionsConfig',
 ]

@@ -174,6 +174,6 @@ class TestAnalyst(TestCase):
         }
         df = pd.DataFrame(data)
         strikerates = self.analyst.calculate_strikerates(df)
-        result = self.analyst.mean_squared_error(strikerates)
-        expected = 0.2693
+        result = self.analyst.weighted_mean_squared_error(strikerates, df)
+        expected = 5.6111
         self.assertEqual(result, expected)

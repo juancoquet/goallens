@@ -10,5 +10,5 @@ competitions = [key for key in PREDICTION_LEAGUES.keys()]
 
 df = analyst.create_analysis_df(seasons, competitions)
 strikerates = analyst.calculate_strikerates(df)
-mse = analyst.mean_squared_error(strikerates)
+mse = analyst.weighted_mean_squared_error(strikerates, df)
 analyst.pickle_data()
