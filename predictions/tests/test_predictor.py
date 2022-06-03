@@ -212,7 +212,7 @@ class TestSuppressionScores(TestCase):
 
     def test_calculate_suppression_scores_custom_range(self):
         fixture = Fixture.objects.get(id='79b8fb6e')
-        defensive_scores = self.predictor._calculate_chance_suppression_scores(fixture, past_games=5, range=0.5)
+        defensive_scores = self.predictor._calculate_chance_suppression_scores(fixture, past_games=5, range_=0.5)
         expected = {'home': 1.08, 'away': 1.05}
         self.assertEqual(defensive_scores, expected)
 
@@ -264,7 +264,7 @@ class TestConversionScores(TestCase):
 
     def test_calculate_chance_conversion_scores_custom_range(self):
         fixture = Fixture.objects.get(id='59b3ee40')
-        conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5, range=0.5)
+        conversion_scores = self.predictor._calculate_chance_conversion_scores(fixture, past_games=5, range_=0.5)
         expected = {'home': 0.83, 'away': 1.09}
         self.assertEqual(conversion_scores, expected)
 

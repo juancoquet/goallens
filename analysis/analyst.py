@@ -9,7 +9,7 @@ import re
 
 from data_sourcing.models import Fixture
 from predictions.predictor import NotEnoughDataError, Predictor
-from supported_comps import PREDICTION_LEAGUES
+from supported_comps import PREDICTION_COMPS
 
 
 class Analyst:
@@ -19,7 +19,10 @@ class Analyst:
         self.strikerates = None
         self.mse = None
 
-    def create_analysis_df(self, seasons: list[str], competitions: list[str]):
+    def create_analysis_df(self, seasons: list[str], competitions: list[str],
+                        xG_past_games=5, suppression_range=1, conversion_range=1,
+                        sup_con_past_games=5, h_a_weight=1, h_a_past_games=10
+    ):
         """creates a dataframe where each row is a prediction probability and its respective outcome,
         for all predictions in given seasons and competitions.
         
@@ -45,7 +48,8 @@ class Analyst:
                 for fixture in fixtures:
                     print(f'processing {fixture.id}, {len(data["probability"])} records so far')
                     try:
-                        prediction = predictor.generate_prediction(fixture)
+                        prediction = predictor.generate_prediction(fixture, xG_past_games, suppression_range, conversion_range,
+                                                                    sup_con_past_games, h_a_weight, h_a_past_games)
                     except NotEnoughDataError:
                         continue
                     pred_copy = prediction.copy()
@@ -60,7 +64,7 @@ class Analyst:
         self.df = df
         return df
 
-    def calculate_strikerates(self, df: pd.DataFrame):
+    def calculate_strikerates(self, df: pd.DataFrame=None):
         """calculates the strikerates for probability ranges of 2.5%. If there are no predictions within
         a particular range, the mean prediction value and stirke rate for the range are set to None.
         Args:
@@ -68,6 +72,8 @@ class Analyst:
         Returns:
             dict: a dict of the form {percent_range: {'mean_prediction': mean(probs_within_range), 'strikerate': strikerate}, ...}
         """
+        if df is None:
+            df = self.df
         strikerates = {}
         lower_bound = 0.0
         while lower_bound < 100:
@@ -86,11 +92,8 @@ class Analyst:
             lower_bound += 2.5
         self.strikerates = strikerates
         return strikerates
-
-
     
-    
-    def weighted_mean_squared_error(self, strikerates: dict, df: pd.DataFrame):
+    def weighted_mean_squared_error(self, strikerates: dict=None, df: pd.DataFrame=None):
         """calculates the mean squared error for the given strikerates, weighted for the distribution
         density of forecast probabilities. if 98% of predictions made have a forecast probability within
         a particular range, the error rate for that range should be proportionally significant to the
@@ -102,6 +105,17 @@ class Analyst:
         Returns:
             float: the mean squared error
         """
+        if strikerates is None:
+            if self.strikerates is None:
+                raise ValueError('strikerates must be provided')
+            else:
+                strikerates = self.strikerates
+        if df is None:
+            if self.df is None:
+                raise ValueError('df must be provided')
+            else:
+                df = self.df
+
         wmse = 0
         count = 0
         for p_range, preds_and_strikerates in strikerates.items():
@@ -186,8 +200,8 @@ class Analyst:
         return combined
 
     def _validate_competition(self, competition):
-        if competition not in PREDICTION_LEAGUES:
-            valid_comps = [k for k in PREDICTION_LEAGUES.keys()]
+        if competition not in PREDICTION_COMPS:
+            valid_comps = [k for k in PREDICTION_COMPS.keys()]
             raise ValueError(f'competion must be one of {valid_comps} – {competition} is invalid')
 
     def _validate_season(self, season):

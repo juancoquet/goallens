@@ -11,7 +11,7 @@ COMP_CODES = {
     'Serie B': 18,
 }
 
-PREDICTION_LEAGUES = {
+PREDICTION_COMPS = {
     'Premier League': 9,
     'La Liga': 12,
     'Bundesliga': 20,

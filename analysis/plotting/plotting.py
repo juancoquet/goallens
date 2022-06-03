@@ -1,11 +1,8 @@
-from cProfile import label
 from matplotlib import pyplot as plt
 import pickle
 
-from numpy import percentile
 
-
-def plot(strikerates, mse, df, title=None):
+def plot(strikerates, mse, df, title=None, filename=None):
         """plots strikerate data.
         
         Args:
@@ -37,11 +34,16 @@ def plot(strikerates, mse, df, title=None):
         
         plt.xlabel('mean predictions')
         plt.ylabel('strikerate')
-        plt.annotate('wMSE (x100): ' + str(mse), xy=(0.02, 0.82), xycoords='axes fraction', fontsize=12)
+        plt.annotate('wMSE (x100): ' + str(mse), xy=(0.02, 0.8), xycoords='axes fraction', fontsize=10)
         plt.legend()
         plt.grid(True)
+        if filename is None:
+            plt.show()
+        else:
+            plt.savefig(f'{filename}.png')
+
         
-        plt.show()
+
 
 
 
@@ -51,4 +53,3 @@ with open('analysis/data/mse.pickle', 'rb') as f:
     mse = pickle.load(f)
 with open('analysis/data/data.pickle', 'rb') as f:
     df = pickle.load(f)
-plot(strikerates, mse, df, title='Strikerate vs Mean Prediction')

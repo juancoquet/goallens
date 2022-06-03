@@ -11,14 +11,15 @@ from supported_comps import COMP_CODES
 
 class Predictor:
 
-    def generate_prediction(self, fixture, suppression_weight=1, conversion_weight=1, h_a_weight=1,
-                             past_games=5, h_a_past_games=10):
+    def generate_prediction(self, fixture, xGs_past_games=5, suppression_range=1, conversion_range=1, sup_con_past_games=5,
+                            h_a_weight=1, h_a_past_games=10):
         forecast_xGs = self._forecast_xGs(
             fixture,
-            suppression_weight=suppression_weight,
-            conversion_weight=conversion_weight,
+            xGs_past_games=xGs_past_games,
+            suppression_range=suppression_range,
+            conversion_range=conversion_range,
             h_a_weight=h_a_weight,
-            past_games=past_games,
+            sup_con_past_games=sup_con_past_games,
             h_a_past_games=h_a_past_games
         )
         goal_probs = {}
@@ -45,8 +46,8 @@ class Predictor:
         prediction['likely_scoreline'] = {'home': likely_home, 'away': likely_away}
         return prediction
     
-    def _forecast_xGs(self, fixture: Fixture, suppression_weight=1, conversion_weight=1, h_a_weight=1,
-                      past_games=5, h_a_past_games=10):
+    def _forecast_xGs(self, fixture: Fixture, xGs_past_games=5, suppression_range=1, conversion_range=1, sup_con_past_games=5,
+                    h_a_weight=1, h_a_past_games=10):
         """generates a forecast xG for each team with the following formula:
         fxG = ((bfxG * conversion) + (o_bfxGA * o_suppression)) / 2 * h_a_performance
         where b=base, f=forecast, o=opposition
@@ -62,10 +63,10 @@ class Predictor:
         Returns:
             dict: {'home': fxG (float), 'away': fxG (float)}
         """
-        base_xGs = self._calculate_base_forecast_xGs(fixture)
-        base_xGAs = self._calculate_base_forecast_xGAs(fixture)
-        suppression_scores = self._calculate_chance_suppression_scores(fixture, past_games, suppression_weight)
-        conversion_scores = self._calculate_chance_conversion_scores(fixture, past_games, conversion_weight)
+        base_xGs = self._calculate_base_forecast_xGs(fixture, xGs_past_games)
+        base_xGAs = self._calculate_base_forecast_xGAs(fixture, xGs_past_games)
+        suppression_scores = self._calculate_chance_suppression_scores(fixture, sup_con_past_games, suppression_range)
+        conversion_scores = self._calculate_chance_conversion_scores(fixture, sup_con_past_games, conversion_range)
         home_performance = self._calculate_home_away_performance(fixture, 'home', h_a_past_games, h_a_weight)
         away_performance = self._calculate_home_away_performance(fixture, 'away', h_a_past_games, h_a_weight)
         
@@ -97,7 +98,7 @@ class Predictor:
         ).order_by('date')
         return fixtures
 
-    def _calculate_base_forecast_xGs(self, fixture):
+    def _calculate_base_forecast_xGs(self, fixture, past_games=5):
         """gets the average xG of the last 5 games for each team involced in a
         given fixture. if there is no past xG data, then goals scored is used instead.
 
@@ -107,7 +108,7 @@ class Predictor:
         Returns:
             dict: {'home': home_forecast_xG, 'away': away_forecast_xG}
         """
-        home_past_5 = self._get_home_team_past_n_fixtures(fixture)
+        home_past_5 = self._get_home_team_past_n_fixtures(fixture, past_games)
         home_past_5_xGs = []
         for f in home_past_5:
             if f.home == fixture.home:
@@ -125,7 +126,7 @@ class Predictor:
             except ZeroDivisionError:
                 home_avg_xG = float(0)
         
-        away_past_5 = self._get_away_team_past_n_fixtures(fixture)
+        away_past_5 = self._get_away_team_past_n_fixtures(fixture, past_games)
         away_past_5_xGs = []
         for f in away_past_5:
             if f.home == fixture.away:
@@ -144,8 +145,8 @@ class Predictor:
                 away_avg_xG = Decimal('0.0')
         return {'home': float(home_avg_xG), 'away': float(away_avg_xG)}
 
-    def _calculate_base_forecast_xGAs(self, fixture):
-        home_past_5 = self._get_home_team_past_n_fixtures(fixture)
+    def _calculate_base_forecast_xGAs(self, fixture, past_games=5):
+        home_past_5 = self._get_home_team_past_n_fixtures(fixture, past_games)
         home_past_5_xGAs = []
         for f in home_past_5:
             if f.home == fixture.home: # if is home team
@@ -163,7 +164,7 @@ class Predictor:
             except ZeroDivisionError:
                 home_avg_xGAs = float(0)
 
-        away_past_5 = self._get_away_team_past_n_fixtures(fixture)
+        away_past_5 = self._get_away_team_past_n_fixtures(fixture, past_games)
         away_past_5_xGAs = []
         for f in away_past_5:
             if f.home == fixture.away:
@@ -182,7 +183,7 @@ class Predictor:
                 away_avg_xGAs = float(0)
         return {'home': float(home_avg_xGAs), 'away': float(away_avg_xGAs)}
 
-    def _calculate_chance_suppression_scores(self, fixture, past_games=5, range=1):
+    def _calculate_chance_suppression_scores(self, fixture, past_games=5, range_=1):
         """calculates the chance suppression scores for a given fixture. chance suppression
         represents a team's ability to defend their opponents' goal scoring chances. values within a given range
         centered at 1 are calculated, e.g from 0.5 to 1.5 (range=1) or from 0.75 to 1.25 (range=0.5). the process is:
@@ -213,19 +214,19 @@ class Predictor:
         if home_base_suppression > 1:
             percentage = 1 / home_base_suppression
             inverse = 1 - percentage
-            home_suppression = 1 + (inverse * (0.5 * range))
+            home_suppression = 1 + (inverse * (0.5 * range_))
         else:
             inverse = 1 - home_base_suppression
-            home_suppression = 1 - (inverse * (0.5 * range))
+            home_suppression = 1 - (inverse * (0.5 * range_))
 
         away_base_suppression = self._suppression_score_helper(fixture, past_games, 'away')
         if away_base_suppression > 1:
             percentage = 1 / away_base_suppression
             inverse = 1 - percentage
-            away_suppression = 1 + (inverse * (0.5 * range))
+            away_suppression = 1 + (inverse * (0.5 * range_))
         else:
             inverse = 1 - away_base_suppression
-            away_suppression = 1 - (inverse * (0.5 * range))
+            away_suppression = 1 - (inverse * (0.5 * range_))
         return {'home': round(home_suppression, 2), 'away': round(away_suppression, 2)}
 
     def _suppression_score_helper(self, fixture, n_games, home_or_away: str):
@@ -269,7 +270,7 @@ class Predictor:
             base_suppression = 1
         return base_suppression
 
-    def _calculate_chance_conversion_scores(self, fixture, past_games=5, range=1):
+    def _calculate_chance_conversion_scores(self, fixture, past_games=5, range_=1):
         """calculates the chance conversion scores for a given fixture. chance conversion
         represents a team's ability to convert their goal scoring chances. values within a given
         range centered at 1 are calculated, e.g. from 0.5 to 1.5 (range=1) or from 0.75 to 1.25 
@@ -299,19 +300,19 @@ class Predictor:
         if home_base_conversion > 1:
             percentage = 1 / home_base_conversion
             inverse = 1 - percentage
-            home_conversion = 1 + (inverse * (0.5 * range))
+            home_conversion = 1 + (inverse * (0.5 * range_))
         else:
             inverse = 1 - home_base_conversion
-            home_conversion = 1 - (inverse * (0.5 * range))
+            home_conversion = 1 - (inverse * (0.5 * range_))
 
         away_base_conversion = self._conversion_score_helper(fixture, past_games, 'away')
         if away_base_conversion > 1:
             percentage = 1 / away_base_conversion
             inverse = 1 - percentage
-            away_conversion = 1 + (inverse * (0.5 * range))
+            away_conversion = 1 + (inverse * (0.5 * range_))
         else:
             inverse = 1 - away_base_conversion
-            away_conversion = 1 - (inverse * (0.5 * range))
+            away_conversion = 1 - (inverse * (0.5 * range_))
 
         return {'home': round(home_conversion, 2), 'away': round(away_conversion, 2)}
 

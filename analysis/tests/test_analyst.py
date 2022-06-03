@@ -177,3 +177,30 @@ class TestAnalyst(TestCase):
         result = self.analyst.weighted_mean_squared_error(strikerates, df)
         expected = 5.6111
         self.assertEqual(result, expected)
+
+    def test_calculate_strikerates_defaults_to_self_df(self):
+        data = {
+            'probability': [0.0001, 0.024, 0.12, 0.31, 0.324],
+            'outcome': [0, 0, 1, 0, 1]
+        }
+        df = pd.DataFrame(data)
+        self.analyst.df = df
+        try:
+            self.analyst.calculate_strikerates()
+        except Exception as e:
+            self.fail(e)
+        self.assertNotEqual(self.analyst.strikerates, None)
+
+    def test_weighted_mean_squared_error_defaults_to_self_strikerates_and_df(self):
+        data = {
+            'probability': [0.0001, 0.024, 0.12, 0.31, 0.324],
+            'outcome': [0, 0, 1, 0, 1]
+        }
+        df = pd.DataFrame(data)
+        self.analyst.df = df
+        self.analyst.calculate_strikerates()
+        try:
+            self.analyst.weighted_mean_squared_error()
+        except Exception as e:
+            self.fail(e)
+        self.assertNotEqual(self.analyst.weighted_mean_squared_error, None)
