@@ -6,6 +6,7 @@ req_cache.sqlite
 vim_keys.png
 analysis/back_testing/results/
 *.icloud
+functional_tests/error_captures/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'analysis.apps.AnalysisConfig',
     'data_sourcing.apps.DataSourcingConfig',
     'predictions.apps.PredictionsConfig',
+    'homepage.apps.HomepageConfig',
 ]
 
 MIDDLEWARE = [
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
