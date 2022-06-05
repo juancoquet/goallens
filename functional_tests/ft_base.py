@@ -7,14 +7,15 @@ import os
 
 class FunctionalTest(StaticLiveServerTestCase):
 
+    host="web"
+    
     def setUp(self):
         self.driver = webdriver.Remote(
             'http://selenium:4444/wd/hub',
             desired_capabilities=DesiredCapabilities.FIREFOX,
         )
         self.error_capture_path = None
-        # self.driver.get(self.live_server_url)
-        self.driver.get('https://www.google.com')
+        self.driver.get(self.live_server_url)
         self.driver.save_screenshot('screenshot.png')
 
     def tearDown(self):

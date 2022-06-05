@@ -9,3 +9,10 @@ class NewVisitorTest(FunctionalTest):
         # a new user visits the site and is greeted by a welcome message
         welcome = self.driver.find_element(By.TAG_NAME, 'h1')
         self.assertEqual(welcome.text, 'Welcome to')
+
+        # they see a button inviting them to learn more
+        learn_more = self.driver.find_element(By.CLASS_NAME, 'btn--primary')
+
+        # they click the button and the page scrolls down
+        learn_more.click()
+        

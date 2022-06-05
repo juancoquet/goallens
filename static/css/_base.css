@@ -1,0 +1,45 @@
+:root {
+    --max-width: 1200px;
+    --side-padding: 2.4rem;
+
+    /* colors */
+    --bg: #F8F9FA;
+    --dark-grey: #7e7e7e;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    max-width: var(--max-width);
+    padding: 0 var(--side-padding);
+    margin: 0 auto;
+    background-color: var(--bg);
+}
+
+h1, h2, h3, h4, h5, h6 {}
+
+h1 {
+    font-size: 6.4rem;
+}
+
+h2 {}
+
+h3 {}
+
+p, a, span, li {
+    font-size: 1.6rem;
+}
+
+.content-width {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+}

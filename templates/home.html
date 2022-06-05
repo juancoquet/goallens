@@ -1,1 +1,39 @@
-<h1>hey</h1>
+{% extends '_base.html' %}
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock styles %}
+
+{% block content %}
+
+  <h1>Welcome to</h1>
+  <img src="{% static 'images/logo.svg' %}" alt="logo" class="logo">
+  <p>A prediction model for Europe's top 5 football leagues</p>
+  <button class="btn--primary">LEARN MORE</button>
+
+  <section id="data-section">
+    <h1>Five seasons of data</h1>
+    <p>Goal Lens uses data from 2017 onwards, for all top-flight matches in England, Spain, France, Italy and Germany.</p>
+    <p>That's more than 9,000 fixtures which the model uses to learn from.</p>
+    <img src="{% static 'images/graphics/data.svg' %}" alt="laptop sorting data">
+  </section>
+
+  <section id="analysis-section">
+    <h1>Over 10 million predictions analysed</h1>
+    <p>Many different prediciton strategies have been put to the test on historical data to improve the accuracy of the model.</p>
+    <p>Strategies were refined iteratively through a genetic algorithm to hone in on the perfectly weighted set of parameters.</p>
+    <button class="btn--primary">VIEW PREDICTIONS</button>
+    <img src="{% static 'images/graphics/analysis.svg' %}" alt="data being analysed" style="transform: scaleX(-1)">
+  </section>
+
+  <section id="green-line-section">
+    <h1>All to produce a green line</h1>
+    <p>Goal Lens makes accurate predictions.</p>
+    <p>The outcomes of those predictions match the probabilities forecast by the model almost perfectly</p>
+    <button class="btn--primary">VIEW ANALYSIS</button>
+  </section>
+
+
+  
+{% endblock content %}
