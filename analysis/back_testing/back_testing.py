@@ -1,6 +1,5 @@
 from copyreg import pickle
 import datetime as dt
-from fileinput import filename
 import itertools
 import os
 import pickle
