@@ -5,6 +5,7 @@ req_cache.sqlite
 .DS_Store
 vim_keys.png
 analysis/back_testing/results/
+*.icloud
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
