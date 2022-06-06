@@ -35,7 +35,7 @@ async function closeMenu() {
 window.addEventListener('resize', calculateMenu);
 
 function calculateMenu() {
-    if (window.innerWidth > 485) {
+    if (window.innerWidth > 640) {
         navItems.forEach(item => {
             navRight.appendChild(item);
             item.style.display = 'block';
@@ -46,6 +46,7 @@ function calculateMenu() {
             item.style.display = 'none';
         });
     }
+    menu.classList.add('hidden');
     menuClose.classList.add('hidden');
     menuBtn.classList.remove('hidden');
 }

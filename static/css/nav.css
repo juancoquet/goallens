@@ -26,7 +26,17 @@ nav {
 }
 
 .nav__item {
-    margin-left: 1.6rem;   
+    margin-left: 1.6rem;
+    text-decoration: none;
+    background: linear-gradient(180deg, rgba(86,3,173,1) 30%, rgba(253,163,255,1) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav__text {
+    font-family: 'Radwave', sans-serif;
+    font-size: 1.6rem;
 }
 
 .nav__menu {
@@ -46,10 +56,9 @@ nav {
     align-items: center;
     background-color: hsl(210, 17%, 98%, 0.8);
     backdrop-filter: blur(2px);
-
 }
 
-@media screen and (max-width: 485px) {
+@media screen and (max-width: 640px) {
     .nav__menu {
         display: block;
     }
@@ -61,7 +70,7 @@ nav {
 
     .nav__item {
         display: none;
-        margin: 1.2rem 0;
+        margin: 1.2rem auto;
     }
 
     .mobile-menu {

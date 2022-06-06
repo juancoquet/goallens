@@ -1,0 +1,37 @@
+section.hero {
+    /* margin: 0.8rem; */
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0.8rem;
+    border-bottom: 1px solid var(--dark-grey);
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2.4rem 0;
+}
+
+.hero__heading {
+    width: clamp(230px, 50%, 561px);
+    /* margin: 3.2rem 0; */
+}
+
+.hero__graphic {
+    width: 100%;
+}
+
+.hero__text {
+    text-align: center;
+    font-size: clamp(1.6rem, 3.5vw, 3.2rem);
+}
+
+.graphic {
+    max-width: 80%;
+    margin: 0.8rem auto 0 auto;
+}
+
+button {
+    margin-bottom: 0;
+}

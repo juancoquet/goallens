@@ -1,10 +1,53 @@
+/* FONTS -------------------------------------- */
+
+@font-face {
+    font-family: 'Radwave';
+    src: url('../fonts/radwave/RadwaveFont_Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Radwave Outline';
+    src: url('../fonts/radwave/RadwaveFont_Outline.otf') format('opentype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Argentum Sans';
+    src: url('../fonts/argentum_sans/argentum-sans.regular.ttf') format('truetype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Argentum Sans';
+    src: url('../fonts/argentum_sans/argentum-sans.light.ttf') format('truetype');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Argentum Sans';
+    src: url('../fonts/argentum_sans/argentum-sans.semibold.ttf') format('truetype');
+    font-weight: 700;
+}
+
+
+/* BASE FORMATTING ------------------------------------------- */
+
 :root {
     --max-width: 1200px;
-    --side-padding: 2.4rem;
+    --side-padding: 1.6rem;
+    --h1-size: 3.2rem;
 
     /* colors */
     --bg: #F8F9FA;
+    --dark-prpl: #5603ad;
+    --light-prpl: #A56EF4;
+    --pink: #FDA3FF;
     --dark-grey: #7e7e7e;
+    --text-grey: #424242;
+    --dark-green: #069464;
+    --light-green: #06B178;
 }
 
 * {
@@ -18,28 +61,148 @@ html {
 }
 
 body {
-    max-width: var(--max-width);
-    padding: 0 var(--side-padding);
-    margin: 0 auto;
     background-color: var(--bg);
 }
 
-h1, h2, h3, h4, h5, h6 {}
+section {
+    background-color: var(--bg);
+    padding: 1.6rem 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Radwave', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 80%;
+}
+
+.heading-accent {
+    font-family: 'Radwave', sans-serif;
+    font-weight: normal;
+    font-size: inherit;
+    background: linear-gradient(180deg, rgba(86,3,173,1) 0%, rgba(253,163,255,1) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-stroke: 0.1em transparent;
+    color: var(--bg);
+    letter-spacing: 0.05em;
+    display: block;
+    padding-top: 0.1em;
+    padding-left: 0.05em;
+    line-height: inherit;
+    margin-top: -0.05em;
+    margin-bottom: 0.05em;
+}
 
 h1 {
-    font-size: 6.4rem;
+    font-size: var(--h1-size);
+    margin-bottom: calc(var(--h1-size) * 0.5);
 }
 
 h2 {}
 
 h3 {}
 
-p, a, span, li {
+p:not(.nav__text),
+a:not(.nav__item),
+span:not(.heading-accent),
+li {
     font-size: 1.6rem;
+    font-family: 'Argentum Sans', sans-serif;
+    font-weight: 700;
+    color: var(--text-grey);
+    line-height: 130%;
+    margin-bottom: 1.6rem;
 }
+
+button {
+    font-size: 1.6rem;
+    font-family: 'Argentum Sans', sans-serif;
+    font-weight: 700;
+    color: var(--bg);
+    border: none;
+    border-radius: 50px;
+    padding: 1.2rem 1.8rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin: 1.6rem 0;
+    text-transform: uppercase;
+    max-width: fit-content;
+}
+
+.btn--primary {
+    background: linear-gradient(180deg, var(--dark-green) 0%, var(--light-green) 40%);
+}
+
+
+/* SPACING --------------------------------------------------- */
 
 .content-width {
     width: 100%;
     max-width: var(--max-width);
+    padding: 0 var(--side-padding);
     margin: 0 auto;
+}
+
+.container--col {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.6rem 0;
+}
+
+.container--row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.6rem 0;
+}
+
+.center-contents {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+@media screen and (min-width: 640px) {
+    :root {
+        --side-padding: 3.2rem;
+    }
+}
+
+
+/* FOOTER ---------------------------------------------------- */
+
+footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(180deg, var(--light-prpl) 0%, var(--dark-prpl) 100%);
+    padding-top: 3.2rem !important;
+    padding-bottom: 1.6rem !important;
+    margin-top: 1.6rem;
+}
+
+p.footer__text {
+    font-family: 'Radwave', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-align: center;
+    color: var(--bg);
+    font-size: 1.2rem;
+    /* letter-spacing: 0.05em; */
+}
+
+p.footer__text.copyright {
+    font-family: 'Argentum Sans', sans-serif;
+    font-style: normal;
+    font-weight: 300;
 }

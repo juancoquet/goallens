@@ -16,30 +16,34 @@
 </head>
 <body>
 
-  <header>
-    <nav class="content-width">
-      <img src="{% static 'images/logo.svg' %}" alt="Goal Lens Logo" id="logo-home">
-      <div class="nav-items--right">
-        <img class="nav__menu" src="{% static 'images/menu-icon.svg' %}" alt="menu" id="menu-icon">
-        <img class="nav__menu-close hidden" src="{% static 'images/menu-icon-close.svg' %}" alt="close menu" id="menu-close">
-        <a href="" class="nav__item"><p class="nav__text">Predictions</p></a>
-        <a href="" class="nav__item"><p class="nav__text">Methodology</p></a>
-        <a href="" class="nav__item"><p class="nav__text">Analysis</p></a>
-      </div>
-    </nav>
-    <div class="mobile-menu"></div>
-  </header>
+  <div class="content-width">
+    <header>
+      <nav>
+        <img src="{% static 'images/logo.svg' %}" alt="Goal Lens Logo" id="logo-home">
+        <div class="nav-items--right">
+          <img class="nav__menu" src="{% static 'images/menu-icon.svg' %}" alt="menu" id="menu-icon">
+          <img class="nav__menu-close hidden" src="{% static 'images/menu-icon-close.svg' %}" alt="close menu" id="menu-close">
+          <a href="" class="nav__item"><p class="nav__text">Predictions</p></a>
+          <a href="" class="nav__item"><p class="nav__text">Methodology</p></a>
+          <a href="" class="nav__item"><p class="nav__text">Analysis</p></a>
+        </div>
+      </nav>
+      <div class="mobile-menu"></div>
+    </header>
 
-  {% block content %}
-  {% endblock content %}
+    {% block content %}
+    {% endblock content %}
+  </div>
   
   <footer>
-    <p>Premier League | La Liga | Ligue 1 | Serie A | Bundesliga</p>
-    <p>About | Contact</p>
-    <p>&copy; Goal Lens</p>
+    <p class="footer__text">Premier League | La Liga | Ligue 1 | Serie A | Bundesliga</p>
+    <p class="footer__text">About | Contact</p>
+    <p class="footer__text copyright">&copy; Goal Lens</p>
   </footer>
   
   <script src="{% static 'js/nav.js' %}"></script>
+  {% block scripts %}
+  {% endblock scripts %}
   
 </body>
 </html>
