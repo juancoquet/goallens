@@ -22,7 +22,7 @@ section {
     width: 100%;
 }
 
-.hero__text {
+#hero__text {
     text-align: center;
     font-size: clamp(1.6rem, 3.5vw, 3.2rem);
 }
@@ -34,4 +34,64 @@ section {
 
 button {
     margin-bottom: 0;
+}
+
+@media screen and (min-width: 375px) {
+    :root {
+        --h1-size: 3.9rem;
+    }
+}
+@media screen and (min-width: 390px) {
+    :root {
+        --h1-size: 4.1rem;
+    }
+}
+@media screen and (min-width: 500px) {
+    :root {
+        --h1-size: 5.4rem;
+    }
+}
+@media screen and (min-width: 600px) {
+    :root {
+        --h1-size: 6.4rem;
+    }
+}
+@media screen and (min-width: 700px) {
+    :root {
+        --h1-size: 7.4rem;
+        --text-size: 2rem;
+    }
+}
+@media screen and (min-width: 800px) {
+    :root {
+        --h1-size: 8.4rem;
+        --text-size: 2.4rem;
+    }
+}
+@media screen and (min-width: 900px) {
+    :root {
+        --h1-size: 9.4rem;
+    }
+    .content-container {
+        flex-direction: row;
+    }
+    .graphic {
+        max-width: 45%;
+    }
+}
+@media screen and (min-width: 1000px) {
+    :root {
+        --h1-size: 10.4rem;
+    }
+}
+@media screen and (min-width: 1100px) {
+    :root {
+        --h1-size: 11.4rem;
+    }
+}
+@media screen and (min-width: 1200px) {
+    :root {
+        --h1-size: 12.4rem;
+        --text-size: 3.2rem;
+    }
 }
