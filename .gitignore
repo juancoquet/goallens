@@ -5,6 +5,7 @@ req_cache.sqlite
 .DS_Store
 vim_keys.png
 analysis/back_testing/results/
+analysis/back_testing/storage/
 *.icloud
 functional_tests/error_captures/
 

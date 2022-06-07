@@ -34,7 +34,7 @@ def plot(strikerates, mse, df, title=None, filename=None):
         
         plt.xlabel('mean predictions')
         plt.ylabel('strikerate')
-        plt.annotate('wMSE (x100): ' + str(mse), xy=(0.02, 0.8), xycoords='axes fraction', fontsize=10)
+        plt.annotate('MSE: ' + str(mse), xy=(0.02, 0.8), xycoords='axes fraction', fontsize=10)
         plt.legend()
         plt.grid(True)
         if filename is None:

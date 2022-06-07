@@ -3,17 +3,16 @@ from supported_comps import PREDICTION_COMPS
 
 
 seasons = ['2017-2018', '2018-2019', '2019-2020', '2020-2021', '2021-2022']
-# seasons = ['2020-2021']
 competitions = [k for k in PREDICTION_COMPS.keys()]
 
 
 xGs_past_games_list = [5, 10]
 
-suppression_range_list = [0.5, 1.0, 1.5]
-conversion_range_list = [0.5, 1.0, 1.5]
-sup_conv_past_games_list = [5, 10]
+suppression_range_list = [0.5, 0.75, 1.0, 1.25, 1.5]
+conversion_range_list = [0.5, 0.75, 1.0, 1.25, 1.5]
+sup_conv_past_games_list = [5, 7, 10]
 
-h_a_weight_list = [0.5, 1.0]
+h_a_weight_list = [0.5, 0.75, 1.0]
 h_a_past_games_list = [10]
 
 

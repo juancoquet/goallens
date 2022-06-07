@@ -5,16 +5,6 @@ from ..analyst import Analyst
 from ..back_testing.back_testing import BackTester
 
 
-# create back testing class that takes testing params
-# create all combinations of params
-# for each set of params
-    # create analyst
-    # run analysis with input params
-    # save results in BackTester class attribute dict with key = params, value = Analyst object
-# sort BackTester results attribute dict by Analyst.mse, lowest mses are best
-# save data and plots for best results to disk
-
-
 class TestBacktester(TestCase):
 
     def test_creates_param_combinations_on_init(self):
@@ -55,6 +45,6 @@ class TestBacktester(TestCase):
             (3, 0.2, 0.2, 3, 0.5, 5): analyst
         }
         # uncomment below line and check that files are saved to disk at:
-        # analysis/back_testing/results/001/. should have _params.txt, plot.png and
-        # analyst.pickle
+            # analysis/back_testing/results/001/. should have _params.txt, plot.png and
+            # analyst.pickle
         # bt.save_results() # uncomment

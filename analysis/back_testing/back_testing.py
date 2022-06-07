@@ -1,5 +1,6 @@
-from copyreg import pickle
+import concurrent.futures
 import datetime as dt
+from django import db # type: ignore
 import itertools
 import os
 import pickle
@@ -27,17 +28,16 @@ class BackTester:
             conversion_range_list, sup_conv_past_games_list,
             h_a_weight_list, h_a_past_games_list
         ))
+        self.num_combinations = len(self.combinations)
         self.results = {}
         self.best_results = []
-        self.last_runtime = None
+        self.start_time = None
 
-    def back_test_params(self):
-        for i, params in enumerate(self.combinations):
-            print(f'back testing params {i+1} of {len(self.combinations)}')
-            if self.last_runtime is not None:
-                print(f'estimated time remaining: {(len(self.combinations) - i) * self.last_runtime}')
-            start_time = dt.datetime.now()
-
+    def _back_test_param_set(self, params):
+            print(f'backtesting params: {params}')
+            for _ in range(5):
+                print('#' * 80)
+            db.connections.close_all()
             xGs_past_games_list = params[0]
             suppression_range_list = params[1]
             conversion_range_list = params[2]
@@ -53,21 +53,30 @@ class BackTester:
             )
             analyst.calculate_strikerates()
             analyst.mean_squared_error()
-            
-            self.results[params] = analyst
-            worst_performance = params
-            if len(self.results) > 100:
-                for key, _analyst in self.results.items():
-                    if _analyst.mse > self.results[worst_performance].mse:
-                        worst_performance = key
-                del self.results[worst_performance]
 
-            end_time = dt.datetime.now()
-            self.last_runtime = end_time - start_time
-            for _ in range(5):
-                print('~' * 80, '\n')
-        
-        self.results = {k: v for k, v in sorted(self.results.items(), key=lambda item: item[1].mse)}
+            curr_index = self.combinations.index(params) + 1
+            remaining = self.num_combinations - curr_index
+            elapsed_time = dt.datetime.now() - self.start_time
+            remaining_time = elapsed_time * remaining / curr_index
+            print('-' * 140)
+            print('-' * 140)
+            print(f'completed {curr_index}/{self.num_combinations}')
+            print(f'{elapsed_time} elapsed')
+            print(f'estimated time remaining: {remaining_time}')
+            print('-' * 140)
+            print('-' * 140)
+
+            return (params, analyst)
+
+    def back_test_params(self):
+        self.start_time = dt.datetime.now()
+
+        # multiprocessing loop
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = executor.map(self._back_test_param_set, self.combinations)
+        results = sorted(results, key=lambda x: x[1].mse)[:100]
+
+        self.results = {params: analyst for params, analyst in results}
 
     def save_results(self):
         for i, (params, analyst) in enumerate(self.results.items()):
