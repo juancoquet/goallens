@@ -1,8 +1,10 @@
+from unittest import skip
 from selenium.webdriver.common.by import By # type: ignore
+from unittest import skip
 
 from .ft_base import FunctionalTest
 
-
+@skip
 class NewVisitorTest(FunctionalTest):
 
     def test_home_page(self):
