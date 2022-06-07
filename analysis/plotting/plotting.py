@@ -41,6 +41,7 @@ def plot(strikerates, mse, df, title=None, filename=None):
             plt.show()
         else:
             plt.savefig(f'{filename}.png')
+        plt.clf()
 
         
 
