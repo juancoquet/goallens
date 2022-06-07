@@ -52,7 +52,7 @@ class BackTester:
                 h_a_weight_list, h_a_past_games_list
             )
             analyst.calculate_strikerates()
-            analyst.weighted_mean_squared_error()
+            analyst.mean_squared_error()
             
             self.results[params] = analyst
             worst_performance = params

@@ -93,46 +93,19 @@ class Analyst:
         self.strikerates = strikerates
         return strikerates
     
-    def weighted_mean_squared_error(self, strikerates: dict=None, df: pd.DataFrame=None):
-        """calculates the mean squared error for the given strikerates, weighted for the distribution
-        density of forecast probabilities. if 98% of predictions made have a forecast probability within
-        a particular range, the error rate for that range should be proportionally significant to the
-        distribution density of that range.
-        Args:
-            strikerates (dict): the strikerates to calculate the MSE for. should be a dict output
-            by Analyst.calculate_strikerates().
-            df (pd.DataFrame): the dataframe to analyse, which should have been created by Analyst.create_analysis_df().
-        Returns:
-            float: the mean squared error
-        """
-        if strikerates is None:
-            if self.strikerates is None:
-                raise ValueError('strikerates must be provided')
-            else:
-                strikerates = self.strikerates
+    def mean_squared_error(self, df: pd.DataFrame=None):
         if df is None:
             if self.df is None:
                 raise ValueError('df must be provided')
             else:
                 df = self.df
-
-        wmse = 0
-        count = 0
-        for p_range, preds_and_strikerates in strikerates.items():
-            observed = preds_and_strikerates['strikerate']
-            predicted = preds_and_strikerates['mean_prediction']
-            lower_bound, upper_bound = (float(x) / 100 for x in p_range.split('-'))
-            if observed is None or predicted is None:
-                continue
-            within_range = df[(df['probability'] >= lower_bound) & (df['probability'] < upper_bound)]
-            range_density = len(df[(df['probability'] >= lower_bound) & (df['probability'] < upper_bound)]) / len(df)
-            wmse += ((observed - predicted) ** 2) * range_density
-            count += 1
-        wmse /= count
-        wmse *= 100 # TODO: possibly remove this (and amend mse test). added as wmse was too small
-        wmse = round(wmse, 4)
-        self.mse = wmse
-        return wmse
+        mse = 0
+        for predicted, outcome in zip(df['probability'], df['outcome']):
+            mse += (predicted - outcome) ** 2
+        mse /= len(df)
+        mse = round(mse, 4)
+        self.mse = mse
+        return mse
 
     def pickle_data(self):
         """pickle the dataframe, mse, and strikerates.

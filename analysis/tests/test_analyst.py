@@ -173,9 +173,8 @@ class TestAnalyst(TestCase):
             'outcome': [0, 0, 1, 0, 1]
         }
         df = pd.DataFrame(data)
-        strikerates = self.analyst.calculate_strikerates(df)
-        result = self.analyst.weighted_mean_squared_error(strikerates, df)
-        expected = 5.6111
+        result = self.analyst.mean_squared_error(df)
+        expected = 0.2656
         self.assertEqual(result, expected)
 
     def test_calculate_strikerates_defaults_to_self_df(self):
@@ -200,7 +199,7 @@ class TestAnalyst(TestCase):
         self.analyst.df = df
         self.analyst.calculate_strikerates()
         try:
-            self.analyst.weighted_mean_squared_error()
+            self.analyst.mean_squared_error()
         except Exception as e:
             self.fail(e)
-        self.assertNotEqual(self.analyst.weighted_mean_squared_error, None)
+        self.assertNotEqual(self.analyst.mean_squared_error, None)

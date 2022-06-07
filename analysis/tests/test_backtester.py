@@ -50,7 +50,7 @@ class TestBacktester(TestCase):
         df = pd.DataFrame(data)
         analyst.df = df
         analyst.calculate_strikerates()
-        analyst.weighted_mean_squared_error()
+        analyst.mean_squared_error()
         bt.results = {
             (3, 0.2, 0.2, 3, 0.5, 5): analyst
         }
