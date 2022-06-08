@@ -1,17 +1,16 @@
-# go through each folder
-# import the analyst object
-# plot the results
+import requests
+import shutil
 
-import os
-import pickle
-from analysis.plotting.plotting import plot
+from data_sourcing.models import Team
 
+team_ids = Team.objects.values_list('id', flat=True)
 
-for i in range(72):
-    dir_name = str(i+1).zfill(3)
-    with open(f'analysis/back_testing/results/{dir_name}/analyst.pickle', 'rb') as f:
-        analyst = pickle.load(f)
-    df = analyst.df
-    sr = analyst.strikerates
-    mse = analyst.mse
-    plot(strikerates=sr, mse=mse, df=df, filename=f'analysis/back_testing/results/{dir_name}/plot')
+def save_image(team_id):
+    url = f'https://d2p3bygnnzw9w3.cloudfront.net/req/202205232/tlogo/fb/{team_id}.png'
+    response = requests.get(url, stream=True)
+    with open(f'static/images/team_logos/{team_id}.png', 'wb') as out_file:
+        shutil.copyfileobj(response.raw, out_file)
+
+def run():
+    for team_id in team_ids:
+        save_image(team_id)
