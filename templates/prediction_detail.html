@@ -1,0 +1,26 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'css/prediction_detail.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<h1 class="fixture-title">{{ fixture.home.short_name }} - {{ fixture.away.short_name }}</h1>
+<h2 class="outline heading--date">{{dd}} - {{mm}} - {{yyyy}}</h2>
+
+<section class="stats">
+  <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.home.id }}.png" alt="{{ fixture.home.name }}">
+  <p class="goals-scored stats__item">{{ fixture.goals_home }} – {{ fixture.goals_away }}</p>
+  <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.away.id }}.png" alt="{{ fixture.away.name }}">
+
+  <p class="xG stats__item">{{ fixture.xG_home }}</p>
+  <p class="stats__item">xG</p>
+  <p class="xG stats__item">{{ fixture.xG_away }}</p>
+
+  <p class="fxG stats__item">{{ prediction.forecast_hxG }}</p>
+  <p class="fxG stats__item">Forecast xG</p>
+  <p class="fxG stats__item">{{ prediction.forecast_axG }}</p>
+
+</section>
+{% endblock content %}
