@@ -38,6 +38,7 @@
     --max-width: 1200px;
     --side-padding: 1.6rem;
     --h1-size: 3.2rem;
+    --h2-size: 2.4rem;
     --text-size: 1.6rem;
 
     /* colors */
@@ -100,7 +101,10 @@ h1 {
     margin-bottom: calc(var(--h1-size) * 0.5);
 }
 
-h2 {}
+h2 {
+    font-size: var(--h2-size);
+    margin-bottom: calc(var(--h2-size) * 0.5);
+}
 
 h3 {}
 

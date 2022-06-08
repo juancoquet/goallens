@@ -1,6 +1,7 @@
 import datetime
 from decimal import Decimal
 from unittest import TestCase
+from urllib import response
 from django.test import TestCase # type: ignore
 
 from data_sourcing.db_population.db_population import DBPopulator
@@ -70,3 +71,8 @@ class TestPredictionDetailView(TestCase):
     def test_correct_related_prediction_retrieved(self):
         response = self.client.get('/predictions/37e2fe92')
         self.assertEqual(response.context['prediction'], self.prediction)
+
+    def test_team_logos_in_page(self):
+        response = self.client.get('/predictions/37e2fe92')
+        self.assertContains(response, '/static/images/team_logos/b8fd03ef.png')
+        self.assertContains(response, '/static/images/team_logos/822bd0ba.png')

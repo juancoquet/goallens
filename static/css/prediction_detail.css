@@ -1,0 +1,43 @@
+h1.fixture-title {
+    margin-bottom: 0.4rem;
+}
+
+h2.outline {
+    color: black;
+    -webkit-text-fill-color: var(--bg);
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
+.heading--date {
+    margin-bottom: var(--h2-size);
+}
+
+.stats {
+    border-top: 1px solid var(--dark-grey);
+    border-bottom: 1px solid var(--dark-grey);
+    max-width: 343px;
+
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
+    row-gap: 1.6rem;
+}
+
+.stats__item {
+    justify-self: center;
+    align-self: center;
+}
+
+.team-logo {
+    height: 48px;
+}
+
+p.stats__item {
+    margin: 0;
+}
+
+p.goals-scored {
+    letter-spacing: 0.6em;
+    margin-right: -0.6em;
+}
