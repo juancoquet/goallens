@@ -1,44 +1,43 @@
 import datetime
 from decimal import Decimal
-from django.test import TestCase
+from unittest import TestCase
+from django.test import TestCase # type: ignore
 
-
-from predictions.models import Prediction
 from data_sourcing.db_population.db_population import DBPopulator
+from data_sourcing.models import Fixture
+from predictions.models import Prediction
 
 
-class TestPredictionModel(TestCase):
+class TestPredictionDetailView(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         cls.populator = DBPopulator()
         cls.home = cls.populator.add_team_to_db(
-            team_id='8602292d',
-            team_name='Aston Villa',
-            team_short_name='Aston Villa',
-        )
-        cls.away = cls.populator.add_team_to_db(
             team_id='b8fd03ef',
             team_name='Manchester City',
             team_short_name='Mancheseter City',
         )
+        cls.away = cls.populator.add_team_to_db(
+            team_id='822bd0ba',
+            team_name='Liverpool',
+            team_short_name='Liverpool',
+        )
         cls.fixture = cls.populator.add_fixture_to_db(
-            fixture_id='ffb4946c',
+            fixture_id='37e2fe92',
             competition='Premier League',
-            season='2019-2020',
-            date=datetime.date(2020, 1, 12),
+            season='2021-2022',
+            date=datetime.date(2022, 4, 10),
             time=datetime.time(16, 30),
             home_team_id=cls.home.id,
             away_team_id=cls.away.id,
-            goals_home=1,
-            goals_away=6,
-            xG_home=1.0,
-            xG_away=2.5,
+            goals_home=2,
+            goals_away=2,
+            xG_home=2.0,
+            xG_away=1.0
         )
-
-    def setUp(self):
-        self.prediction = Prediction.objects.create(
-            fixture=self.fixture,
+        cls.prediction = Prediction.objects.create(
+            fixture=cls.fixture,
             forecast_hxG=Decimal('1.5'),
             forecast_axG=Decimal('2.3'),
             prob_hg_0=Decimal('0.1'),
@@ -59,12 +58,15 @@ class TestPredictionModel(TestCase):
             likely_ag=3,
         )
 
-    def test_create_new_model(self):
-        self.assertEqual(Prediction.objects.count(), 1)
 
-    def test_fk_fixture(self):
-        self.assertEqual(self.prediction.fixture, self.fixture)
+    def test_uses_prediction_detail_template(self):
+        response = self.client.get('/predictions/37e2fe92')
+        self.assertTemplateUsed(response, 'prediction_detail.html')
 
-    def test_string_representation(self):
-        expected = f'prediction 2-3 {self.fixture.id}: {self.fixture}'
-        self.assertEqual(str(self.prediction), expected)
+    def test_correct_fixture_retrieved(self):
+        response = self.client.get('/predictions/37e2fe92')
+        self.assertEqual(response.context['fixture'], self.fixture)
+
+    def test_correct_related_prediction_retrieved(self):
+        response = self.client.get('/predictions/37e2fe92')
+        self.assertEqual(response.context['prediction'], self.prediction)
