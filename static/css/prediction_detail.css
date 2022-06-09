@@ -42,6 +42,9 @@ p.goals-scored {
     margin-right: -0.6em;
 }
 
+
+/* win probabilities */
+
 .probs-container {
     max-width: 343px;
 }
@@ -55,7 +58,7 @@ h3>.text--outline {
     font-family: 'Radwave', sans-serif;
     color: black;
     -webkit-text-fill-color: var(--bg);
-    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-width: 0.5px;
     -webkit-text-stroke-color: black;
 }
 
@@ -95,4 +98,27 @@ h3>.text--green {
 .bar__segment--home>.prob,
 .bar__segment--away>.prob {
     color: var(--bg);
+}
+
+
+/* goal matrix */
+
+.matrix {
+    display: grid;
+    grid-template-rows: repeat(9, 1fr);
+    grid-template-columns: repeat(9, 1fr);
+    aspect-ratio: 1 / 1;
+}
+
+.cell {
+    border-right: 1px solid var(--dark-grey);
+    border-bottom: 1px solid var(--dark-grey);
+}
+
+.cell--left {
+    border-left: 1px solid var(--dark-grey)
+}
+
+.cell--top {
+    border-top: 1px solid var(--dark-grey)
 }

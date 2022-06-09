@@ -10,7 +10,7 @@ function setHeroMargins(){
         margin = 16
     }
     heroHeading.style.margin = `${margin}px 0`;
-    heroText.style.margin = `${marginBig}px 0`;
+    heroText.style.margin = `${margin}px 0`;
     console.log(margin)
 }
 
