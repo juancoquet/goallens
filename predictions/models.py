@@ -32,3 +32,34 @@ class Prediction(models.Model):
 
     def __str__(self):
         return f'prediction {self.likely_hg}-{self.likely_ag} {self.fixture.id}: {self.fixture}'
+
+    @property
+    def home_win_prob(self):
+        prob = 0
+        for hg in range(7):
+            hg += 1
+            hg_prob = getattr(self, f'prob_hg_{hg}')
+            for ag in range(hg):
+                ag_prob = getattr(self, f'prob_ag_{ag}')
+                prob += hg_prob * ag_prob
+        return prob
+
+    @property
+    def away_win_prob(self):
+        prob = 0
+        for ag in range(7):
+            ag += 1
+            ag_prob = getattr(self, f'prob_ag_{ag}')
+            for hg in range(ag):
+                hg_prob = getattr(self, f'prob_hg_{hg}')
+                prob += hg_prob * ag_prob
+        return prob
+
+    @property
+    def draw_prob(self):
+        prob = 0
+        for g in range(8):
+            hg_prob = getattr(self, f'prob_hg_{g}')
+            ag_prob = getattr(self, f'prob_ag_{g}')
+            prob += hg_prob * ag_prob
+        return prob
