@@ -16,7 +16,7 @@ h1.fixture-title {
 .stats {
     border-top: 1px solid var(--dark-grey);
     border-bottom: 1px solid var(--dark-grey);
-    max-width: 343px;
+    /* max-width: 343px; */
 
     display: grid;
     grid-template-rows: 1fr 1fr 1fr;
@@ -45,8 +45,13 @@ p.goals-scored {
 
 /* win probabilities */
 
+.probs-container>h3 {
+    margin-top: 1.2rem;
+}
+
 .probs-container {
-    max-width: 343px;
+    /* max-width: 343px; */
+
 }
 
 h3>.text--prpl{
@@ -71,6 +76,7 @@ h3>.text--green {
     border: 1px solid var(--dark-grey);
     border-radius: 2px;
     margin-top: 0;
+    margin-bottom: 0;
 }
 
 .bar__segment {
@@ -103,6 +109,11 @@ h3>.text--green {
 
 /* goal matrix */
 
+.matrix-heading-container {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
 .matrix {
     display: grid;
     grid-template-rows: repeat(8, 1fr) 0.5fr;
@@ -113,6 +124,9 @@ h3>.text--green {
 .cell {
     border-right: 1px solid var(--dark-grey);
     border-bottom: 1px solid var(--dark-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .cell--left {
@@ -131,10 +145,13 @@ h3>.text--green {
 
 .label--x {
     align-items: center;
+    justify-content: flex-end;
+
 }
 
 .label--y {
     align-items: center;
+    align-items: flex-start;
 }
 
 .label>p {
@@ -145,7 +162,7 @@ h3>.text--green {
     color: var(--dark-grey);
     font-size: 1.2rem;
     margin-top: 0.6rem;
-    /* display: none; */
+    display: none;
 }
 
 .axes {
@@ -154,4 +171,27 @@ h3>.text--green {
 
 .axes>p {
     margin-bottom: 0.2rem;
+}
+
+p.cell__probability {
+    font-size: 1.2rem;
+    margin-top: 0.6rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+
+@media screen and (min-width: 450px) {
+    .label>p.prob {
+        display: inline;
+    }
+
+    .label--x {
+        margin-top: 0.4rem;
+    }
+
+    .label--y {
+        margin-right: 0.4rem;
+        align-items: center;
+    }
 }
