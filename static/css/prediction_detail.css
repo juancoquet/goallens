@@ -2,7 +2,7 @@ h1.fixture-title {
     margin-bottom: 0.4rem;
 }
 
-h2.outline {
+.text--outline {
     color: black;
     -webkit-text-fill-color: var(--bg);
     -webkit-text-stroke-width: 1px;
@@ -40,4 +40,59 @@ p.stats__item {
 p.goals-scored {
     letter-spacing: 0.6em;
     margin-right: -0.6em;
+}
+
+.probs-container {
+    max-width: 343px;
+}
+
+h3>.text--prpl{
+    font-family: 'Radwave', sans-serif;
+    color: var(--light-prpl);
+}
+
+h3>.text--outline {
+    font-family: 'Radwave', sans-serif;
+    color: black;
+    -webkit-text-fill-color: var(--bg);
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
+h3>.text--green {
+    font-family: 'Radwave', sans-serif;
+    color: var(--light-green)
+}
+
+.bar {
+    border: 1px solid var(--dark-grey);
+    border-radius: 2px;
+    margin-top: 0;
+}
+
+.bar__segment {
+    height: 6.4rem;
+    margin: 0;
+    justify-content: center;
+}
+
+.bar__segment--home {
+    background-color: var(--light-prpl);
+}
+
+.bar__segment--draw {
+    background-color: var(--bg)
+}
+
+.bar__segment--away {
+    background-color: var(--light-green);
+}
+
+.bar__segment>.prob {
+    margin: 0;
+}
+
+.bar__segment--home>.prob,
+.bar__segment--away>.prob {
+    color: var(--bg);
 }
