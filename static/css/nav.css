@@ -49,6 +49,7 @@ nav {
     width: 100%;
     position: absolute;
     z-index: 998;
+    margin-top: -2.4rem;
     right: 0;
     display: none;
     flex-direction: row;
