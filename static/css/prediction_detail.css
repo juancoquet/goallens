@@ -105,8 +105,8 @@ h3>.text--green {
 
 .matrix {
     display: grid;
-    grid-template-rows: repeat(9, 1fr);
-    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(8, 1fr) 0.5fr;
+    grid-template-columns: 0.5fr repeat(8, 1fr);
     aspect-ratio: 1 / 1;
 }
 
@@ -121,4 +121,37 @@ h3>.text--green {
 
 .cell--top {
     border-top: 1px solid var(--dark-grey)
+}
+
+.label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.label--x {
+    align-items: center;
+}
+
+.label--y {
+    align-items: center;
+}
+
+.label>p {
+    margin: 0;
+}
+
+.label>p.prob {
+    color: var(--dark-grey);
+    font-size: 1.2rem;
+    margin-top: 0.6rem;
+    /* display: none; */
+}
+
+.axes {
+    margin-top: 1.2rem;
+}
+
+.axes>p {
+    margin-bottom: 0.2rem;
 }

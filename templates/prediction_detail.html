@@ -42,7 +42,10 @@
 
 <section class="goal-matrix">
   <div class="matrix">
-    <div class="label"><p>7</p></div>
+    <div class="label label--y">
+      <p>7</p>
+      <p class="prob" id="prob_ag_7">{{ prob_ag_7 }}%</p>
+    </div>
     <div class="cell cell--left cell--top" id="0-7"></div>
     <div class="cell cell--top" id="1-7"></div>
     <div class="cell cell--top" id="2-7"></div>
@@ -51,8 +54,11 @@
     <div class="cell cell--top" id="5-7"></div>
     <div class="cell cell--top" id="6-7"></div>
     <div class="cell cell--top" id="7-7"></div>
-    
-    <div class="label"><p>6</p></div>
+  
+    <div class="label label--y">
+      <p>6</p>
+      <p class="prob" id="prob_ag_6">{{ prob_ag_6 }}%</p>
+    </div>
     <div class="cell cell--left" id="0-6"></div>
     <div class="cell" id="1-6"></div>
     <div class="cell" id="2-6"></div>
@@ -61,8 +67,10 @@
     <div class="cell" id="5-6"></div>
     <div class="cell" id="6-6"></div>
     <div class="cell" id="7-6"></div>
-
-    <div class="label"><p>5</p></div>
+    <div class="label label--y">
+      <p>5</p>
+      <p class="prob" id="prob_ag_5">{{ prob_ag_5 }}%</p>
+    </div>
     <div class="cell cell--left" id="0-5"></div>
     <div class="cell" id="1-5"></div>
     <div class="cell" id="2-5"></div>
@@ -71,9 +79,9 @@
     <div class="cell" id="5-5"></div>
     <div class="cell" id="6-5"></div>
     <div class="cell" id="7-5"></div>
-
-    <div class="label">
+    <div class="label label--y">
       <p>4</p>
+      <p class="prob" id="prob_ag_4">{{ prob_ag_4 }}%</p>
     </div>
     <div class="cell cell--left" id="0-4"></div>
     <div class="cell" id="1-4"></div>
@@ -83,9 +91,9 @@
     <div class="cell" id="5-4"></div>
     <div class="cell" id="6-4"></div>
     <div class="cell" id="7-4"></div>
-
-    <div class="label">
+    <div class="label label--y">
       <p>3</p>
+      <p class="prob" id="prob_ag_3">{{ prob_ag_3 }}%</p>
     </div>
     <div class="cell cell--left" id="0-3"></div>
     <div class="cell" id="1-3"></div>
@@ -95,9 +103,9 @@
     <div class="cell" id="5-3"></div>
     <div class="cell" id="6-3"></div>
     <div class="cell" id="7-3"></div>
-
-    <div class="label">
+    <div class="label label--y">
       <p>2</p>
+      <p class="prob" id="prob_ag_2">{{ prob_ag_2 }}%</p>
     </div>
     <div class="cell cell--left" id="0-2"></div>
     <div class="cell" id="1-2"></div>
@@ -107,9 +115,9 @@
     <div class="cell" id="5-2"></div>
     <div class="cell" id="6-2"></div>
     <div class="cell" id="7-2"></div>
-
-    <div class="label">
+    <div class="label label--y">
       <p>1</p>
+      <p class="prob" id="prob_ag_1">{{ prob_ag_1 }}%</p>
     </div>
     <div class="cell cell--left" id="0-1"></div>
     <div class="cell" id="1-1"></div>
@@ -119,9 +127,9 @@
     <div class="cell" id="5-1"></div>
     <div class="cell" id="6-1"></div>
     <div class="cell" id="7-1"></div>
-
-    <div class="label">
+    <div class="label label--y">
       <p>0</p>
+      <p class="prob" id="prob_ag_0">{{ prob_ag_0 }}%</p>
     </div>
     <div class="cell cell--left" id="0-0"></div>
     <div class="cell" id="1-0"></div>
@@ -131,33 +139,48 @@
     <div class="cell" id="5-0"></div>
     <div class="cell" id="6-0"></div>
     <div class="cell" id="7-0"></div>
-
     <div class="corner"></div>
-
-    <div class="label">
+    <div class="label label--x">
       <p>0</p>
+      <p class="prob" id="prob_hg_0">{{ prob_hg_0 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>1</p>
+      <p class="prob" id="prob_hg_1">{{ prob_hg_1 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>2</p>
+      <p class="prob" id="prob_hg_2">{{ prob_hg_2 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>3</p>
+      <p class="prob" id="prob_hg_3">{{ prob_hg_3 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>4</p>
+      <p class="prob" id="prob_hg_4">{{ prob_hg_4 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>5</p>
+      <p class="prob" id="prob_hg_5">{{ prob_hg_5 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>6</p>
+      <p class="prob" id="prob_hg_6">{{ prob_hg_6 }}%</p>
     </div>
-    <div class="label">
+    <div class="label label--x">
       <p>7</p>
+      <p class="prob" id="prob_hg_7">{{ prob_hg_7 }}%</p>
     </div>
+  </div>
+
+  <div class="axes">
+    <p class="matrix__home-team">&#8594; {{ fixture.home.short_name }} goal probabilities</p>
+    <p class="matrix__away-team">&#8593; {{ fixture.away.short_name }} goal probabilities</p>
   </div>
 </section>
 {% endblock content %}
+
+{% block scripts %}
+  <script src="{% static 'js/prediction_detail.js' %}"></script>
+{% endblock scripts %}
