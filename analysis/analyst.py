@@ -1,6 +1,4 @@
-from cmath import nan
 from datetime import date
-from decimal import Decimal
 import math
 from matplotlib import pyplot as plt # type: ignore
 import pandas as pd # type: ignore
@@ -46,7 +44,7 @@ class Analyst:
             for competition in competitions:
                 fixtures = Fixture.objects.filter(competition=competition, season=season)
                 for fixture in fixtures:
-                    print(f'processing {fixture.id}, {len(data["probability"])} records so far')
+                    print(f'processing {fixture.id}, {len(data["probability"])} records so far', end='\r')
                     try:
                         prediction = predictor.generate_prediction(fixture, xG_past_games, suppression_range, conversion_range,
                                                                     sup_con_past_games, h_a_weight, h_a_past_games)

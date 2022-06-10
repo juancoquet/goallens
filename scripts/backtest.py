@@ -1,5 +1,7 @@
 from analysis.back_testing.back_testing import BackTester
 from supported_comps import PREDICTION_COMPS
+import os
+import time
 
 
 seasons = ['2017-2018', '2018-2019', '2019-2020', '2020-2021', '2021-2022']
@@ -27,5 +29,26 @@ bt = BackTester(
     h_a_past_games_list=h_a_past_games_list
 )
 
+bt.combinations = []
+with open('scripts/bt_params/params_3.txt', 'r') as f:
+    for line in f:
+        params = line.strip().replace('(', '').replace(')', '').split(',')
+        params = [p.strip() for p in params]
+        params[0] = int(params[0])
+        params[1] = float(params[1])
+        params[2] = float(params[2])
+        params[3] = int(params[3])
+        params[4] = float(params[4])
+        params[5] = int(params[5])
+        params = tuple(params)
+        bt.combinations.append(params)
+        bt.num_combinations = len(bt.combinations)
+
+bt.num_combinations = len(bt.combinations)
+
 bt.back_test_params()
 bt.save_results()
+
+os.system('cp -r analysis/back_testing/results/ analysis/back_testing/storage/params_3/')
+os.system('rm -rf analysis/back_testing/results/*')
+print('copied results to storage')

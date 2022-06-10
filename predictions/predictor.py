@@ -1,6 +1,5 @@
 import datetime as dt
 from decimal import Decimal
-from email.mime import base
 from django.db.models import Q # type: ignore
 import math
 from scipy.stats import poisson # type: ignore

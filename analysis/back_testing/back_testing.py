@@ -94,7 +94,7 @@ class BackTester:
             mse = analyst.mse
             df = analyst.df
             plot_path = os.path.join(directory, 'plot')
-            plot(sr, mse, df, title=None, filename=plot_path)
+            plot(sr, mse, df, title=None, filename=plot_path, params=params)
             # pickle analylst
             with open(os.path.join(directory, 'analyst.pickle'), 'wb') as f:
                 pickle.dump(analyst, f)

@@ -1,34 +1,26 @@
-from data_sourcing.models import Fixture
-from predictions.predictor import Predictor
-from predictions.models import Prediction
+from analysis.plotting.plotting import plot
+import pickle
+import os
 
 
-fixture = Fixture.objects.get(id='ffb4946c')
-predictor = Predictor()
-prediction = predictor.generate_prediction(fixture)
+for i in range(100):
+    dir_name = str(i+1).zfill(3)
+    with open(f'analysis/back_testing/storage/params_3/{dir_name}/_params.txt', 'r') as f:
+        xGs_past_games = f.readline().strip().replace('xGs_past_games: ', '')
+        suppression_range = f.readline().strip().replace('suppression_range: ', '')
+        conversion_range = f.readline().strip().replace('conversion_range: ', '')
+        sup_conv_past_games = f.readline().strip().replace('sup_conv_past_games: ', '')
+        h_a_weight = f.readline().strip().replace('h_a_weight: ', '')
+        h_a_past_games = f.readline().strip().replace('h_a_past_games: ', '')
+    params = (xGs_past_games, suppression_range, conversion_range, sup_conv_past_games, h_a_weight, h_a_past_games)
 
+    # unpickle analyst
+    with open(f'analysis/back_testing/storage/params_3/{dir_name}/analyst.pickle', 'rb') as f:
+        analyst = pickle.load(f)
+    
+    df = analyst.df
+    strikerates = analyst.strikerates
+    mse = analyst.mean_squared_error()
+    plot_path = f'analysis/back_testing/storage/params_3/{dir_name}/plot'
 
-def run():
-    Prediction.objects.create(
-        fixture=fixture,
-        forecast_hxG=prediction['forecast_xGs']['home'],
-        forecast_axG=prediction['forecast_xGs']['away'],
-        prob_hg_0=prediction['prob_0_goals']['home'],
-        prob_hg_1=prediction['prob_1_goals']['home'],
-        prob_hg_2=prediction['prob_2_goals']['home'],
-        prob_hg_3=prediction['prob_3_goals']['home'],
-        prob_hg_4=prediction['prob_4_goals']['home'],
-        prob_hg_5=prediction['prob_5_goals']['home'],
-        prob_hg_6=prediction['prob_6_goals']['home'],
-        prob_hg_7=prediction['prob_7_goals']['home'],
-        prob_ag_0=prediction['prob_0_goals']['away'],
-        prob_ag_1=prediction['prob_1_goals']['away'],
-        prob_ag_2=prediction['prob_2_goals']['away'],
-        prob_ag_3=prediction['prob_3_goals']['away'],
-        prob_ag_4=prediction['prob_4_goals']['away'],
-        prob_ag_5=prediction['prob_5_goals']['away'],
-        prob_ag_6=prediction['prob_6_goals']['away'],
-        prob_ag_7=prediction['prob_7_goals']['away'],
-        likely_hg=prediction['likely_scoreline']['home'],
-        likely_ag=prediction['likely_scoreline']['away'],
-    )
+    plot(strikerates, mse, df, params=params, filename=plot_path)

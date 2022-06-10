@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import pickle
 
 
-def plot(strikerates, mse, df, title=None, filename=None):
+def plot(strikerates, mse, df, title=None, filename=None, params=None):
         """plots strikerate data.
         
         Args:
@@ -31,26 +31,28 @@ def plot(strikerates, mse, df, title=None, filename=None):
 
         plt.fill_between(mean_predictions, volume, color='red', alpha=0.25, label='volume distribution')
         plt.plot(mean_predictions, strikerates_list, color='green', linestyle='-', marker='.', label='strikerate')
+
+        # include params below graph
+        if params is not None:
+            params_text = f'xG_past_games: {params[0]}\n'
+            params_text += f'suppression_range: {params[1]}\n'
+            params_text += f'conversion_range: {params[2]}\n'
+            params_text += f'sup_con_past_games: {params[3]}\n'
+            params_text += f'h_a_weight: {params[4]}\n'
+            params_text += f'h_a_past_games: {params[5]}'
+            # plt.text(0.5, 0.5, params_text, fontsize=10, horizontalalignment='left', verticalalignment='center')
+            # increase figure size to fit text
+            plt.gcf().set_size_inches(15, 15)
+            plt.annotate(params_text, (0, 0), (0, -20), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=12)
+
         
         plt.xlabel('mean predictions')
         plt.ylabel('strikerate')
-        plt.annotate('MSE: ' + str(mse), xy=(0.02, 0.8), xycoords='axes fraction', fontsize=10)
-        plt.legend()
+        plt.annotate('MSE: ' + str(mse), xy=(0.02, 0.8), xycoords='axes fraction', fontsize=16)
+        plt.legend(fontsize=16)
         plt.grid(True)
         if filename is None:
             plt.show()
         else:
             plt.savefig(f'{filename}.png')
         plt.clf()
-
-        
-
-
-
-
-with open('analysis/data/strikerates.pickle', 'rb') as f:
-    strikerates = pickle.load(f)
-with open('analysis/data/mse.pickle', 'rb') as f:
-    mse = pickle.load(f)
-with open('analysis/data/data.pickle', 'rb') as f:
-    df = pickle.load(f)
