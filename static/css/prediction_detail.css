@@ -180,6 +180,10 @@ p.cell__probability {
     margin: 0;
 }
 
+#goal-probs-label {
+    display: none;
+}
+
 
 @media screen and (min-width: 450px) {
     .label>p.prob {
@@ -194,4 +198,31 @@ p.cell__probability {
         margin-right: 0.4rem;
         align-items: center;
     }
+}
+
+@media screen and (min-width: 800px) {
+    .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .matrix-heading-container {
+        display: none;
+    }
+
+    .goal-matrix {
+        padding-top: 0;
+        flex-grow: 0.7;
+        margin-left: 0.8rem;
+    }
+
+    .win-probs {
+        min-width: 320px;
+    }
+
+    #goal-probs-label {
+        display: inline;
+    }
+
 }

@@ -9,179 +9,182 @@
 <h1 class="fixture-title">{{ fixture.home.short_name }} - {{ fixture.away.short_name }}</h1>
 <h2 class="text--outline heading--date">{{dd}} - {{mm}} - {{yyyy}}</h2>
 
-<section class="stats">
-  <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.home.id }}.png" alt="{{ fixture.home.name }}">
-  <p class="goals-scored stats__item">{{ fixture.goals_home }} – {{ fixture.goals_away }}</p>
-  <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.away.id }}.png" alt="{{ fixture.away.name }}">
-
-  <p class="xG stats__item">{{ fixture.xG_home }}</p>
-  <p class="stats__item">xG</p>
-  <p class="xG stats__item">{{ fixture.xG_away }}</p>
-
-  <p class="fxG stats__item">{{ prediction.forecast_hxG }}</p>
-  <p class="fxG stats__item">Forecast xG</p>
-  <p class="fxG stats__item">{{ prediction.forecast_axG }}</p>
-</section>
-
-<section class="win-probs">
-  <div class="container--col probs-container">
-    <h3><span class="text--prpl">Home</span> | <span class="text--outline">Draw</span> | <span class="text--green">Away</span></h3>
-    <div class="bar container--row">
-      <div class="bar__segment bar__segment--home container--col" style="width: {{ home_win_prob }}%">
-        <p class="prob prob--home">{{ home_win_prob }}%</p>
-      </div>
-      <div class="bar__segment bar__segment--draw container--col" style="width: {{ draw_prob }}%">
-        <p class="prob prob--draw">{{ draw_prob }}%</p>
-      </div>
-      <div class="bar__segment bar__segment--away container--col" style="width: {{ away_win_prob }}%">
-        <p class="prob prob--away">{{ away_win_prob }}%</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="goal-matrix">
-  <div class="matrix-heading-container container--col">
-    <h3>Goal Probabilities</h3>
-  </div>
-  <div class="matrix">
-    <div class="label label--y">
-      <p>7</p>
-      <p class="prob" id="prob_ag_7">{{ prob_ag_7 }}%</p>
-    </div>
-    <div class="cell cell--left cell--top" id="0-7"></div>
-    <div class="cell cell--top" id="1-7"></div>
-    <div class="cell cell--top" id="2-7"></div>
-    <div class="cell cell--top" id="3-7"></div>
-    <div class="cell cell--top" id="4-7"></div>
-    <div class="cell cell--top" id="5-7"></div>
-    <div class="cell cell--top" id="6-7"></div>
-    <div class="cell cell--top" id="7-7"></div>
+<div class="container">
+  <div>
+    <section class="stats">
+      <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.home.id }}.png" alt="{{ fixture.home.name }}">
+      <p class="goals-scored stats__item">{{ fixture.goals_home }} – {{ fixture.goals_away }}</p>
+      <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.away.id }}.png" alt="{{ fixture.away.name }}">
   
-    <div class="label label--y">
-      <p>6</p>
-      <p class="prob" id="prob_ag_6">{{ prob_ag_6 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-6"></div>
-    <div class="cell" id="1-6"></div>
-    <div class="cell" id="2-6"></div>
-    <div class="cell" id="3-6"></div>
-    <div class="cell" id="4-6"></div>
-    <div class="cell" id="5-6"></div>
-    <div class="cell" id="6-6"></div>
-    <div class="cell" id="7-6"></div>
-    <div class="label label--y">
-      <p>5</p>
-      <p class="prob" id="prob_ag_5">{{ prob_ag_5 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-5"></div>
-    <div class="cell" id="1-5"></div>
-    <div class="cell" id="2-5"></div>
-    <div class="cell" id="3-5"></div>
-    <div class="cell" id="4-5"></div>
-    <div class="cell" id="5-5"></div>
-    <div class="cell" id="6-5"></div>
-    <div class="cell" id="7-5"></div>
-    <div class="label label--y">
-      <p>4</p>
-      <p class="prob" id="prob_ag_4">{{ prob_ag_4 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-4"></div>
-    <div class="cell" id="1-4"></div>
-    <div class="cell" id="2-4"></div>
-    <div class="cell" id="3-4"></div>
-    <div class="cell" id="4-4"></div>
-    <div class="cell" id="5-4"></div>
-    <div class="cell" id="6-4"></div>
-    <div class="cell" id="7-4"></div>
-    <div class="label label--y">
-      <p>3</p>
-      <p class="prob" id="prob_ag_3">{{ prob_ag_3 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-3"></div>
-    <div class="cell" id="1-3"></div>
-    <div class="cell" id="2-3"></div>
-    <div class="cell" id="3-3"></div>
-    <div class="cell" id="4-3"></div>
-    <div class="cell" id="5-3"></div>
-    <div class="cell" id="6-3"></div>
-    <div class="cell" id="7-3"></div>
-    <div class="label label--y">
-      <p>2</p>
-      <p class="prob" id="prob_ag_2">{{ prob_ag_2 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-2"></div>
-    <div class="cell" id="1-2"></div>
-    <div class="cell" id="2-2"></div>
-    <div class="cell" id="3-2"></div>
-    <div class="cell" id="4-2"></div>
-    <div class="cell" id="5-2"></div>
-    <div class="cell" id="6-2"></div>
-    <div class="cell" id="7-2"></div>
-    <div class="label label--y">
-      <p>1</p>
-      <p class="prob" id="prob_ag_1">{{ prob_ag_1 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-1"></div>
-    <div class="cell" id="1-1"></div>
-    <div class="cell" id="2-1"></div>
-    <div class="cell" id="3-1"></div>
-    <div class="cell" id="4-1"></div>
-    <div class="cell" id="5-1"></div>
-    <div class="cell" id="6-1"></div>
-    <div class="cell" id="7-1"></div>
-    <div class="label label--y">
-      <p>0</p>
-      <p class="prob" id="prob_ag_0">{{ prob_ag_0 }}%</p>
-    </div>
-    <div class="cell cell--left" id="0-0"></div>
-    <div class="cell" id="1-0"></div>
-    <div class="cell" id="2-0"></div>
-    <div class="cell" id="3-0"></div>
-    <div class="cell" id="4-0"></div>
-    <div class="cell" id="5-0"></div>
-    <div class="cell" id="6-0"></div>
-    <div class="cell" id="7-0"></div>
-    <div class="corner"></div>
-    <div class="label label--x">
-      <p>0</p>
-      <p class="prob" id="prob_hg_0">{{ prob_hg_0 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>1</p>
-      <p class="prob" id="prob_hg_1">{{ prob_hg_1 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>2</p>
-      <p class="prob" id="prob_hg_2">{{ prob_hg_2 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>3</p>
-      <p class="prob" id="prob_hg_3">{{ prob_hg_3 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>4</p>
-      <p class="prob" id="prob_hg_4">{{ prob_hg_4 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>5</p>
-      <p class="prob" id="prob_hg_5">{{ prob_hg_5 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>6</p>
-      <p class="prob" id="prob_hg_6">{{ prob_hg_6 }}%</p>
-    </div>
-    <div class="label label--x">
-      <p>7</p>
-      <p class="prob" id="prob_hg_7">{{ prob_hg_7 }}%</p>
-    </div>
+      <p class="xG stats__item">{{ fixture.xG_home }}</p>
+      <p class="stats__item">xG</p>
+      <p class="xG stats__item">{{ fixture.xG_away }}</p>
+  
+      <p class="fxG stats__item">{{ prediction.forecast_hxG }}</p>
+      <p class="fxG stats__item">Forecast xG</p>
+      <p class="fxG stats__item">{{ prediction.forecast_axG }}</p>
+    </section>
+  
+    <section class="win-probs">
+      <div class="container--col probs-container">
+        <h3><span class="text--prpl">Home</span> | <span class="text--outline">Draw</span> | <span class="text--green">Away</span></h3>
+        <div class="bar container--row">
+          <div class="bar__segment bar__segment--home container--col" style="width: {{ home_win_prob }}%">
+            <p class="prob prob--home">{{ home_win_prob }}%</p>
+          </div>
+          <div class="bar__segment bar__segment--draw container--col" style="width: {{ draw_prob }}%">
+            <p class="prob prob--draw">{{ draw_prob }}%</p>
+          </div>
+          <div class="bar__segment bar__segment--away container--col" style="width: {{ away_win_prob }}%">
+            <p class="prob prob--away">{{ away_win_prob }}%</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
-
-  <div class="axes">
-    <p class="matrix__home-team">&#8594; {{ fixture.home.short_name }} goal probabilities</p>
-    <p class="matrix__away-team">&#8593; {{ fixture.away.short_name }} goal probabilities</p>
-  </div>
-</section>
+  
+    <section class="goal-matrix">
+      <div class="matrix-heading-container container--col">
+        <h3>Goal Probabilities</h3>
+      </div>
+      <div class="matrix">
+        <div class="label label--y">
+          <p>7</p>
+          <p class="prob" id="prob_ag_7">{{ prob_ag_7 }}%</p>
+        </div>
+        <div class="cell cell--left cell--top" id="0-7"></div>
+        <div class="cell cell--top" id="1-7"></div>
+        <div class="cell cell--top" id="2-7"></div>
+        <div class="cell cell--top" id="3-7"></div>
+        <div class="cell cell--top" id="4-7"></div>
+        <div class="cell cell--top" id="5-7"></div>
+        <div class="cell cell--top" id="6-7"></div>
+        <div class="cell cell--top" id="7-7"></div>
+    
+        <div class="label label--y">
+          <p>6</p>
+          <p class="prob" id="prob_ag_6">{{ prob_ag_6 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-6"></div>
+        <div class="cell" id="1-6"></div>
+        <div class="cell" id="2-6"></div>
+        <div class="cell" id="3-6"></div>
+        <div class="cell" id="4-6"></div>
+        <div class="cell" id="5-6"></div>
+        <div class="cell" id="6-6"></div>
+        <div class="cell" id="7-6"></div>
+        <div class="label label--y">
+          <p>5</p>
+          <p class="prob" id="prob_ag_5">{{ prob_ag_5 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-5"></div>
+        <div class="cell" id="1-5"></div>
+        <div class="cell" id="2-5"></div>
+        <div class="cell" id="3-5"></div>
+        <div class="cell" id="4-5"></div>
+        <div class="cell" id="5-5"></div>
+        <div class="cell" id="6-5"></div>
+        <div class="cell" id="7-5"></div>
+        <div class="label label--y">
+          <p>4</p>
+          <p class="prob" id="prob_ag_4">{{ prob_ag_4 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-4"></div>
+        <div class="cell" id="1-4"></div>
+        <div class="cell" id="2-4"></div>
+        <div class="cell" id="3-4"></div>
+        <div class="cell" id="4-4"></div>
+        <div class="cell" id="5-4"></div>
+        <div class="cell" id="6-4"></div>
+        <div class="cell" id="7-4"></div>
+        <div class="label label--y">
+          <p>3</p>
+          <p class="prob" id="prob_ag_3">{{ prob_ag_3 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-3"></div>
+        <div class="cell" id="1-3"></div>
+        <div class="cell" id="2-3"></div>
+        <div class="cell" id="3-3"></div>
+        <div class="cell" id="4-3"></div>
+        <div class="cell" id="5-3"></div>
+        <div class="cell" id="6-3"></div>
+        <div class="cell" id="7-3"></div>
+        <div class="label label--y">
+          <p>2</p>
+          <p class="prob" id="prob_ag_2">{{ prob_ag_2 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-2"></div>
+        <div class="cell" id="1-2"></div>
+        <div class="cell" id="2-2"></div>
+        <div class="cell" id="3-2"></div>
+        <div class="cell" id="4-2"></div>
+        <div class="cell" id="5-2"></div>
+        <div class="cell" id="6-2"></div>
+        <div class="cell" id="7-2"></div>
+        <div class="label label--y">
+          <p>1</p>
+          <p class="prob" id="prob_ag_1">{{ prob_ag_1 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-1"></div>
+        <div class="cell" id="1-1"></div>
+        <div class="cell" id="2-1"></div>
+        <div class="cell" id="3-1"></div>
+        <div class="cell" id="4-1"></div>
+        <div class="cell" id="5-1"></div>
+        <div class="cell" id="6-1"></div>
+        <div class="cell" id="7-1"></div>
+        <div class="label label--y">
+          <p>0</p>
+          <p class="prob" id="prob_ag_0">{{ prob_ag_0 }}%</p>
+        </div>
+        <div class="cell cell--left" id="0-0"></div>
+        <div class="cell" id="1-0"></div>
+        <div class="cell" id="2-0"></div>
+        <div class="cell" id="3-0"></div>
+        <div class="cell" id="4-0"></div>
+        <div class="cell" id="5-0"></div>
+        <div class="cell" id="6-0"></div>
+        <div class="cell" id="7-0"></div>
+        <div class="corner"></div>
+        <div class="label label--x">
+          <p>0</p>
+          <p class="prob" id="prob_hg_0">{{ prob_hg_0 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>1</p>
+          <p class="prob" id="prob_hg_1">{{ prob_hg_1 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>2</p>
+          <p class="prob" id="prob_hg_2">{{ prob_hg_2 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>3</p>
+          <p class="prob" id="prob_hg_3">{{ prob_hg_3 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>4</p>
+          <p class="prob" id="prob_hg_4">{{ prob_hg_4 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>5</p>
+          <p class="prob" id="prob_hg_5">{{ prob_hg_5 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>6</p>
+          <p class="prob" id="prob_hg_6">{{ prob_hg_6 }}%</p>
+        </div>
+        <div class="label label--x">
+          <p>7</p>
+          <p class="prob" id="prob_hg_7">{{ prob_hg_7 }}%</p>
+        </div>
+      </div>
+    
+      <div class="axes">
+        <p class="matrix__home-team"><span id="goal-probs-label">Goal probabilities: </span>&#8594; {{ fixture.home.short_name }} | &#8593; {{ fixture.away.short_name }}</p>
+      </div>
+    </section>
+</div>
 {% endblock content %}
 
 {% block scripts %}
