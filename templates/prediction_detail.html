@@ -188,5 +188,8 @@
 {% endblock content %}
 
 {% block scripts %}
+  <!--- for script to parse -->
+  <div id="script__goals-home" data="{{ fixture.goals_home }}" style="display: none,"></div>
+  <div id="script__goals-away" data="{{ fixture.goals_away }}" style="display: none,"></div>
   <script src="{% static 'js/prediction_detail.js' %}"></script>
 {% endblock scripts %}

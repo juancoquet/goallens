@@ -1,6 +1,8 @@
 // matrix cells
 
 const cells = document.querySelectorAll('.cell');
+const homeGoalsScored = document.querySelector('#script__goals-home');
+const awayGoalsScored = document.querySelector('#script__goals-away');
 
 
 function insertCellProbability() {
@@ -16,6 +18,9 @@ function insertCellProbability() {
         let p = document.createElement('p');
         p.innerHTML = `${prob.toFixed(2)}`;
         p.classList.add('cell__probability');
+        if (homeGoalsScored.getAttribute('data') == homeGoals && awayGoalsScored.getAttribute('data') === awayGoals) {
+            p.classList.add('cell__probability--highlighted');
+        }        
         cell.appendChild(p);
     });
 }

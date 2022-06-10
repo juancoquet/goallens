@@ -180,6 +180,11 @@ p.cell__probability {
     margin: 0;
 }
 
+p.cell__probability--highlighted {
+    font-weight: 700;
+    color: blackk;
+}
+
 #goal-probs-label {
     display: none;
 }
