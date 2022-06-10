@@ -14,6 +14,11 @@ nav {
     height: 4.8rem;
 }
 
+#home-link {
+    margin: 0;
+    height: 4.8rem;
+}
+
 #menu-icon, #menu-close {
     height: 2.4rem;
     cursor: pointer;

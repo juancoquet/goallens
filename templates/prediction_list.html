@@ -1,0 +1,76 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<h1>Predictions</h1>
+
+<form method="get">
+  {% csrf_token %}
+
+  <select class="input--dropdown" name="season" id="season-dropdown">
+    <option value="">Season</option>
+    {% for season in seasons %}
+      {% if season == season_q %}
+        <option value="{{ season }}" selected>{{ season }}</option>
+      {% else %}
+        <option value="{{ season }}">{{ season }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+
+  <select class="input--dropdown" name="competition" id="competition-dropdown">
+    <option value="">Competition</option>
+    {% for competition in competitions %}
+      {% if competition == competition_q %}
+        <option value="{{ competition }}" selected>{{ competition }}</option>
+      {% else %}
+        <option value="{{ competition }}">{{ competition }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+
+  {% if team_q %}
+    <input class="input--text" type="text" name="team" value="{{ team_q }}" placeholder="Team">
+  {% else %}
+    <input class="input--text" type="text" name="team" placeholder="Team">
+  {% endif %}
+
+  <select class="input--dropdown" name="order" id="order-dropdown">
+    {% if order_q == 'asc' %}
+      <option value="desc">Descending</option>
+      <option value="asc" selected>Ascending</option>
+    {% else %}
+      <option value="desc" selected>Descending</option>
+      <option value="asc">Ascending</option>
+    {% endif %}
+  </select>
+
+  <input class="btn btn--primary" type="submit" value="Search">
+</form>
+
+<section class="table-container">
+  <table id="prediction-table">
+    <th>Open</th>
+    <th>Date</th>
+    <th>Comp</th>
+    <th>Home</th>
+    <th>FxG-H</th>
+    <th>Away</th>
+    <th>FxG-A</th>
+    <th>Result</th>
+
+    {% for pred in predictions %}
+      <tr>
+        <td><a href="{% url 'prediction_detail' fixture_id=pred.fixture.id %}">Open</a></td>
+        <td>{{ pred.fixture.date }}</td>
+        <td>{{ pred.fixture.competition }}</td>
+        <td>{{ pred.fixture.home.short_name }}</td>
+        <td>{{ pred.forecast_hxG }}</td>
+        <td>{{ pred.fixture.away.short_name }}</td>
+        <td>{{ pred.forecast_axG }}</td>
+        <td>{{ pred.fixture.goals_home }} - {{ pred.fixture.goals_away }}</td>
+      </tr>
+    {% endfor %}
+    
+  </table>
+</section>
+{% endblock content %}

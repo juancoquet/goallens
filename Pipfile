@@ -17,6 +17,7 @@ pandas = "==1.4.2"
 matplotlib = "==3.5.2"
 django-livereload-server = "*"
 pillow = "==9.1.1"
+django-filter = "==2.4.0"
 
 [dev-packages]
 
