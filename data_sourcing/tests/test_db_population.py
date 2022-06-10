@@ -334,13 +334,12 @@ class TestFixturePopulation(TestCase):
         )
         self.assertEqual(Prediction.objects.count(), 380*2) # 380 games per season, 2 competitions
 
-    def test_add_predictions_with_not_enough_data(self):
-        with self.assertRaises(ValueError):
-            self.populator.add_predictions_to_db(
-                seasons=['2017-2018'],
-                competitions=['Premier League'],
-                **self.params
-            )
+    def test_add_predictions_with_not_enough_data_does_not_raise(self):
+        self.populator.add_predictions_to_db(
+            seasons=['2017-2018'],
+            competitions=['Premier League'],
+            **self.params
+        )
 
     def test_add_predictions_to_db_args_must_be_lists(self):
         with self.assertRaises(TypeError):

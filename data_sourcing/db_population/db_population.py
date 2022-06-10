@@ -1,7 +1,7 @@
 from datetime import date, time
 
 from ..models import Team, Fixture
-from predictions.predictor import Predictor
+from predictions.predictor import NotEnoughDataError, Predictor
 from predictions.models import Prediction
 from ..scrapers.teams.teams_scraper import TeamsScraper
 from ..scrapers.fixtures.fixtures_scraper import FixturesScraper
@@ -263,22 +263,23 @@ class DBPopulator:
         if type(competitions) != list:
             raise TypeError('competitions must be passed as a list')
 
-        count = 0
         for season in seasons:
             for competition in competitions:
                 print(f'generating predictions for {competition} in {season}')
                 fixtures = Fixture.objects.filter(competition=competition, season=season)
                 for fixture in fixtures:
-                    self._add_prediction_to_db(
-                        fixture=fixture,
-                        xGs_past_games=xGs_past_games,
-                        suppression_range=suppression_range,
-                        conversion_range=conversion_range,
-                        sup_con_past_games=sup_con_past_games,
-                        h_a_weight=h_a_weight,
-                        h_a_past_games=h_a_past_games
-                    )
-                    count += 1
+                    try:
+                        self._add_prediction_to_db(
+                            fixture=fixture,
+                            xGs_past_games=xGs_past_games,
+                            suppression_range=suppression_range,
+                            conversion_range=conversion_range,
+                            sup_con_past_games=sup_con_past_games,
+                            h_a_weight=h_a_weight,
+                            h_a_past_games=h_a_past_games
+                        )
+                    except NotEnoughDataError:
+                        continue
                 print(f'finished generating predictions for {competition} in {season}: {Prediction.objects.count()} predictions added')
 
     def _add_prediction_to_db(self, fixture: Fixture, xGs_past_games: int, suppression_range: float, conversion_range: float,
