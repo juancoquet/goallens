@@ -1,7 +1,8 @@
 from datetime import date, time
-import re
 
 from ..models import Team, Fixture
+from predictions.predictor import Predictor
+from predictions.models import Prediction
 from ..scrapers.teams.teams_scraper import TeamsScraper
 from ..scrapers.fixtures.fixtures_scraper import FixturesScraper
 
@@ -247,3 +248,100 @@ class DBPopulator:
             fixture.save()
             fixture = Fixture.objects.get(id=fixture_id)
         return fixture
+
+    def add_predictions_to_db(self, seasons: list[str], competitions: list[str], xGs_past_games: int,
+                              suppression_range: float, conversion_range: float, sup_con_past_games: int,
+                              h_a_weight: float, h_a_past_games: int):
+        """generates and adds all predictions for the given seasons and competitions to the database.
+
+        Args:
+            seasons (list[str]): seasons to scrape, passed as a list of strings in the format yyyy-yyyy
+            competitions (list[str]): a list containing competition names
+        """
+        if type(seasons) != list:
+            raise TypeError('seasons must be passed as a list')
+        if type(competitions) != list:
+            raise TypeError('competitions must be passed as a list')
+
+        count = 0
+        for season in seasons:
+            for competition in competitions:
+                print(f'generating predictions for {competition} in {season}')
+                fixtures = Fixture.objects.filter(competition=competition, season=season)
+                for fixture in fixtures:
+                    self._add_prediction_to_db(
+                        fixture=fixture,
+                        xGs_past_games=xGs_past_games,
+                        suppression_range=suppression_range,
+                        conversion_range=conversion_range,
+                        sup_con_past_games=sup_con_past_games,
+                        h_a_weight=h_a_weight,
+                        h_a_past_games=h_a_past_games
+                    )
+                    count += 1
+                print(f'finished generating predictions for {competition} in {season}: {Prediction.objects.count()} predictions added')
+
+    def _add_prediction_to_db(self, fixture: Fixture, xGs_past_games: int, suppression_range: float, conversion_range: float,
+                            sup_con_past_games: int, h_a_weight: float, h_a_past_games: int):
+        """adds a prediction to the database and returns the created prediction object. if the prediction
+        already exists in the database, it overwrites the existing prediction.
+
+        Args:
+            fixture (data_sourcing.models.Fixture): the fixture to add the prediction to
+                
+        Returns:
+            data_sourcing.models.Prediction: the created or existing prediction object
+        """
+        predictor = Predictor()
+        prediction_dict = predictor.generate_prediction(fixture, xGs_past_games, suppression_range, conversion_range,
+                                                    sup_con_past_games, h_a_weight, h_a_past_games)
+
+        exists = Prediction.objects.filter(fixture=fixture).exists()
+        if not exists:
+            prediction = Prediction.objects.create(
+                fixture=fixture,
+                forecast_hxG=prediction_dict['forecast_xGs']['home'],
+                forecast_axG=prediction_dict['forecast_xGs']['away'],
+                prob_hg_0=prediction_dict['prob_0_goals']['home'],
+                prob_hg_1=prediction_dict['prob_1_goals']['home'],
+                prob_hg_2=prediction_dict['prob_2_goals']['home'],
+                prob_hg_3=prediction_dict['prob_3_goals']['home'],
+                prob_hg_4=prediction_dict['prob_4_goals']['home'],
+                prob_hg_5=prediction_dict['prob_5_goals']['home'],
+                prob_hg_6=prediction_dict['prob_6_goals']['home'],
+                prob_hg_7=prediction_dict['prob_7_goals']['home'],
+                prob_ag_0=prediction_dict['prob_0_goals']['away'],
+                prob_ag_1=prediction_dict['prob_1_goals']['away'],
+                prob_ag_2=prediction_dict['prob_2_goals']['away'],
+                prob_ag_3=prediction_dict['prob_3_goals']['away'],
+                prob_ag_4=prediction_dict['prob_4_goals']['away'],
+                prob_ag_5=prediction_dict['prob_5_goals']['away'],
+                prob_ag_6=prediction_dict['prob_6_goals']['away'],
+                prob_ag_7=prediction_dict['prob_7_goals']['away'],
+                likely_hg=prediction_dict['likely_scoreline']['home'],
+                likely_ag=prediction_dict['likely_scoreline']['away'],
+            )
+        else:
+            prediction = Prediction.objects.get(fixture=fixture)
+            prediction.forecast_hxG = prediction_dict['forecast_xGs']['home']
+            prediction.forecast_axG = prediction_dict['forecast_xGs']['away']
+            prediction.prob_hg_0 = prediction_dict['prob_0_goals']['home']
+            prediction.prob_hg_1 = prediction_dict['prob_1_goals']['home']
+            prediction.prob_hg_2 = prediction_dict['prob_2_goals']['home']
+            prediction.prob_hg_3 = prediction_dict['prob_3_goals']['home']
+            prediction.prob_hg_4 = prediction_dict['prob_4_goals']['home']
+            prediction.prob_hg_5 = prediction_dict['prob_5_goals']['home']
+            prediction.prob_hg_6 = prediction_dict['prob_6_goals']['home']
+            prediction.prob_hg_7 = prediction_dict['prob_7_goals']['home']
+            prediction.prob_ag_0 = prediction_dict['prob_0_goals']['away']
+            prediction.prob_ag_1 = prediction_dict['prob_1_goals']['away']
+            prediction.prob_ag_2 = prediction_dict['prob_2_goals']['away']
+            prediction.prob_ag_3 = prediction_dict['prob_3_goals']['away']
+            prediction.prob_ag_4 = prediction_dict['prob_4_goals']['away']
+            prediction.prob_ag_5 = prediction_dict['prob_5_goals']['away']
+            prediction.prob_ag_6 = prediction_dict['prob_6_goals']['away']
+            prediction.prob_ag_7 = prediction_dict['prob_7_goals']['away']
+            prediction.likely_hg = prediction_dict['likely_scoreline']['home']
+            prediction.likely_ag = prediction_dict['likely_scoreline']['away']
+            prediction.save()
+        return prediction 

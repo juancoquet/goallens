@@ -7,6 +7,7 @@ from unittest import skip
 from data_sourcing.db_population.db_population import DBPopulator
 from data_sourcing.models import Team, Fixture
 from .expected_test_results import EXPECTED_FIXTURES_DICT, EXPECTED_UPLOAD_DICT
+from predictions.models import Prediction
 
 
 class TestCreateSeasonsTeamDict(TestCase):
@@ -269,3 +270,90 @@ class TestAddFixturesToDB(TestCase):
         # - invalid competition
         # - invalid season
         # - do for teams population too
+
+
+class TestFixturePopulation(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        with open('data_sourcing/tests/teams.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Team.objects.create(
+                    id=row['id'],
+                    name=row['team_name'],
+                    short_name=row['team_short_name'],
+                )
+        with open('data_sourcing/tests/fixtures.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Fixture.objects.create(
+                    id=row['id'],
+                    competition=row['competition'],
+                    season=row['season'],
+                    date=dt.date.fromisoformat(row['date']),
+                    time=dt.time(int(row['time'].split(':')[0]), int(row['time'].split(':')[1])),
+                    home=Team.objects.get(id=row['home']),
+                    away=Team.objects.get(id=row['away']),
+                    goals_home=row['goals_home'],
+                    goals_away=row['goals_away'],
+                    xG_home=Decimal(row['xG_home']) if row['xG_home'] else None,
+                    xG_away=Decimal(row['xG_away']) if row['xG_away'] else None,
+                )
+        cls.populator = DBPopulator()
+        cls.fixture = Fixture.objects.get(id='928467bd')
+        cls.params = {
+            'xGs_past_games': 5,
+            'suppression_range': 1.0,
+            'conversion_range': 1.0,
+            'sup_con_past_games': 5,
+            'h_a_weight': 1.0,
+            'h_a_past_games': 5,
+        }
+
+    def test_populate_prediction(self):
+        self.assertEqual(Prediction.objects.count(), 0)
+        self.populator._add_prediction_to_db(self.fixture, **self.params)
+        self.assertEqual(Prediction.objects.count(), 1)
+
+    def test_populate_prediction_overwrites_existing_record(self):
+        self.assertEqual(Prediction.objects.count(), 0)
+        self.populator._add_prediction_to_db(self.fixture, **self.params)
+        self.assertEqual(Prediction.objects.count(), 1)
+        self.params['h_a_weight'] = 1.5
+        self.populator._add_prediction_to_db(self.fixture, **self.params)
+        self.assertEqual(Prediction.objects.count(), 1)
+
+    def test_add_predictions_to_db(self):
+        self.assertEqual(Prediction.objects.count(), 0)
+        self.populator.add_predictions_to_db(
+            seasons=['2020-2021', '2021-2022'],
+            competitions=['Premier League'],
+            **self.params
+        )
+        self.assertEqual(Prediction.objects.count(), 380*2) # 380 games per season, 2 competitions
+
+    def test_add_predictions_with_not_enough_data(self):
+        with self.assertRaises(ValueError):
+            self.populator.add_predictions_to_db(
+                seasons=['2017-2018'],
+                competitions=['Premier League'],
+                **self.params
+            )
+
+    def test_add_predictions_to_db_args_must_be_lists(self):
+        with self.assertRaises(TypeError):
+            self.populator.add_predictions_to_db(
+                seasons='2018-2019',
+                competitions=['Premier League'],
+                **self.params
+            )
+        with self.assertRaises(TypeError):
+            self.populator.add_predictions_to_db(
+                seasons=['2018-2019'],
+                competitions='Premier League',
+                **self.params
+            )
+
+            
