@@ -2,6 +2,7 @@ import datetime
 from decimal import Decimal
 from unittest import TestCase
 from urllib import response
+from django.core.paginator import Paginator # type: ignore
 from django.test import TestCase # type: ignore
 
 from data_sourcing.db_population.db_population import DBPopulator
@@ -156,7 +157,7 @@ class TestPredictionListView(TestCase):
 
     def test_context_contains_predictions(self):
         response = self.client.get('/predictions/')
-        self.assertEqual(response.context['predictions'].count(), 1)
+        self.assertEqual(len(response.context['predictions']), 1)
 
     def test_response_contains_table(self):
         response = self.client.get('/predictions/')
@@ -176,5 +177,85 @@ class TestPredictionListView(TestCase):
     def test_response_contains_table_rows(self):
         response = self.client.get('/predictions/')
         html = response.content.decode('utf-8')
-        num_preds = response.context['predictions'].count()
-        self.assertEqual(html.count('<tr'), num_preds)
+        num_preds = len(response.context['predictions'])
+        self.assertEqual(html.count('<tr'), num_preds + 1) # +1 for header row
+
+    def test_context_contains_queries(self):
+        url = '/predictions/?'
+        season = '2019-2020'
+        competition = 'Premier League'
+        team = 'Aston Villa'
+        url += 'season=' + season + '&'
+        url += 'competition=' + competition + '&'
+        url += 'team=' + team
+        response = self.client.get(url)
+        self.assertEqual(response.context['season_q'], season)
+        self.assertEqual(response.context['competition_q'], competition)
+        self.assertEqual(response.context['team_q'], team)
+
+
+class UpcomingPredictionsViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.populator = DBPopulator()
+        cls.home = cls.populator.add_team_to_db(
+            team_id='8602292d',
+            team_name='Aston Villa',
+            team_short_name='Aston Villa',
+        )
+        cls.away = cls.populator.add_team_to_db(
+            team_id='b8fd03ef',
+            team_name='Manchester City',
+            team_short_name='Mancheseter City',
+        )
+        this_yr = datetime.date.today().year
+        next_yr = this_yr + 1
+        next_week = datetime.date.today() + datetime.timedelta(days=7)
+        cls.fixture = cls.populator.add_fixture_to_db(
+            fixture_id='ffb4946c',
+            competition='Premier League',
+            season=f'{this_yr}-{next_yr}',
+            date=next_week,
+            time=datetime.time(16, 30),
+            home_team_id=cls.home.id,
+            away_team_id=cls.away.id,
+            goals_home=1,
+            goals_away=6,
+            xG_home=1.0,
+            xG_away=2.5,
+        )
+        cls.prediction = Prediction.objects.create(
+            fixture=cls.fixture,
+            forecast_hxG=Decimal('0.96'),
+            forecast_axG=Decimal('2.06'),
+            prob_hg_0=Decimal('0.3829'),
+            prob_hg_1=Decimal('0.3676'),
+            prob_hg_2=Decimal('0.1764'),
+            prob_hg_3=Decimal('0.0565'),
+            prob_hg_4=Decimal('0.0136'),
+            prob_hg_5=Decimal('0.0026'),
+            prob_hg_6=Decimal('0.0004'),
+            prob_hg_7=Decimal('0.0001'),
+
+            prob_ag_0=Decimal('0.1275'),
+            prob_ag_1=Decimal('0.2626'),
+            prob_ag_2=Decimal('0.2704'),
+            prob_ag_3=Decimal('0.1857'),
+            prob_ag_4=Decimal('0.0956'),
+            prob_ag_5=Decimal('0.0394'),
+            prob_ag_6=Decimal('0.0135'),
+            prob_ag_7=Decimal('0.004'),
+            likely_hg=0,
+            likely_ag=2,
+        )
+
+    maxDiff = None
+
+    def test_uses_upcoming_predictions_template(self):
+        response = self.client.get('/predictions/upcoming/')
+        self.assertTemplateUsed(response, 'prediction_upcoming.html')
+    
+    def test_fixture_in_context(self):
+        response = self.client.get('/predictions/upcoming/')
+        self.assertEqual(response.context['premier_league'][0], self.prediction)

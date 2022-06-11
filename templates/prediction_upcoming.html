@@ -1,0 +1,64 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load pred_upcoming %}
+
+{% block title %}Upcoming Predictions: {% endblock title %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'css/prediction_upcoming.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<h1>Upcoming Predictions</h1>
+
+<p class="table-key">FXG-H: <span class="text--thin">Forecast xG (Home) | </span>FXG-A: <span class="text--thin">Forecast xG (Away)</span></p>
+
+{% for comp, preds in predictions.items %}
+<section class="table-container" id="{% text_to_id text=comp %}-section">
+  <h2>{{ comp }}</h2>
+
+  <table id="{% text_to_id text=comp %}-table">
+    <thead>
+      <tr>
+        <th>Open</th>
+        <th>Date</th>
+        <th>Home</th>
+        <th>FxG-H</th>
+        <th>Away</th>
+        <th>FxG-A</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% if preds|length == 0 %}
+        <tr>
+          <td class="no-predictions" colspan="8">
+            <p class="no-predictions__text">No upcoming {{ comp }} predictions</p>
+            <a href="{% url 'prediction_list' %}?competition={{ comp }}"><button class="btn btn--primary">View all {{ comp }}</button></a>
+          </td>
+        </tr>
+      {% else %}
+
+        {% for pred in preds %}
+          <tr>
+            <td><a href="{% url 'prediction_detail' fixture_id=pred.fixture.id %}">Open</a></td>
+            <td>{{ pred.fixture.date }}</td>
+            <td>{{ pred.fixture.home.short_name }}</td>
+            <td>{{ pred.forecast_hxG }}</td>
+            <td>{{ pred.fixture.away.short_name }}</td>
+            <td>{{ pred.forecast_axG }}</td>
+            <td>{{ pred.fixture.goals_home }} - {{ pred.fixture.goals_away }}</td>
+          </tr>
+        {% endfor %}
+      
+      {% endif %}
+    </tbody>
+  </table>
+  
+  <a href="{% url 'prediction_list' %}?competition={{ comp }}"><p class="view-all">View all {{ comp }} &raquo;</p></a>
+  
+</section>
+{% endfor %}
+
+{% endblock content %}

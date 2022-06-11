@@ -174,7 +174,7 @@ class TestAnalyst(TestCase):
         }
         df = pd.DataFrame(data)
         result = self.analyst.mean_squared_error(df)
-        expected = 0.2656
+        expected = 0.2656104
         self.assertEqual(result, expected)
 
     def test_calculate_strikerates_defaults_to_self_df(self):

@@ -2,6 +2,8 @@
 {% load static %}
 {% load pred_list_pagination %}
 
+{% block title %}Predictions: {% endblock title %}
+
 {% block styles %}
   <link rel="stylesheet" href="{% static 'css/predictions_list.css' %}">
 {% endblock styles %}
@@ -51,6 +53,8 @@
 
   <input class="btn btn--primary" type="submit" value="Search">
 </form>
+
+<p class="table-key">FXG-H: <span class="text--thin">Forecast xG (Home) | </span>FXG-A: <span class="text--thin">Forecast xG (Away)</span></p>
 
 <section class="table-container">
   <table id="prediction-table">

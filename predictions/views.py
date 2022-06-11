@@ -1,3 +1,4 @@
+import datetime
 from django.core.paginator import Paginator # type: ignore
 from django.db.models import Q # type: ignore
 from django.shortcuts import render # type: ignore
@@ -77,3 +78,25 @@ def prediction_list_view(request):
         'order_q': order_q,
     }
     return render(request, 'prediction_list.html', context)
+
+
+def prediction_upcoming_view(request):
+    today = datetime.date.today()
+    # today = datetime.date(2022, 5, 14)
+    upcoming_preds = Prediction.objects.filter(fixture__date__gte=today).order_by('fixture__date')
+    premier_league = upcoming_preds.filter(fixture__competition='Premier League')
+    la_liga = upcoming_preds.filter(fixture__competition='La Liga')
+    ligue_1 = upcoming_preds.filter(fixture__competition='Ligue 1')
+    bundesliga = upcoming_preds.filter(fixture__competition='Bundesliga')
+    serie_a = upcoming_preds.filter(fixture__competition='Serie A')
+    preds = {
+        'Premier League': premier_league,
+        'La Liga': la_liga,
+        'Ligue 1': ligue_1,
+        'Bundesliga': bundesliga,
+        'Serie A': serie_a,
+    }
+    context = {
+        'predictions': preds,
+    }
+    return render(request, 'prediction_upcoming.html', context)

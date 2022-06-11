@@ -1,13 +1,14 @@
-.btn {
-
-}
-
 #season-dropdown {
     margin-left: 0;
 }
 
 #order-dropdown {
     margin-right: 1.6rem;
+}
+
+p.table-key {
+    margin-top: 0.4rem;
+    margin-bottom: 0rem;
 }
 
 .pagination {

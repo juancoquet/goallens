@@ -48,6 +48,7 @@
     --light-prpl: #A56EF4;
     --pink: #FDA3FF;
     --dark-grey: #7e7e7e;
+    --light-grey: #a6a2a2;
     --text-grey: #424242;
     --dark-green: #069464;
     --light-green: #06B178;
@@ -125,6 +126,10 @@ li {
     margin-bottom: 1.6rem;
 }
 
+span.text--thin {
+    font-weight: 300;
+}
+
 button, input.btn {
     font-size: 1.6rem;
     font-family: 'Argentum Sans', sans-serif;
@@ -142,6 +147,10 @@ button, input.btn {
 
 .btn--primary {
     background: linear-gradient(180deg, var(--dark-green) 0%, var(--light-green) 40%);
+}
+
+.btn--secondary {
+    background-color: var(--light-grey);
 }
 
 
@@ -223,6 +232,17 @@ p.footer__text.copyright {
     font-weight: 300;
 }
 
+a.footer__link {
+    font-family: 'Radwave', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-align: center;
+    color: var(--bg);
+    font-size: 1.2rem;
+    text-decoration: none;
+    margin: 0 0.4rem;
+}
+
 
 /* TABLE ----------------------------------------------------- */
 
@@ -233,11 +253,11 @@ p.footer__text.copyright {
     justify-content: center;
     align-items: center;
     margin: 1.6rem 0; */
-    overflow: scroll;
+    overflow-x: scroll;
+    padding-bottom: 0;
 }
 
 table {
-    overflow: scroll;
     border-collapse: collapse;
     width: 100%;
 }

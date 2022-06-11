@@ -12,7 +12,7 @@
   {% block styles %}
   {% endblock styles%}
   
-  <title>Goal Lens</title>
+  <title>{% block title %}{% endblock %}Goal Lens</title>
 </head>
 <body>
 
@@ -23,7 +23,7 @@
         <div class="nav-items--right">
           <img class="nav__menu" src="{% static 'images/menu-icon.svg' %}" alt="menu" id="menu-icon">
           <img class="nav__menu-close hidden" src="{% static 'images/menu-icon-close.svg' %}" alt="close menu" id="menu-close">
-          <a href="{% url 'prediction_list' %}" class="nav__item"><p class="nav__text">Predictions</p></a>
+          <a href="{% url 'prediction_upcoming' %}" class="nav__item"><p class="nav__text">Predictions</p></a>
           <a href="" class="nav__item"><p class="nav__text">Methodology &amp; Analysis</p></a>
         </div>
       </nav>
@@ -35,8 +35,14 @@
   </div>
   
   <footer>
-    <p class="footer__text">Premier League | La Liga | Ligue 1 | Serie A | Bundesliga</p>
-    <p class="footer__text">About | Contact</p>
+    <p class="footer__text">
+      <a href="{% url 'prediction_list' %}?competition=Premier%20League" class="footer__link">Premier League</a> | 
+      <a href="{% url 'prediction_list' %}?competition=La%20Liga" class="footer__link">La Liga</a> | 
+      <a href="{% url 'prediction_list' %}?competition=Ligue%201" class="footer__link">Ligue 1</a> |
+      <a href="{% url 'prediction_list' %}?competition=Bundesliga" class="footer__link">Bundesliga</a> |
+      <a href="{% url 'prediction_list' %}?competition=Serie%20A" class="footer__link">Serie A</a>
+    </p>
+    <p class="footer__text">Contact</p>
     <p class="footer__text copyright">&copy; Goal Lens</p>
   </footer>
   
