@@ -35,6 +35,31 @@ def prediction_detail_view(request, fixture_id):
         context[f'prob_hg_{g}'] = float(prob_hg * 100)
         context[f'prob_ag_{g}'] = float(prob_ag * 100)
 
+    prev_pred_home = Prediction.objects.filter(
+        Q(fixture__date__lt=fixture.date) &
+        (Q(fixture__home=prediction.fixture.home) | Q(fixture__away=prediction.fixture.home))
+        ).order_by('-fixture__date').first()
+    
+    prev_pred_away = Prediction.objects.filter(
+        Q(fixture__date__lt=fixture.date) &
+        (Q(fixture__home=prediction.fixture.away) | Q(fixture__away=prediction.fixture.away))
+        ).order_by('-fixture__date').first()
+
+    next_pred_home = Prediction.objects.filter(
+        Q(fixture__date__gt=fixture.date) &
+        (Q(fixture__home=prediction.fixture.home) | Q(fixture__away=prediction.fixture.home))
+        ).order_by('fixture__date').first()
+
+    next_pred_away = Prediction.objects.filter(
+        Q(fixture__date__gt=fixture.date) &
+        (Q(fixture__home=prediction.fixture.away) | Q(fixture__away=prediction.fixture.away))
+        ).order_by('fixture__date').first()
+    
+    context['prev_prediction_home'] = prev_pred_home
+    context['prev_prediction_away'] = prev_pred_away
+    context['next_prediction_home'] = next_pred_home
+    context['next_prediction_away'] = next_pred_away
+
     return render(request, 'prediction_detail.html', context)
 
 

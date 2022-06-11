@@ -5,12 +5,14 @@
   <link rel="stylesheet" href="{% static 'css/prediction_detail.css' %}">
 {% endblock styles %}
 
+{% block title %}{{ fixture.home.short_name }} - {{ fixture.away.short_name }}: {% endblock title %}
+
 {% block content %}
 <h1 class="fixture-title">{{ fixture.home.short_name }} - {{ fixture.away.short_name }}</h1>
 <h2 class="text--outline heading--date">{{dd}} - {{mm}} - {{yyyy}}</h2>
 
 <div class="container">
-  <div>
+  <div id="desktop-left">
     <section class="stats">
       <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.home.id }}.png" alt="{{ fixture.home.name }}">
       <p class="goals-scored stats__item">{{ fixture.goals_home }} – {{ fixture.goals_away }}</p>
@@ -184,6 +186,40 @@
         <p class="matrix__home-team"><span id="goal-probs-label">Goal probabilities: </span>&#8594; {{ fixture.home.short_name }} | &#8593; {{ fixture.away.short_name }}</p>
       </div>
     </section>
+
+    <section id="navigation">
+      <h3 id="navigation__title">Navigate Predictions</h3>
+
+      <p class="navigation__team-name navigation__home-team">{{ fixture.home.short_name }}</p>
+      <p class="navigation__team-name navigation__away-team">{{ fixture.away.short_name }}</p>
+      
+      {% if prev_prediction_home %}
+        <a class="pred-navigation pred-navigation--home-prev" href="{% url 'prediction_detail' fixture_id=prev_prediction_home.fixture.id %}">&laquo;</a>
+      {% else %}
+        <p class="pred-navigation pred-navigation--disabled pred-navigation--home-prev">N/A</p>
+      {% endif %}
+      
+      {% if next_prediction_home %}
+        <a class="pred-navigation pred-navigation--home-next" href="{% url 'prediction_detail' fixture_id=next_prediction_home.fixture.id %}">&raquo;</a>
+      {% else %}
+        <p class="pred-navigation pred-navigation--disabled pred-navigation--home-next">N/A</p>
+      {% endif %}
+
+      {% if prev_prediction_away %}
+        <a class="pred-navigation pred-navigation--away-prev" href="{% url 'prediction_detail' fixture_id=prev_prediction_away.fixture.id %}">&laquo;</a>
+      {% else %}
+        <p class="pred-navigation pred-navigation--disabled pred-navigation--away-prev">N/A</p>
+      {% endif %}
+
+      {% if next_prediction_away %} 
+        <a class="pred-navigation pred-navigation--away-next" href="{% url 'prediction_detail' fixture_id=next_prediction_away.fixture.id %}">&raquo;</a>
+      {% else %}
+        <p class="pred-navigation pred-navigation--disabled pred-navigation--away-next">N/A</p>
+      {% endif %}
+
+      <a href="{% url 'prediction_list' %}?competition={{ fixture.competition }}&amp;season={{ fixture.season }}" class="navigation__view-all">View all {{ fixture.competition }}</a>
+    </section>
+    
 </div>
 {% endblock content %}
 
@@ -191,5 +227,6 @@
   <!--- for script to parse -->
   <div id="script__goals-home" data="{{ fixture.goals_home }}" style="display: none,"></div>
   <div id="script__goals-away" data="{{ fixture.goals_away }}" style="display: none,"></div>
+  <!--- end for script to parse -->
   <script src="{% static 'js/prediction_detail.js' %}"></script>
 {% endblock scripts %}

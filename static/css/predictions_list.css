@@ -32,7 +32,6 @@ p.table-key {
 .page-nav {
     text-decoration: none;
     margin: 0 0.4rem;
-    text-decoration: none;
     background-color: var(--page-num-bg);
     padding: 0.2rem 0.6rem;
     border-radius: 2px;

@@ -1,3 +1,4 @@
+import csv
 import datetime
 from decimal import Decimal
 from unittest import TestCase
@@ -6,7 +7,7 @@ from django.core.paginator import Paginator # type: ignore
 from django.test import TestCase # type: ignore
 
 from data_sourcing.db_population.db_population import DBPopulator
-from data_sourcing.models import Fixture
+from data_sourcing.models import Fixture, Team
 from predictions.models import Prediction
 
 
@@ -15,29 +16,35 @@ class TestPredictionDetailView(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.populator = DBPopulator()
-        cls.home = cls.populator.add_team_to_db(
-            team_id='8602292d',
-            team_name='Aston Villa',
-            team_short_name='Aston Villa',
-        )
-        cls.away = cls.populator.add_team_to_db(
-            team_id='b8fd03ef',
-            team_name='Manchester City',
-            team_short_name='Mancheseter City',
-        )
-        cls.fixture = cls.populator.add_fixture_to_db(
-            fixture_id='ffb4946c',
-            competition='Premier League',
-            season='2019-2020',
-            date=datetime.date(2020, 1, 12),
-            time=datetime.time(16, 30),
-            home_team_id=cls.home.id,
-            away_team_id=cls.away.id,
-            goals_home=1,
-            goals_away=6,
-            xG_home=1.0,
-            xG_away=2.5,
-        )
+
+        with open('predictions/tests/teams.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Team.objects.create(
+                    id=row['id'],
+                    name=row['team_name'],
+                    short_name=row['team_short_name']
+                )
+        with open('predictions/tests/fixtures.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                Fixture.objects.create(
+                    id=row['id'],
+                    competition=row['competition'],
+                    season=row['season'],
+                    date=datetime.date.fromisoformat(row['date']),
+                    time=datetime.time(int(row['time'].split(':')[0]), int(row['time'].split(':')[1])),
+                    home=Team.objects.get(id=row['home']),
+                    away=Team.objects.get(id=row['away']),
+                    goals_home=int(row['goals_home']),
+                    goals_away=int(row['goals_away']),
+                    xG_home=Decimal(row['xG_home']) if row['xG_home'] else None,
+                    xG_away=Decimal(row['xG_away']) if row['xG_away'] else None,
+                )
+
+        cls.fixture = Fixture.objects.get(id='ffb4946c')
+        cls.home = Team.objects.get(id='8602292d')
+        cls.away = Team.objects.get(id='b8fd03ef')
 
     def setUp(self):
         self.prediction = Prediction.objects.create(
@@ -65,6 +72,24 @@ class TestPredictionDetailView(TestCase):
             likely_ag=2,
         )
 
+        self.prev_pred_home = self.populator._add_prediction_to_db(
+            fixture=Fixture.objects.get(id='ac409026'),
+            xGs_past_games=5,
+            suppression_range=1.0,
+            conversion_range=1.0,
+            sup_con_past_games=5,
+            h_a_weight=1.0,
+            h_a_past_games=5,
+        )
+        self.next_pred_home = self.populator._add_prediction_to_db(
+            fixture=Fixture.objects.get(id='bd044bad'),
+            xGs_past_games=5,
+            suppression_range=1.0,
+            conversion_range=1.0,
+            sup_con_past_games=5,
+            h_a_weight=1.0,
+            h_a_past_games=5,
+        )
 
     def test_uses_prediction_detail_template(self):
         response = self.client.get('/predictions/ffb4946c')
@@ -94,6 +119,14 @@ class TestPredictionDetailView(TestCase):
     def test_context_contains_draw_probability(self):
         response = self.client.get('/predictions/ffb4946c')
         self.assertEqual(response.context['draw_prob'], 20)
+
+    def test_context_contains_prev_prediction_for_team(self):
+        response = self.client.get('/predictions/ffb4946c')
+        self.assertEqual(response.context['prev_prediction_home'], self.prev_pred_home)
+
+    def test_context_contains_next_prediction_for_team(self):
+        response = self.client.get('/predictions/ffb4946c')
+        self.assertEqual(response.context['next_prediction_home'], self.next_pred_home)
 
 
 class TestPredictionListView(TestCase):

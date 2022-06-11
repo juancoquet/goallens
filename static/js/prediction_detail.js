@@ -47,3 +47,25 @@ function shadeCells() {
 }
 
 document.addEventListener('DOMContentLoaded', shadeCells);
+
+
+// move navigation section for desktop
+
+// 800px
+
+const navigationSection = document.querySelector('#navigation');
+const defaultParentNav = navigationSection.parentElement;
+const desktopParent = document.querySelector('#desktop-left')
+
+function moveNavigation() {
+    if (window.innerWidth >= 800) {
+        desktopParent.appendChild(navigationSection);
+    }
+    else {
+        defaultParentNav.appendChild(navigationSection);
+    }
+    console.log(window.innerWidth)
+}
+
+document.addEventListener('DOMContentLoaded', moveNavigation);
+window.addEventListener('resize', moveNavigation);

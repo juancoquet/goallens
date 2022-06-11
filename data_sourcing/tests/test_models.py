@@ -1,5 +1,5 @@
-from django.db.utils import IntegrityError
-from django.test import TestCase
+from django.db.utils import IntegrityError # type: ignore
+from django.test import TestCase # type: ignore
 
 from data_sourcing import models
 

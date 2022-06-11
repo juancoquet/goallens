@@ -182,13 +182,107 @@ p.cell__probability {
 
 p.cell__probability--highlighted {
     font-weight: 700;
-    color: blackk;
+    color: black;
 }
 
 #goal-probs-label {
     display: none;
 }
 
+
+/* navigation */
+
+#navigation {
+    border-top: 1px solid var(--dark-grey);
+    border-bottom: 1px solid var(--dark-grey);
+    margin-top: 1.6rem;
+    margin-bottom: 1.6rem;
+    /* max-width: 343px; */
+
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
+    row-gap: 1.6rem;
+}
+
+#navigation__title {
+    justify-self: center;
+    align-self: center;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+p.navigation__team-name {
+    margin: 0;
+    justify-self: center;
+    align-self: center;
+}
+
+.navigation__home-team{
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 3;
+}
+
+.navigation__away-team {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 3;
+    grid-row-end: 4;
+}
+
+.pred-navigation--home-prev {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 3;
+}
+
+.pred-navigation--home-next {
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 3;
+}
+
+.pred-navigation--away-prev {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 3;
+    grid-row-end: 4;
+}
+
+.pred-navigation--away-next {
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 4;
+}
+
+p.pred-navigation--disabled {
+    margin: 0;
+    color: var(--dark-grey);
+    justify-self: center;
+    align-self: center;
+}
+
+.pred-navigation:not(.pred-navigation--disabled) {
+    text-decoration: none;
+    justify-self: center;
+    align-self: center;
+    margin: 0 0.4rem;
+    background-color: var(--page-num-bg);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+}
+
+.navigation__view-all {
+    justify-self: center;
+    align-self: center;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
 
 @media screen and (min-width: 450px) {
     .label>p.prob {
