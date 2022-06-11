@@ -1,7 +1,6 @@
 from analysis.back_testing.back_testing import BackTester
 from supported_comps import PREDICTION_COMPS
 import os
-import time
 
 
 seasons = ['2017-2018', '2018-2019', '2019-2020', '2020-2021', '2021-2022']
@@ -18,6 +17,17 @@ h_a_weight_list = [0.5, 0.75, 1.0]
 h_a_past_games_list = [10]
 
 
+# second generation of backtesting
+# xGs_past_games_list = [10]
+
+# suppression_range_list = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5]
+# conversion_range_list = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5]
+# sup_conv_past_games_list = [10]
+
+# h_a_weight_list = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5]
+# h_a_past_games_list = [10]
+
+
 bt = BackTester(
     seasons=seasons,
     competitions=competitions,
@@ -30,7 +40,7 @@ bt = BackTester(
 )
 
 bt.combinations = []
-with open('scripts/bt_params/params_3.txt', 'r') as f:
+with open('scripts/bt_params/params_4.txt', 'r') as f:
     for line in f:
         params = line.strip().replace('(', '').replace(')', '').split(',')
         params = [p.strip() for p in params]
@@ -49,6 +59,6 @@ bt.num_combinations = len(bt.combinations)
 bt.back_test_params()
 bt.save_results()
 
-os.system('cp -r analysis/back_testing/results/ analysis/back_testing/storage/params_3/')
+os.system('cp -r analysis/back_testing/results/ analysis/back_testing/storage/params_4/')
 os.system('rm -rf analysis/back_testing/results/*')
 print('copied results to storage')

@@ -9,3 +9,29 @@
 #order-dropdown {
     margin-right: 1.6rem;
 }
+
+.pagination {
+    margin-top: 1.6rem;
+}
+
+.page-num {
+    margin: 0 0.4rem;
+    text-decoration: none;
+    background-color: var(--page-num-bg);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+}
+
+.page-num.current-page {
+    background-color: var(--light-prpl);
+    color: var(--bg);
+}
+
+.page-nav {
+    text-decoration: none;
+    margin: 0 0.4rem;
+    text-decoration: none;
+    background-color: var(--page-num-bg);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+}

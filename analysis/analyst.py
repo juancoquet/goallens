@@ -101,7 +101,7 @@ class Analyst:
         for predicted, outcome in zip(df['probability'], df['outcome']):
             mse += (predicted - outcome) ** 2
         mse /= len(df)
-        mse = round(mse, 4)
+        mse = round(mse, 8)
         self.mse = mse
         return mse
 
