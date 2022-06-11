@@ -33,7 +33,9 @@
       </div>
       <img class="graphic" src="{% static 'images/graphics/analysis.svg' %}" alt="data being analysed" id="analysis-graphic">
       <div class="center-contents">
-        <button id="pred-btn" class="btn--primary">VIEW PREDICTIONS</button>
+        <a class="home__btn" id="pred-btn" href="{% url 'prediction_upcoming' %}">
+          <button class="btn--primary">VIEW PREDICTIONS</button>
+        </a>
       </div>
     </div>
   </section>

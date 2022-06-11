@@ -78,6 +78,10 @@ button {
     .graphic {
         max-width: 45%;
     }
+
+    a.home__btn {
+        justify-content: flex-start;
+    }
 }
 @media screen and (min-width: 1000px) {
     :root {

@@ -156,6 +156,12 @@ button, input.btn {
     background-color: var(--light-grey);
 }
 
+a.home__btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+}
 
 /* SPACING --------------------------------------------------- */
 
