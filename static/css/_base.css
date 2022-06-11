@@ -67,6 +67,9 @@ html {
 
 body {
     background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 section {
@@ -213,7 +216,7 @@ footer {
     background: linear-gradient(180deg, var(--light-prpl) 0%, var(--dark-prpl) 100%);
     padding-top: 3.2rem !important;
     padding-bottom: 1.6rem !important;
-    margin-top: 1.6rem;
+    margin-top: auto;
 }
 
 p.footer__text {

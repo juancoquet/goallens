@@ -258,4 +258,12 @@ class UpcomingPredictionsViewTest(TestCase):
     
     def test_fixture_in_context(self):
         response = self.client.get('/predictions/upcoming/')
-        self.assertEqual(response.context['premier_league'][0], self.prediction)
+        self.assertEqual(response.context['predictions']['Premier League'][0], self.prediction)
+
+    def test_response_contains_tables(self):
+        response = self.client.get('/predictions/upcoming/')
+        self.assertContains(response, 'id="premier-league-table"')
+        self.assertContains(response, 'id="la-liga-table"')
+        self.assertContains(response, 'id="ligue-1-table"')
+        self.assertContains(response, 'id="bundesliga-table"')
+        self.assertContains(response, 'id="serie-a-table"')
