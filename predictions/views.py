@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator # type: ignore
 from django.db.models import Q # type: ignore
 from django.shortcuts import render # type: ignore
 
@@ -60,6 +61,11 @@ def prediction_list_view(request):
         predictions = predictions.order_by('fixture__date')
     elif order_q == 'desc':
         predictions = predictions.order_by('-fixture__date')
+
+    predictions = predictions
+    paginator = Paginator(predictions, 50)
+    page = request.GET.get('page')
+    predictions = paginator.get_page(page)
 
     context = {
         'seasons': seasons,

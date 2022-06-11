@@ -1,4 +1,9 @@
 {% extends '_base.html' %}
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'css/predictions_list.css' %}">
+{% endblock styles %}
 
 {% block content %}
 <h1>Predictions</h1>
@@ -49,15 +54,19 @@
 
 <section class="table-container">
   <table id="prediction-table">
-    <th>Open</th>
-    <th>Date</th>
-    <th>Comp</th>
-    <th>Home</th>
-    <th>FxG-H</th>
-    <th>Away</th>
-    <th>FxG-A</th>
-    <th>Result</th>
-
+    <thead>
+      <tr>
+        <th>Open</th>
+        <th>Date</th>
+        <th>Comp</th>
+        <th>Home</th>
+        <th>FxG-H</th>
+        <th>Away</th>
+        <th>FxG-A</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    
     {% for pred in predictions %}
       <tr>
         <td><a href="{% url 'prediction_detail' fixture_id=pred.fixture.id %}">Open</a></td>
@@ -73,4 +82,10 @@
     
   </table>
 </section>
+
+<div class="pagination">
+  <p>current page: {{ predictions.number }}</p>
+  <p>total pages: {{ predictions.paginator.num_pages }}</p>
+</div>
+
 {% endblock content %}

@@ -266,3 +266,19 @@ tr:nth-child(even) {
 tr:nth-child(odd) {
     /* background-color: #eef3f6; */
 }
+
+.input--dropdown, .input--text {
+    border: 1px solid var(--dark-grey);
+    border-radius: 2px;
+    font-size: 1.6rem;
+    font-family: 'Argentum Sans', sans-serif;
+    font-weight: 300;
+    background-color: var(--bg);
+    color: var(--text-grey);
+    margin: 0.4rem;
+    padding: 0.4rem;
+}
+
+.input--text {
+    padding: 0.5rem 0.4rem;
+}
