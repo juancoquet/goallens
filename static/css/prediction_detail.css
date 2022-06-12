@@ -90,7 +90,8 @@ h3>.text--green {
 }
 
 .bar__segment--draw {
-    background-color: var(--bg)
+    background-color: var(--bg);
+    flex-grow: 1;
 }
 
 .bar__segment--away {
