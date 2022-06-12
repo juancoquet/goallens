@@ -38,7 +38,7 @@ class TestBacktester(TestCase):
         }
         analyst = Analyst()
         df = pd.DataFrame(data)
-        analyst.df = df
+        analyst.df_prob_outcomes = df
         analyst.calculate_strikerates()
         analyst.mean_squared_error()
         bt.results = {

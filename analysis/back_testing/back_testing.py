@@ -6,7 +6,7 @@ import os
 import pickle
 
 from ..analyst import Analyst
-from ..plotting.plotting import plot
+from ..plotting.plotting import plot_fxG_vs_goals, plot_strikerates
 
 
 class BackTester:
@@ -53,6 +53,7 @@ class BackTester:
             )
             analyst.calculate_strikerates()
             analyst.mean_squared_error()
+            analyst.xG_mean_squared_error()
 
             curr_index = self.combinations.index(params) + 1
             remaining = self.num_combinations - curr_index
@@ -74,7 +75,7 @@ class BackTester:
         # multiprocessing loop
         with concurrent.futures.ProcessPoolExecutor() as executor:
             results = executor.map(self._back_test_param_set, self.combinations)
-        results = sorted(results, key=lambda x: x[1].mse)[:100]
+        results = sorted(results, key=lambda x: x[1].fxG_mse)[:100]
 
         self.results = {params: analyst for params, analyst in results}
 
@@ -92,9 +93,11 @@ class BackTester:
                 f.write(f'h_a_past_games: {params[5]}\n')
             sr = analyst.strikerates
             mse = analyst.mse
-            df = analyst.df
-            plot_path = os.path.join(directory, 'plot')
-            plot(sr, mse, df, title=None, filename=plot_path, params=params)
+            df = analyst.df_prob_outcomes
+            sr_plot_path = os.path.join(directory, 'plot')
+            fxG_plot_path = os.path.join(directory, 'plot_fxG')
+            plot_strikerates(sr, mse, df, title=None, filename=sr_plot_path, params=params)
+            plot_fxG_vs_goals(analyst.df_fxG_goals, analyst.fxG_mse, title=None, filename=fxG_plot_path, params=params)
             # pickle analylst
             with open(os.path.join(directory, 'analyst.pickle'), 'wb') as f:
                 pickle.dump(analyst, f)

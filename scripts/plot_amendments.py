@@ -1,4 +1,4 @@
-from analysis.plotting.plotting import plot
+from analysis.plotting.plotting import plot_strikerates
 import pickle
 
 
@@ -21,4 +21,4 @@ for dir_name in range(100):
     mse = analyst.mean_squared_error()
     write_path = f'analysis/back_testing/storage/params_3/{dir_name}/plot'
 
-    plot(sr, mse, df, filename=write_path, params=params)
+    plot_strikerates(sr, mse, df, filename=write_path, params=params)

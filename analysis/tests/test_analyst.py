@@ -91,10 +91,10 @@ class TestAnalyst(TestCase):
         self.assertEqual(combined, expected)
                 
     def test_create_analysis_df(self):
-        self.assertEqual(self.analyst.df, None)
+        self.assertEqual(self.analyst.df_prob_outcomes, None)
         df = self.analyst.create_analysis_df(seasons=['2020-2021', '2021-2022'], competitions=['Premier League'])
         self.assertEqual(df.shape, (380*16*2, 2)) # 380 fixtures per season, 16 predictions per fx, 2 seasons
-        self.assertEqual(type(self.analyst.df), type(df))
+        self.assertEqual(type(self.analyst.df_prob_outcomes), type(df))
 
     def test_create_analysis_df_only_accepts_lists_as_args(self):
         with self.assertRaises(TypeError):
@@ -183,7 +183,7 @@ class TestAnalyst(TestCase):
             'outcome': [0, 0, 1, 0, 1]
         }
         df = pd.DataFrame(data)
-        self.analyst.df = df
+        self.analyst.df_prob_outcomes = df
         try:
             self.analyst.calculate_strikerates()
         except Exception as e:
@@ -196,7 +196,7 @@ class TestAnalyst(TestCase):
             'outcome': [0, 0, 1, 0, 1]
         }
         df = pd.DataFrame(data)
-        self.analyst.df = df
+        self.analyst.df_prob_outcomes = df
         self.analyst.calculate_strikerates()
         try:
             self.analyst.mean_squared_error()

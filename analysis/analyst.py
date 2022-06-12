@@ -13,9 +13,11 @@ from supported_comps import PREDICTION_COMPS
 class Analyst:
 
     def __init__(self):
-        self.df = None
+        self.df_prob_outcomes = None
+        self.df_fxG_goals = None
         self.strikerates = None
         self.mse = None
+        self.fxG_mse = None
 
     def create_analysis_df(self, seasons: list[str], competitions: list[str],
                         xG_past_games=5, suppression_range=1, conversion_range=1,
@@ -38,29 +40,38 @@ class Analyst:
             self._validate_competition(competition)
 
         predictor = Predictor()
-        data = {'probability': [], 'outcome': []}
+        fxG_goals = {'fxG': [], 'goals_scored': []}
+        prob_outcomes = {'probability': [], 'outcome': []}
         
         for season in seasons:
             for competition in competitions:
                 fixtures = Fixture.objects.filter(competition=competition, season=season)
                 for fixture in fixtures:
-                    print(f'processing {fixture.id}, {len(data["probability"])} records so far', end='\r')
+                    print(f'processing {fixture.id}, {len(prob_outcomes["probability"])} records so far', end='\r')
                     try:
                         prediction = predictor.generate_prediction(fixture, xG_past_games, suppression_range, conversion_range,
                                                                     sup_con_past_games, h_a_weight, h_a_past_games)
                     except NotEnoughDataError:
                         continue
+                    
+                    fxG_goals['fxG'].append(prediction['forecast_xGs']['home'])
+                    fxG_goals['fxG'].append(prediction['forecast_xGs']['away'])
+                    fxG_goals['goals_scored'].append(prediction['fixture'].goals_home)
+                    fxG_goals['goals_scored'].append(prediction['fixture'].goals_away)
+                    
                     pred_copy = prediction.copy()
                     outcomes = self._check_prediction_outcomes(prediction)
                     combined = self._combine_predictions_and_outcomes(pred_copy, outcomes)
                     for prob, outcome in combined:
-                        data['probability'].append(prob)
-                        data['outcome'].append(outcome)
+                        prob_outcomes['probability'].append(prob)
+                        prob_outcomes['outcome'].append(outcome)
                     
-        df = pd.DataFrame(data)
-        print(f'{len(df)} predictions analysed')
-        self.df = df
-        return df
+        df_fxG_goals = pd.DataFrame(fxG_goals)
+        df_prob_outcomes = pd.DataFrame(prob_outcomes)
+        print(f'{len(df_prob_outcomes)} predictions analysed')
+        self.df_fxG_goals = df_fxG_goals
+        self.df_prob_outcomes = df_prob_outcomes
+        return df_prob_outcomes
 
     def calculate_strikerates(self, df: pd.DataFrame=None):
         """calculates the strikerates for probability ranges of 2.5%. If there are no predictions within
@@ -71,7 +82,7 @@ class Analyst:
             dict: a dict of the form {percent_range: {'mean_prediction': mean(probs_within_range), 'strikerate': strikerate}, ...}
         """
         if df is None:
-            df = self.df
+            df = self.df_prob_outcomes
         strikerates = {}
         lower_bound = 0.0
         while lower_bound < 100:
@@ -93,23 +104,30 @@ class Analyst:
     
     def mean_squared_error(self, df: pd.DataFrame=None):
         if df is None:
-            if self.df is None:
+            if self.df_prob_outcomes is None:
                 raise ValueError('df must be provided')
             else:
-                df = self.df
-        mse = 0
-        for predicted, outcome in zip(df['probability'], df['outcome']):
-            mse += (predicted - outcome) ** 2
-        mse /= len(df)
+                df = self.df_prob_outcomes
+        mse = ((df['probability'] - df['outcome']) ** 2).mean()
         mse = round(mse, 8)
         self.mse = mse
+        return mse
+
+    def xG_mean_squared_error(self, df: pd.DataFrame=None):
+        if df is None:
+            if self.df_fxG_goals is None:
+                raise ValueError('df must be provided')
+            else:
+                df = self.df_fxG_goals
+        mse = ((df['fxG'] - df['goals_scored']) ** 2).mean()
+        self.fxG_mse = mse
         return mse
 
     def pickle_data(self):
         """pickle the dataframe, mse, and strikerates.
         """
         with open('analysis/data/data.pickle', 'wb') as f:
-            pickle.dump(self.df, f)
+            pickle.dump(self.df_prob_outcomes, f)
         with open('analysis/data/mse.pickle', 'wb') as f:
             pickle.dump(self.mse, f)
         with open('analysis/data/strikerates.pickle', 'wb') as f:

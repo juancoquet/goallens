@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import pickle
 
 
-def plot(strikerates, mse, df, title=None, filename=None, params=None):
+def plot_strikerates(strikerates, mse, df, title=None, filename=None, params=None):
         """plots strikerate data.
         
         Args:
@@ -40,8 +40,6 @@ def plot(strikerates, mse, df, title=None, filename=None, params=None):
             params_text += f'sup_con_past_games: {params[3]}\n'
             params_text += f'h_a_weight: {params[4]}\n'
             params_text += f'h_a_past_games: {params[5]}'
-            # plt.text(0.5, 0.5, params_text, fontsize=10, horizontalalignment='left', verticalalignment='center')
-            # increase figure size to fit text
             plt.gcf().set_size_inches(15, 15)
             plt.annotate(params_text, (0, 0), (0, -20), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=12)
 
@@ -56,3 +54,36 @@ def plot(strikerates, mse, df, title=None, filename=None, params=None):
         else:
             plt.savefig(f'{filename}.png')
         plt.clf()
+
+
+    
+def plot_fxG_vs_goals(df, fxG_mse, title=None, filename=None, params=None):
+    """plots fxG data.
+    
+    Args:
+        df (DataFrame): the dataframe to plot. should be a dataframe output by Analyst.calculate_fxG_vs_goals().
+    """
+    if title is not None:
+        plt.title(title)
+    plt.scatter(df['fxG'], df['goals_scored'], color='green', marker='.', label='fxG vs goals', alpha=0.2)
+    plt.xlabel('fxG')
+    plt.ylabel('goals scored')
+    plt.annotate('fxG MSE: ' + str(fxG_mse), xy=(0.02, 0.8), xycoords='axes fraction', fontsize=16)
+
+    # include params below graph
+    if params is not None:
+        params_text = f'xG_past_games: {params[0]}\n'
+        params_text += f'suppression_range: {params[1]}\n'
+        params_text += f'conversion_range: {params[2]}\n'
+        params_text += f'sup_con_past_games: {params[3]}\n'
+        params_text += f'h_a_weight: {params[4]}\n'
+        params_text += f'h_a_past_games: {params[5]}'
+        plt.gcf().set_size_inches(15, 15)
+        plt.annotate(params_text, (0, 0), (0, -20), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=12)
+
+    plt.grid(True)
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(f'{filename}.png')
+    plt.clf()
