@@ -12,6 +12,25 @@ class Predictor:
 
     def generate_prediction(self, fixture, xGs_past_games=5, suppression_range=1, conversion_range=1, sup_con_past_games=5,
                             h_a_weight=1, h_a_past_games=10):
+        """generates a prediction for the given fixture.
+        
+        Args:
+            fixture (data_processing.moldels.Fixture): the fixture for which to generate a prediction.
+            xGs_past_games (int, optional): the number of past games to use when calculating the base xG. Defaults to 5.
+            suppression_range (int, optional): the range around 1 within which to weight the suppression score. Defaults to 1 (0.5-1.5).
+            conversion_range (int, optional): the range around 1 within which to weight the conversion score. Defaults to 1 (0.5-1.5).
+            sup_con_past_games (int, optional): the number of past games to use when calculating the chance conversion and suppression scores. Defaults to 5.
+            h_a_weight (int, optional): value to weight the home/away performance. Defaults to 1.
+            h_a_past_games (int, optional): the number of past games to use when calculating h/a performance. Defaults to 10.
+        
+        Returns:
+            dict: a dict that contains the prediction's fixture, forecast xGs, most likely scoreline, and probabilities for eeach number of goals between 0-7. Form is:
+                {
+                    'fixture': data_sourcing.models.Fixture,
+                    'forecast_xGs': {'home': float, 'away': float},
+                    'likely_scoreline': {'home': int, 'away': int},
+                    
+        """
         forecast_xGs = self._forecast_xGs(
             fixture,
             xGs_past_games=xGs_past_games,
@@ -21,28 +40,15 @@ class Predictor:
             sup_con_past_games=sup_con_past_games,
             h_a_past_games=h_a_past_games
         )
-        goal_probs = {}
+        prediction = {'fixture': fixture, 'forecast_xGs': forecast_xGs}
+        likely_home, likely_away = math.floor(forecast_xGs['home']), math.floor(forecast_xGs['away'])
+        prediction['likely_scoreline'] = {'home': likely_home, 'away': likely_away}
+
         for goals in range(8):
             home = round(poisson.pmf(goals, forecast_xGs['home']), 4)
             away = round(poisson.pmf(goals, forecast_xGs['away']), 4)
-            goal_probs[f'prob_{goals}_goals'] = {'home': home, 'away': away}
-        prediction = {'fixture': fixture, 'forecast_xGs': forecast_xGs}
+            prediction[f'prob_{goals}_goals'] = {'home': home, 'away': away}
 
-        likely_home, likely_away = None, None
-        max_prob_home, max_prob_away = 0, 0
-
-        for goals, (_, probs) in enumerate(goal_probs.items()):
-            # get most likely scoreline
-            if probs['home'] > max_prob_home:
-                likely_home = goals
-                max_prob_home = probs['home']
-            if probs['away'] > max_prob_away:
-                likely_away = goals
-                max_prob_away = probs['away']
-            # add probabilities to prediction
-            prediction[f'prob_{goals}_goals'] = probs
-
-        prediction['likely_scoreline'] = {'home': likely_home, 'away': likely_away}
         return prediction
     
     def _forecast_xGs(self, fixture: Fixture, xGs_past_games=5, suppression_range=1, conversion_range=1, sup_con_past_games=5,
