@@ -9,6 +9,7 @@ analysis/back_testing/storage/
 *.icloud
 functional_tests/error_captures/
 bt_params/
+my_secrets.py
 
 
 # Byte-compiled / optimized / DLL files

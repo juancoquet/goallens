@@ -5,5 +5,6 @@ from django.conf.urls import include # type: ignore
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('predictions/', include('predictions.urls')),
+    path('contact/', include('contact.urls')),
     path('', include('homepage.urls')),
 ]
