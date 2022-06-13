@@ -16,22 +16,11 @@
   <section id="data-section">
     <h1>Five seasons of <span class="heading-accent">data</span></h1>
     <div class="content-container">
-      <div class="text-container">
+      <div class="text-container" id="data-text">
         <p>Goal Lens uses data from 2017 onwards, for all top-flight matches in England, Spain, France, Italy and Germany.</p>
         <p>That's more than 9,000 fixtures which the model uses to learn from.</p>
       </div>
       <img class="graphic" src="{% static 'images/graphics/data.svg' %}" alt="laptop sorting data">
-    </div>
-  </section>
-
-  <section id="analysis-section">
-    <h1>Over <span class="heading-accent">60 million</span> predictions analysed</h1>
-    <div class="content-container">
-      <div class="text-container" id="predictions-text">
-        <p>Many different prediciton strategies have been put to the test on historical data to improve the accuracy of the model.</p>
-        <p>Strategies were refined iteratively through a genetic algorithm to hone in on the perfectly weighted set of parameters.</p>
-      </div>
-      <img class="graphic" src="{% static 'images/graphics/analysis.svg' %}" alt="data being analysed" id="analysis-graphic">
       <div class="center-contents">
         <a class="home__btn" id="pred-btn" href="{% url 'prediction_upcoming' %}">
           <button class="btn--primary">VIEW PREDICTIONS</button>
@@ -40,16 +29,32 @@
     </div>
   </section>
 
-  <section id="green-line-section">
+  <section id="analysis-section">
+    <h1>Over <span class="heading-accent">60 million</span> predictions analysed</h1>
+    <div class="content-container">
+      <div class="text-container" id="predictions-text">
+        <p>Many different prediciton strategies have been put to the test on historical data to improve the accuracy of the model.</p>
+        <p>Strategies were refined iteratively through a genetic algorithm to dial in paramaters that improve the quality of predictions generated.</p>
+      </div>
+      <img class="graphic" src="{% static 'images/graphics/analysis.svg' %}" alt="data being analysed" id="analysis-graphic">
+      <div class="center-contents">
+        <a href="{% url 'm_and_a' %}" id="analysis-btn">
+          <button class="btn--primary">VIEW ANALYSIS</button>
+        </a>
+      </div> 
+    </div>
+  </section>
+
+  {% comment %} <section id="green-line-section">
     <h1>All to produce a <span class="heading-accent">green line</span></h1>
     <div class="content-container">
       <div class="text-container" id="analysis-text">
         <p>Goal Lens makes accurate predictions.</p>
         <p>The outcomes of those predictions match the probabilities forecast by the model almost perfectly.</p>
       </div>
-      <div class="center-contents"><button id="analysis-btn" class="btn--primary">VIEW ANALYSIS</button></div>
+      
     </div>
-  </section>
+  </section> {% endcomment %}
 
 
   

@@ -23,10 +23,10 @@ window.addEventListener('resize', setHeroMargins)
 
 const predBtn = document.querySelector('#pred-btn')
 const defaultParentPred = predBtn.parentElement
-const desktopParentPred = document.querySelector('#predictions-text')
+const desktopParentPred = document.querySelector('#data-text')
 const analysisBtn = document.querySelector('#analysis-btn')
 const defaultParentAnalysis = analysisBtn.parentElement
-const desktopParentAnalysis = document.querySelector('#analysis-text')
+const desktopParentAnalysis = document.querySelector('#predictions-text')
 
 function movePredBtn(){
     if (window.innerWidth >= 900) {

@@ -1,0 +1,19 @@
+p {
+    font-weight: 300 !important;
+    line-height: 150% !important;
+    max-width: 75ch !important;
+}
+
+h2 {
+    margin-top: 3.6rem;
+}
+
+h3 {
+    margin-top: 2.4rem;
+    color: var(--text-grey);
+}
+
+#mse-formula {
+    width: 240px;
+    margin: 1.6rem 0
+}

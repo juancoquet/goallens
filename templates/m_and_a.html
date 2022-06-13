@@ -1,0 +1,147 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/m_and_a.css' %}">
+{% endblock styles %}
+
+{% block title %}Methodology and Analysis: {% endblock title %}
+
+{% block content %}
+<section id="methodology">
+  <h1>Methodology</h1>
+  <p>
+    Goal Lens considers several parameters based on each team's past performance, and combines them together to predict the probability distribution of different scorelines. It does this in a way that weighs both team's strengths and weaknesses against one another, rather than considering an individual team's past statistics in a vacuum. This helps Goal Lens to make more accurate predictions about how one particular team might fare against another.
+  </p>
+  
+  <h2>xG - Expected Goals</h2>
+  <p>
+    At the heart of the model is the xG (expected goals) statistic. This is a fairly new datapoint, introduced to the game around 2016.
+  </p>
+  <p>
+    xG is a measure of the quality of chances that a team creates. It considers several characteristics of each shot during a match (such as distance, shooting angle, and body part, among others) to determine how likely it was to result in a goal by comparing it to past shots that shared similar attributes. A score between 0 and 1 is assigned to each attempt on goal, which represents the percentage of similar shots that resulted in a goal.
+  </p>
+  <p>
+    By analysing both teams' past xG data as well as that of their recent opponents, Goal Lens creates a forecast xG which is used to determine the probability of different outcomes.
+  </p>
+  
+  <h2>Not the whole story</h2>
+  <h3>Conversion and suppression rates</h3>
+  <p>
+    While xG tells a story of a team's overall ability to create goal scoring chances, it doesn't say a great deal about the quality of the players involved in those chances.
+  </p>
+  <p>
+    A great example is Manchester City's Kevin De Bruyne – he accumulated a total of 6.4 xG during the 2021-22 Premier League season, but miraculously managed to convert that into 15 goals. He significantly outperformed his expected goal count based on the quality of chances he was awarded, indicating that he is an exceptionally clinical finisher.
+  </p>
+  <p>
+    A complimentary example is Wolverhampton's goalkeeper, José Sá. No, he isn't converting goal scoring opportunities; he's doing the exact opposite – suppressing opportunities extremely well. Sá achieved the highest save percentage in the Premier League for the 2021-22 season.
+  </p>
+  <p>
+    Different teams have different propensities to convert and suppress goal scoring chances – Goal Lens takes these factors into account to weight each team's forecast xG accordingly.
+  </p>
+  
+  <h2>Home and away performance</h2>
+  <p>
+    How well do Liverpool play at home? What about Aston Villa's away record? Goal Lens looks at past data to quantify each team's home and away performance, and once again uses this information to weight their forecast xG scores.
+  </p>
+  
+  <h2>If at first you don't succeed...</h2>
+  <p>
+    …build a computer program to try different approaches, millions of times over. Goal Lens has been refined by testing on past data, making over 60 million score predictions in the process. 
+  </p>
+  <p>
+    Parameters were iteratively back tested on historical data using a genetic algorithm to improve its predictions to find the best set of values that allow the model to generate accurate predictions.
+  </p>
+</section>
+
+<section id="analysis">
+  <h1>Analysis</h1>
+  <p>
+    Analysing the data produced by back tests is a tricky process. Ranking results requires some kind of value to optimise for, but the choice made for what that value should be doesn't always produce the desired outcome (i.e. a better prediction model).
+  </p>
+
+  <p>
+    To explain this concept in more detail, we'll explore what happens when you only optimise for overall prediction accuracy.
+  </p>
+
+  <h2>Optimising for accuracy</h2>
+
+  <p>
+    On the surface, this seems like a good, perhaps bluntly obvious, optimisation heuristic – you instruct the model to rank parameter test results based on accuracy, then you pick the best one and you're done, right? In reality it's not quite that simple, as it leads to some unexpected results.
+  </p>
+
+  <p>To understand this, we need to look at how accuracy can be measured at scale.</p>
+
+  <h3>Measuring accuracy</h3>
+
+  <p>
+    How can we know if a prediction is accurate? There's more nuance to the answer than what your first impulse response might be – it's not simply a case of checking whether or not the predicted event occurred. 
+  </p>
+
+  <p>
+    This concept can be illustrated with the example of rolling a dice. Imagine a 6-sided dice, except instead of being numbered 1-6, its faces are numbered 1, 1, 2, 3, 4, 5. If you were to predict what number would show on any given roll, you'd do well to always predict that it would be 1, as it's twice as likely to show as any other number. However, your prediction would still be wrong ⅔ of the time – while the dice has a ~33% chance of showing a 1, it has a ~67% chance of showing anything other than a 1.
+  </p>
+
+  <p>
+    This is a good example of how a good prediction can actually be wrong most of the time – that's just the nature of uncertainty in probabilistic predictions.
+  </p>
+
+  <p>
+    So then how can good predictions be differentiated from bad ones? A good prediction needs two components  – a predicted event, and the probability of that event occurring. We often omit the latter when talking about predictions in day to day life, which may explain why our intuitions around what makes a good prediction are often so faulty. For example, we say “I think Chelsea will win”, not “I think there's a 70% chance that Chelsea will win”.
+  </p>
+
+  <p>
+    If we have both a predicted event and a level of conviction for that prediction (a forecast probability), then we have the information we need to analyse the quality of the prediction. If a predicted event has a high conviction of 80% probability, that means that we'd expect the event in question to occur 80% of the time if repeated.
+  </p>
+  
+  <p>
+    Using the dice example from earlier, we can predict that a 1 will show with 33% likelihood. If we roll the dice once and a 4 shows, that doesn't tell us much about the quality of our prediction. However, if we roll the dice 1000 times, we would see that our prediction was in fact a good one, as roughly 33% of these 1000 rolls would show a 1. This is due to variance and regression to the mean, two key concepts of statistical analysis.
+  </p>
+
+  <p>
+    Goal Lens uses these concepts to analyse the quality of its predictions by calculating the Mean Squared Error (MSE) of its predictions compared to their actual outcomes. The formula (which will be explained shortly) to calculate MSE is as follows:
+  </p>
+
+  <img id="mse-formula" src="https://www.gstatic.com/education/formulas2/443397389/en/mean_squared_error.svg" alt="MSE formula">
+
+  <p>\(Y\) represents the probability value of a prediction, and \(\hat{Y}\) represents the observed outcome for that prediction. The result of this subtraction is then squared to ensure that we are always dealing with positive numbers. This yields a meaningful number for the next step, where all the squared differences are summed together (represented by \(\sum\)) – if the differences are not squared, the sum will always amount to 0. Finally, the mean of the sum is calculated, (shown as a multiplication by \(\frac{1}{n}\), where \(n\) is the number of predictions added together). The final number quantifies the average distance (squared) of each prediction to its observed outcome.</p>
+
+  <p>
+    In plain english, MSE calculates how far away a prediction's conviction was from its observed outcome, and punishes the prediction in proportion to the scale of its error.
+  </p>
+
+  <p>
+    Goal Lens groups together predictions with similar convictions, and calculates the MSE for each group. For example, if there are 5000 predictions with 20% probability, then it's expected that 1000 of these predictions (20% of 5000) will in fact occur if the model is accurate. If significantly more, or less, than 1000 of those predictions occur, then the MSE calculation will punish the group of predictions accordingly, meaning that predictions with a conviction of 20% cannot be trusted to actually occur 20% of the time.
+  </p>
+
+  <p>
+    Many models tested scored exceptionally well across the board for prediction accuracy, boasting extremely low MSE ratings (lower is better, it means a low rate of error). However, this doesn't tell the whole story, as the means by which that low rating is achieved can actually be less than optimal.
+  </p>
+
+  <p>
+    Given the large number of predictions being made, a prediction model can achieve high accuracy and low MSE ratings by relying on football scores to regress to the mean, as the large majority of football matches end with score lines of 1-1, 1-0, and 2-1, in that order. If a model predicts all score lines to be around 1-1, it will achieve a good MSE score by being close to actual outcomes even if it it's wrong about higher-scoring games, as these are proportionally insignificant compared to the bulk of more conservative results.
+  </p>
+
+  <p>
+    This is how simply optimising for overall accuracy alone can actually lead to unintended results – such a model has essentially identified the most common outcomes, and relies on those to occur repeatedly while disregarding potentially high-scoring games as these are few and far between. It is accurate when score lines follow the norm of being around 1-1 (the bulk of results), but its predictions fall short for those rarer high scoring matches.
+  </p>
+
+  <h2>A work in progress</h2>
+  <p>
+    Goal Lens still adheres too strongly to common score lines, although it tends to weight its predictions around those common score lines quite well. That is, it will most often correctly show a bias towards the team that is most likely to win, but will also often underestimate how many goals they might win by on occasions with a high number of goals.
+  </p>
+
+  <p>
+    Work is being done to improve the model so that it learns to make riskier, yet still accurate predictions when necessary, to allow it to accurately predict the number of goals scored as well as the most likely winner of a match.
+  </p>
+  
+</section>
+  
+  
+
+{% endblock content %}
+
+{% block scripts %}
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+{% endblock scripts %}
