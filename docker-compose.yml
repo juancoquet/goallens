@@ -7,6 +7,10 @@ services:
       ["./wait-for-it.sh", "-t", "60", "db:5432", "--", "python", "/goallens/manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - .:/goallens
+      - ./staticfiles_test:/vol/web/static_prod
+    environment:
+      - SECRET_KEY=devsecretkey
+      - DEBUG=1
     ports:
       - 8000:8000
       - 35729:35729 # for django livereload

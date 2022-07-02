@@ -1,0 +1,14 @@
+# git
+.git
+.gitignore
+
+# docker
+.docker
+
+# python
+goallens/__pycache__/
+goallens/*/__pycache__/
+goallens/*/*/__pycache__/
+goallens/*/*/*/__pycache__/
+.env/
+.venv/
