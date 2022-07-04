@@ -11,6 +11,8 @@ functional_tests/error_captures/
 bt_params/
 my_secrets.py
 staticfiles_test/
+file_transfer.pem
+docker-compose-prod.yml
 
 
 # Byte-compiled / optimized / DLL files
