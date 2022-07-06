@@ -1,0 +1,13 @@
+ul {
+    list-style-position: inside;
+    margin-bottom: 1.6rem;;
+}
+
+li, li>a:not(.nav___item) {
+    font-weight: 300;
+    margin-bottom: 0.8rem;
+}
+
+p:not(.nav__text) {
+    margin-bottom: 0.8rem;
+}

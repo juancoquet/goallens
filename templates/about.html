@@ -1,0 +1,26 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href={% static '/css/about.css' %}>
+{% endblock styles %}
+
+{% block content %}
+
+<h1>About</h1>
+
+<p>Created by Juan Coquet:</p>
+<ul>
+  <li>Instagram – <a href="https://instagram.com/juan_coquet" target="_blank">@juan_coquet</a></li>
+  <li>Twitter – <a href="https://twitter.com/juancoquet" target="_blank">@juancoquet</a></li>
+  <li>Github – <a href="https://github.com/juancoquet" target="_blank">https://github.com/juancoquet</a></li>
+</ul>
+
+<p>Homepage graphics credit:</p>
+<ul>
+  <li><a href="https://www.freepik.com/author/upklyak" target="_blank">https://www.freepik.com/author/upklyak</a></li>
+</ul>
+
+<p>Data sourced from <a href="https://fbref.com/" target="_blank">FBRef</a>.</p>
+
+{% endblock content %}
