@@ -15,7 +15,7 @@ class Team(models.Model):
 
 class Fixture(models.Model):
 
-    id = models.CharField(max_length=16, primary_key=True, default=None)
+    id = models.CharField(max_length=32, primary_key=True, default=None)
     competition = models.CharField(max_length=45)
     season = models.CharField(max_length=45)
     date = models.DateField()

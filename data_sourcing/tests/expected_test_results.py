@@ -7668,10 +7668,6 @@ EXPECTED_FIXTURES_DICT = {
         },
     }
 
-
-
-
-
 # fixtures = {id_: {} for id_ in EXPECTED_FIXTURE_IDS}
 # for f in fixtures.keys():
 #     fixtures[f]['competition'] = 'Premier League'

@@ -29,7 +29,9 @@ class Predictor:
                     'fixture': data_sourcing.models.Fixture,
                     'forecast_xGs': {'home': float, 'away': float},
                     'likely_scoreline': {'home': int, 'away': int},
-                    
+                    'prob_0_goals': {'home': float, 'away': float},
+                    ...
+                    'prob_7_goals': {'home': float, 'away': float}
         """
         forecast_xGs = self._forecast_xGs(
             fixture,

@@ -1,12 +1,16 @@
+from datetime import date, time as dt_time
 from unittest import TestCase, skip
+from unittest.mock import patch, Mock
 
+from data_sourcing.models import Team, Fixture
 from data_sourcing.scrapers.teams.teams_scraper import TeamsScraper
 from data_sourcing.scrapers.fixtures.fixtures_scraper import FixturesScraper
 from .expected_test_results import (
     EXPECTED_FIXTURE_IDS, EXPECTED_FIXTURE_DATES, EXPECTED_FIXTURE_TIMES,
     EXPECTED_FIXTURE_TEAM_IDS, EXPECTED_FIXTURE_GOALS, EXPECTED_FIXTURE_XG,
-    EXPECTED_NO_XG_DATA
+    EXPECTED_NO_XG_DATA,
 )
+from supported_comps import COMP_CODES
 
 
 class TestTeamIDScraper(TestCase):
@@ -123,6 +127,16 @@ class TestFixtureIDsScraper(TestCase):
         expected = EXPECTED_FIXTURE_IDS
         self.assertEqual(len(output), 380)
         self.assertEqual(output, expected)
+
+    @patch('data_sourcing.scrapers.base_scraper.session.get')
+    def test_get_future_fixture_ids(self, mock_get):
+        with open('data_sourcing/tests/mock_response.html', 'r') as f:
+            mock_get.return_value = Mock(text=f.read())
+        output = self.scraper.scrape_fixture_ids('2022-2023', competition='Premier League')
+        self.assertEqual(len(output), 380)
+        self.assertEqual(output[0], '9-47c64c55-18bb7c10')
+        self.assertEqual(output[15], '9-d07537b9-b2b47a98')
+        self.assertEqual(output[-1], '9-cd051869-b8fd03ef')
 
     def test_unsupported_competition_fails(self):
         with self.assertRaises(ValueError):
@@ -264,6 +278,15 @@ class TestFixtureGoalsScraper(TestCase):
         self.assertEqual(len(output), 380)
         self.assertEqual(output, expected)
 
+    @patch('data_sourcing.scrapers.base_scraper.session.get')
+    def test_get_future_fixture_goals(self, mock_get):
+        with open('data_sourcing/tests/mock_response.html', 'r') as f:
+            mock_get.return_value = Mock(text=f.read())
+        output = self.scraper.scrape_fixture_goals('2022-2023', competition='Premier League')
+        self.assertEqual(len(output), 380)
+        self.assertEqual(output[list(output.keys())[0]], {'home': None, 'away': None})
+        self.assertEqual(output[list(output.keys())[-1]], {'home': None, 'away': None})
+
     def test_unsupported_competition_fails(self):
         with self.assertRaises(ValueError):
             self.scraper.scrape_fixture_goals('2019-2020', competition='fantasy league')
@@ -293,11 +316,20 @@ class TestFixturexGsScraper(TestCase):
     def setUpClass(cls):
         cls.scraper = FixturesScraper()
 
-    def test_get_fixture_xGx(self):
+    def test_get_fixture_xGs(self):
         output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_XG
         self.assertEqual(len(output), 380)
         self.assertEqual(output, expected)
+
+    @patch('data_sourcing.scrapers.base_scraper.session.get')
+    def test_get_future_fixture_xGs(self, mock_get):
+        with open('data_sourcing/tests/mock_response.html', 'r') as f:
+            mock_get.return_value = Mock(text=f.read())
+        output = self.scraper.scrape_fixture_xGs('2022-2023', competition='Premier League')
+        self.assertEqual(len(output), 380)
+        self.assertEqual(output[list(output.keys())[0]], {'home': None, 'away': None})
+        self.assertEqual(output[list(output.keys())[-1]], {'home': None, 'away': None})
 
     def test_no_xG_data_returns_none_in_dict(self):
         output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Championship')
@@ -326,3 +358,58 @@ class TestFixturexGsScraper(TestCase):
             self.scraper.scrape_fixture_xGs('2002-2003', competition='Premier League')
         with self.assertRaises(ValueError):
             self.scraper.scrape_fixture_xGs('2998-2999', competition='Premier League')
+
+
+class TestUpcomingFixturesScraper(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_upcoming_fixtures(self):
+        output = self.scraper.scrape_upcoming_fixtures(from_date=date(2022, 8,4), lookahead=2, competition='Premier League')
+        expected = [
+            '9-47c64c55-18bb7c10',
+            '9-fd962109-822bd0ba',
+            '9-361ca564-33c895d4',
+            '9-b2b47a98-e4a775cb',
+            '9-5bfb9659-8cec06e1',
+            '9-4ba7cbea-8602292d',
+            '9-d3fd31cc-cff3d9bb'
+        ]
+        self.assertEqual(output, expected)
+
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)

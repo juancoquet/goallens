@@ -102,10 +102,10 @@ class DBPopulator:
             competitions (list[str]): a list containing competition names
 
         Returns:
-            dict: a dictionary that maps a fixture id to its pertinent data with format:
+            dict: a dictionary that maps fixture ids to their pertinent data with format:
             {fixture_id: {
                 'competition': comp_name,
-                'sesaon', yyyy-yyyy,
+                'season', yyyy-yyyy,
                 'date': datetime.date,
                 'time': datetime.time,
                 'home': home_team_id,
@@ -113,7 +113,7 @@ class DBPopulator:
                 'goals_home': int,
                 'goals_away': int,
                 'xG_home': float,
-                'xG_away': 'float
+                'xG_away': float
                 }
             }
         """
@@ -198,7 +198,7 @@ class DBPopulator:
                           home_team_id: str, away_team_id: str, goals_home: int, goals_away: int,
                           xG_home: float, xG_away: float):
         """adds a fixture to the database and returns the created fixture object. if the fixture already
-        exists in the database, it returns the existing fixture object instead.
+        exists in the database, it overwrites and returns the existing fixture object instead.
 
         Args:
             fixture_id (str): the id of the fixture to be added

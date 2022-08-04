@@ -35,9 +35,15 @@ class BaseScraper():
         matched_season = re.search(season_re, page_heading).group()
 
         while matched_season != season:
-            prev_ssn_btn = self.soup.find('a', class_='button2 prev')
-            prev_ssn_href = prev_ssn_btn.get('href')
-            url = f'https://fbref.com{prev_ssn_href}'
+            start_yr = int(season[:4])
+            matched_start_yr = int(matched_season[:4])
+            if matched_start_yr > start_yr:
+                prev_ssn_btn = self.soup.find('a', class_='button2 prev')
+                ssn_href = prev_ssn_btn.get('href')
+            else:
+                next_ssn_btn = self.soup.find('a', class_='button2 next')
+                ssn_href = next_ssn_btn.get('href')
+            url = f'https://fbref.com{ssn_href}'
             self._request_url(url)
             page_heading = self.soup.find('h1').text
             matched_season = re.search(season_re, page_heading).group()
@@ -56,5 +62,5 @@ class BaseScraper():
             end_yr = int(season[-4:])
             if end_yr - start_yr != 1:
                 raise ValueError(f'season must be a one year period, e.g. 2019-2020 – {season} is invalid')
-            if start_yr < 2010 or end_yr > date.today().year:
-                raise ValueError(f'season must be between 2010 and {date.today().year} – {season} is invalid')
+            if start_yr < 2010 or end_yr > date.today().year + 1:
+                raise ValueError(f'season must be between 2010 and {date.today().year + 1} – {season} is invalid')
