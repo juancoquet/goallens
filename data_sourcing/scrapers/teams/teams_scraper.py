@@ -2,6 +2,7 @@ from datetime import date
 import re
 
 from ..base_scraper import BaseScraper
+from data_sourcing.models import Team
 
 
 class TeamsScraper(BaseScraper):
@@ -57,6 +58,8 @@ class TeamsScraper(BaseScraper):
         """
         team_names = {}
         for _id in team_ids:
+            if Team.objects.filter(id=_id).exists():
+                continue
             url = f'https://fbref.com/en/squads/{_id}/'
             if print_progress:
                 print(f'Scraping team name for {_id}')
