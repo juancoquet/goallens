@@ -107,7 +107,6 @@ def prediction_list_view(request):
 
 def prediction_upcoming_view(request):
     today = datetime.date.today()
-    # today = datetime.date(2022, 5, 14)
     upcoming_preds = Prediction.objects.filter(fixture__date__gte=today).order_by('fixture__date')
     premier_league = upcoming_preds.filter(fixture__competition='Premier League')
     la_liga = upcoming_preds.filter(fixture__competition='La Liga')
