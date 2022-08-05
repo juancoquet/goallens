@@ -59,6 +59,7 @@ class TeamsScraper(BaseScraper):
         team_names = {}
         for _id in team_ids:
             if Team.objects.filter(id=_id).exists():
+                team_names[_id] = Team.objects.get(id=_id).name
                 continue
             url = f'https://fbref.com/en/squads/{_id}/'
             if print_progress:
