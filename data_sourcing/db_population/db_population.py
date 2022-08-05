@@ -345,4 +345,62 @@ class DBPopulator:
             prediction.likely_hg = prediction_dict['likely_scoreline']['home']
             prediction.likely_ag = prediction_dict['likely_scoreline']['away']
             prediction.save()
-        return prediction 
+        return prediction
+
+    def add_upcoming_predictions_to_db(self, competitions: list[str], xGs_past_games: int, suppression_range: float,
+                        conversion_range: float, sup_con_past_games: int, h_a_weight: float, h_a_past_games: int,
+                        date=date.today(), within_days=2):
+        """
+        checks fbref for upcoming fixtures and adds predictions for those fixtures to the database.
+        if the prediction already exists in the database, it overwrites the existing prediction.
+        Args:
+            competitions (list[str]): the competitions to add the predictions to
+            xGs_past_games (int): the number of past games to use for the xG forecast
+            suppression_range (float): the range of suppression values to use for the xG forecast
+            conversion_range (float): the range of conversion values to use for the xG forecast
+            sup_con_past_games (int): the number of past games to use for the sup/con forecast
+            h_a_weight (float): the weight to use for the h/a forecast
+            h_a_past_games (int): the number of past games to use for the h/a forecast
+            date (date): the date from which 
+        """
+        scraper = FixturesScraper()
+        fixture_temp_ids = []
+        for competition in competitions:
+            comp_fixtures = scraper.scrape_upcoming_fixtures(competition, date, within_days)
+            fixture_temp_ids.extend(comp_fixtures)
+        for _id in fixture_temp_ids:
+            fixture = Fixture.objects.get(id=_id)
+            self._add_prediction_to_db(
+                fixture,
+                xGs_past_games,
+                suppression_range,
+                conversion_range,
+                sup_con_past_games,
+                h_a_weight,
+                h_a_past_games
+            )
+
+    def update_settled_fixtures(self, on_date=date.today()):
+        """
+        checks fbref for new game data (games settled today) and updates the database Fixture
+        objects with the new data, and also updates the id of the relative Prediction object.
+
+        Args:
+            on_date (dt.date): the date for which to check newly settled games. Defaults to date.today().
+        """
+        scraper = FixturesScraper()
+        fx_data = scraper.scrape_settled_fixtures(on_date)
+        for temp_id, data in fx_data.items():
+            Fixture.objects.filter(id=temp_id).update(
+                id=data['fixture_id'],
+                date=data['date'],
+                time=data['time'],
+                goals_home=data['goals_home'],
+                goals_away=data['goals_away'],
+                xG_home=data['xG_home'],
+                xG_away=data['xG_away'],
+            )
+            fixture = Fixture.objects.get(id=data['fixture_id'])
+            Prediction.objects.filter(fixture__id=temp_id).update(
+                fixture=fixture,
+            )

@@ -43,13 +43,13 @@ class TestPredictor(TestCase):
         cls.fixture = Fixture.objects.get(id='7b4b63d0')
     
     def test_get_upcoming_fixtures(self):
-        fixtures = self.predictor._get_upcoming_fixtures(
+        fixtures = self.predictor.get_upcoming_fixtures(
             date=date(year=2022, month=4, day=30),
             competition='Premier League',
             within_days=2
         )
         self.assertEqual(len(fixtures), 10)
-        fixtures = self.predictor._get_upcoming_fixtures(
+        fixtures = self.predictor.get_upcoming_fixtures(
             date=date(year=2022, month=5, day=1),
             competition='Premier League',
             within_days=0
@@ -58,7 +58,7 @@ class TestPredictor(TestCase):
 
     def test_get_upcoming_fixtures_cannot_be_future_date(self):
         with self.assertRaises(ValueError):
-            self.predictor._get_upcoming_fixtures(
+            self.predictor.get_upcoming_fixtures(
                 date=date(year=2999, month=5, day=1),
                 competition='Premier League',
                 within_days=2
@@ -66,7 +66,7 @@ class TestPredictor(TestCase):
 
     def test_get_upcoming_fixtures_raises_invalid_comp(self):
         with self.assertRaises(ValueError):
-            self.predictor._get_upcoming_fixtures(
+            self.predictor.get_upcoming_fixtures(
                 date=date(year=2022, month=4, day=30),
                 competition='invalid',
                 within_days=2
@@ -158,6 +158,12 @@ class TestPredictor(TestCase):
             'likely_scoreline': {'home': 2, 'away': 1}
         }
         self.assertEqual(predictions, expected)
+
+    # def test_generate_upcoming_predictions(self):
+    #     predictions = self.predictor.generate_upcoming_predictions(['Premier League'], date=date(2022, 5, 16))
+    #     self.assertEqual(len(predictions), 2)
+    #     self.assertEqual(predictions[0]['fixture'].id, 'a3b3a0d5')
+    #     self.assertEqual(predictions[1]['fixture'].id, '733409b2')
 
 
 class TestSuppressionScores(TestCase):

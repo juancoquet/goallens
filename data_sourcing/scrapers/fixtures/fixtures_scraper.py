@@ -306,21 +306,32 @@ class FixturesScraper(BaseScraper):
                 rows = table.select('tbody')[0].select('tr:not(.spacer):not(.thead)')
 
                 for row in rows:
-                    fixture_id = row.select('td[data-stat="match_report"]')[0].find('a').get('href').split('/')[3]
+                    match_report_cell = row.select('td.left[data-stat="match_report"]')[0]
+                    if match_report_cell.text != 'Match Report': # game is yet to be played, create temp ids
+                        home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3]
+                        away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3]
+                        fixture_id = (f'{comp_code}-{home}-{away}')
+                    else:
+                        fixture_id = (match_report_cell.find('a').get('href').split('/')[3])
+
                     time_str = row.select('td[data-stat="time"]')[0].get('csk')
                     hh, mm, _ = time_str.split(':')
                     time_ = time(int(hh), int(mm))
                     home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3]
                     away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3]
                     score = row.select('td[data-stat="score"]')[0].get_text().split('–')
-                    goals_home = int(score[0])
-                    goals_away = int(score[1])
+                    try:
+                        goals_home = int(score[0])
+                        goals_away = int(score[1])
+                    except ValueError: # no score yet
+                        goals_home = None
+                        goals_away = None
                     try:
                         home_xG_cell = row.select('td[data-stat="xg_a"]')[0]
                         away_xG_cell = row.select('td[data-stat="xg_b"]')[0]
                         home_xG = float(home_xG_cell.get_text()) if home_xG_cell.get_text() else None
                         away_xG = float(away_xG_cell.get_text()) if away_xG_cell.get_text() else None
-                    except IndexError:
+                    except IndexError: # no xG data
                         home_xG = None
                         away_xG = None
                     temp_id = f'{comp_code}-{home}-{away}'

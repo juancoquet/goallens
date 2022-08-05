@@ -80,7 +80,11 @@
         <td>{{ pred.forecast_hxG }}</td>
         <td>{{ pred.fixture.away.short_name }}</td>
         <td>{{ pred.forecast_axG }}</td>
-        <td>{{ pred.fixture.goals_home }} - {{ pred.fixture.goals_away }}</td>
+        {% if pred.fixture.goals_home is not None %}
+          <td>{{ pred.fixture.goals_home }} - {{ pred.fixture.goals_away }}</td>
+        {% else %}
+          <td>-</td>
+        {% endif %}
       </tr>
     {% endfor %}
     

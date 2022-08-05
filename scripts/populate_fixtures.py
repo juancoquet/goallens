@@ -1,10 +1,11 @@
 from data_sourcing.db_population.db_population import DBPopulator
+from supported_comps import COMP_CODES
 
 
 def run():
     populator = DBPopulator()
 
-    seasons = ['2017-2018', '2018-2019', '2019-2020', '2020-2021', '2021-2022']
-    competitions = ['Serie A', 'Serie B']
+    seasons = ['2022-2023']
+    competitions = list(COMP_CODES.keys())
 
     populator.add_fixtures_to_db(seasons, competitions)

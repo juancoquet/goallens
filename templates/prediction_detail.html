@@ -15,12 +15,32 @@
   <div id="desktop-left">
     <section class="stats">
       <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.home.id }}.png" alt="{{ fixture.home.name }}">
-      <p class="goals-scored stats__item">{{ fixture.goals_home }} – {{ fixture.goals_away }}</p>
+      <p class="goals-scored stats__item">
+        {% if fixture.goals_home is not None %}
+          {{ fixture.goals_home }}
+        {% endif %}
+         – 
+        {% if fixture.goals_away is not None %}
+          {{ fixture.goals_away }}
+        {% endif %}
+      </p>
       <img class="team-logo stats__item" src="{% static "images/team_logos/" %}{{ fixture.away.id }}.png" alt="{{ fixture.away.name }}">
   
-      <p class="xG stats__item">{{ fixture.xG_home }}</p>
+      <p class="xG stats__item">
+        {% if fixture.xG_home is not None %}
+          {{ fixture.xG_home }}
+        {% else %}
+          N/A
+        {% endif %}
+      </p>
       <p class="stats__item">xG</p>
-      <p class="xG stats__item">{{ fixture.xG_away }}</p>
+      <p class="xG stats__item">
+        {% if fixture.xG_away is not None %}
+          {{ fixture.xG_away }}
+        {% else %}
+          N/A
+        {% endif %}
+      </p>
   
       <p class="fxG stats__item">{{ prediction.forecast_hxG }}</p>
       <p class="fxG stats__item">Forecast xG</p>

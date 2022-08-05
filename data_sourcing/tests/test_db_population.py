@@ -1,3 +1,4 @@
+from ast import Delete
 import csv
 import datetime as dt
 from decimal import Decimal
@@ -272,7 +273,7 @@ class TestAddFixturesToDB(TestCase):
         # - do for teams population too
 
 
-class TestFixturePopulation(TestCase):
+class TestPredictionPopulation(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -355,4 +356,134 @@ class TestFixturePopulation(TestCase):
                 **self.params
             )
 
-            
+    def test_add_upcoming_predictions_to_db(self):
+        Fixture.objects.create(
+            id='9-b2b47a98-18bb7c10',
+            competition='Premier League',
+            season='2021-2022',
+            date=dt.date(2022, 5, 16),
+            home=Team.objects.get(id='b2b47a98'),
+            away=Team.objects.get(id='18bb7c10'),
+        )
+        Fixture.objects.create(
+            id='9-33c895d4-822bd0ba',
+            competition='Premier League',
+            season='2021-2022',
+            date=dt.date(2022, 5, 17),
+            home=Team.objects.get(id='33c895d4'),
+            away=Team.objects.get(id='822bd0ba'),
+        )
+        self.populator.add_upcoming_predictions_to_db(
+            competitions=['Premier League'],
+            date=dt.date(2022, 5, 16),
+            **self.params
+        )
+        self.assertEqual(Prediction.objects.count(), 2)
+        self.assertEqual(Prediction.objects.all()[0].fixture.id, '9-b2b47a98-18bb7c10')
+        self.assertEqual(Prediction.objects.all()[1].fixture.id, '9-33c895d4-822bd0ba')
+
+    def test_update_settled_fixtures(self):
+        # delete existing fixtures on the same day as the one we're testing
+        # (previously added as part of the test setup)
+        Fixture.objects.filter(id='a3b3a0d5').delete()
+        Fixture.objects.filter(id='4216543d').delete()
+
+        # create fixtures with temp ids and missing data (as if the games have not yet been played)
+        Fixture.objects.create(
+            id='9-b2b47a98-18bb7c10',
+            competition='Premier League',
+            season='2021-2022',
+            date=dt.date(2022, 5, 16),
+            home=Team.objects.get(id='b2b47a98'),
+            away=Team.objects.get(id='18bb7c10'),
+        )
+        Fixture.objects.create(
+            id='10-f5922ca5-e297cd13',
+            competition='Championship',
+            season='2021-2022',
+            date=dt.date(2022, 5, 16),
+            home=Team.objects.get(id='f5922ca5'),
+            away=Team.objects.get(id='e297cd13'),
+        )
+        Fixture.objects.create(
+            id='17-ab358912-800303a0',
+            competition='Segunda Division',
+            season='2021-2022',
+            date=dt.date(2022, 5, 16),
+            home=Team.objects.get(id='ab358912'),
+            away=Team.objects.get(id='800303a0'),
+        )
+        Fixture.objects.create(
+            id='11-8ff9e3b3-421387cf',
+            competition='Serie A',
+            season='2021-2022',
+            date=dt.date(2022, 5, 16),
+            home=Team.objects.get(id='8ff9e3b3'),
+            away=Team.objects.get(id='421387cf'),
+        )
+        Fixture.objects.create(
+            id='11-e0652b02-7213da33',
+            competition='Serie A',
+            season='2021-2022',
+            date=dt.date(2022, 5, 16),
+            home=Team.objects.get(id='e0652b02'),
+            away=Team.objects.get(id='7213da33'),
+        )
+
+        # add predictions for fixtures
+        f_ids= [
+            '9-b2b47a98-18bb7c10', '10-f5922ca5-e297cd13', '17-ab358912-800303a0',
+            '11-8ff9e3b3-421387cf', '11-e0652b02-7213da33'
+        ]
+        for f_id in f_ids:
+            Prediction.objects.create(
+                fixture=Fixture.objects.get(id=f_id),
+                forecast_hxG=Decimal('1.5'),
+                forecast_axG=Decimal('1.5'),
+                prob_hg_0=Decimal('0.5'),
+                prob_hg_1=Decimal('0.5'),
+                prob_hg_2=Decimal('0.5'),
+                prob_hg_3=Decimal('0.5'),
+                prob_hg_4=Decimal('0.5'),
+                prob_hg_5=Decimal('0.5'),
+                prob_hg_6=Decimal('0.5'),
+                prob_hg_7=Decimal('0.5'),
+                prob_ag_0=Decimal('0.5'),
+                prob_ag_1=Decimal('0.5'),
+                prob_ag_2=Decimal('0.5'),
+                prob_ag_3=Decimal('0.5'),
+                prob_ag_4=Decimal('0.5'),
+                prob_ag_5=Decimal('0.5'),
+                prob_ag_6=Decimal('0.5'),
+                prob_ag_7=Decimal('0.5'),
+                likely_hg=1,
+                likely_ag=1,
+            )
+
+        # check that fixtures were added correctly
+        fixture = Fixture.objects.get(id='9-b2b47a98-18bb7c10')
+        self.assertEqual(fixture.id, '9-b2b47a98-18bb7c10')
+        self.assertEqual(fixture.goals_home, None)
+        self.assertEqual(fixture.goals_away, None)
+        self.assertEqual(fixture.xG_home, None)
+        self.assertEqual(fixture.xG_away, None)
+        
+        # update fixtures with real data from fbref
+        self.populator.update_settled_fixtures(on_date=dt.date(2022, 5, 16))
+        
+        # test that fixture ids were updated correctly
+        self.assertEqual(Fixture.objects.filter(id='a3b3a0d5').count(), 1)
+        self.assertEqual(Fixture.objects.filter(id='9-b2b47a98-18bb7c10').count(), 0)
+
+        # test that fixture data was updated correctly
+        fixture = Fixture.objects.get(id='a3b3a0d5')
+        self.assertEqual(fixture.goals_home, 2)
+        self.assertEqual(fixture.goals_away, 0)
+        self.assertEqual(fixture.xG_home, Decimal('2.1'))
+        self.assertEqual(fixture.xG_away, Decimal('0.6'))
+
+        # test that related predictions were updated correctly
+        pred = Prediction.objects.filter(fixture__id='9-b2b47a98-18bb7c10')
+        self.assertEqual(pred.count(), 0)
+        pred = Prediction.objects.filter(fixture__id='a3b3a0d5')
+        self.assertEqual(pred.count(), 1)
