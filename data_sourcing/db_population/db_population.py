@@ -391,16 +391,26 @@ class DBPopulator:
         scraper = FixturesScraper()
         fx_data = scraper.scrape_settled_fixtures(on_date)
         for temp_id, data in fx_data.items():
-            Fixture.objects.filter(id=temp_id).update(
+            try:
+                old_fixture = Fixture.objects.get(id=temp_id)
+            except Fixture.DoesNotExist as e:
+                # check if the fixture has already been updated
+                if Fixture.objects.filter(id=data['fixture_id']).exists():
+                    continue
+                else:
+                    raise e
+            new_fixture = Fixture.objects.create(
                 id=data['fixture_id'],
+                competition=old_fixture.competition,
+                season=old_fixture.season,
                 date=data['date'],
                 time=data['time'],
+                home=old_fixture.home,
+                away=old_fixture.away,
                 goals_home=data['goals_home'],
                 goals_away=data['goals_away'],
                 xG_home=data['xG_home'],
                 xG_away=data['xG_away'],
             )
-            fixture = Fixture.objects.get(id=data['fixture_id'])
-            Prediction.objects.filter(fixture__id=temp_id).update(
-                fixture=fixture,
-            )
+            Prediction.objects.filter(fixture=old_fixture).update(fixture=new_fixture)
+            old_fixture.delete()

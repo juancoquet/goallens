@@ -11,8 +11,6 @@ from data_sourcing.models import Fixture, Team
 
 class TestPredictor(TestCase):
 
-    maxDiff = None
-
     @classmethod
     def setUpTestData(cls):
         with open('predictions/tests/teams.csv', 'r') as f:
@@ -168,8 +166,6 @@ class TestPredictor(TestCase):
 
 class TestSuppressionScores(TestCase):
     
-    maxDiff = None
-
     @classmethod
     def setUpTestData(cls):
         with open('predictions/tests/teams.csv', 'r') as f:
@@ -225,8 +221,6 @@ class TestSuppressionScores(TestCase):
 
 class TestConversionScores(TestCase):
 
-    maxDiff = None
-
     @classmethod
     def setUpTestData(cls):
         with open('predictions/tests/teams.csv', 'r') as f:
@@ -276,8 +270,6 @@ class TestConversionScores(TestCase):
 
 
 class TestForecastxGA(TestCase):
-
-    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):

@@ -1,4 +1,5 @@
 from datetime import date, time, timedelta
+import json
 import re
 
 from ..base_scraper import BaseScraper
@@ -266,7 +267,8 @@ class FixturesScraper(BaseScraper):
         return upcoming_ids
 
     def scrape_settled_fixtures(self, on_date=date.today()):
-        """scrapes data for fixtures that were played on a given date for all supported competitions.
+        """scrapes data for fixtures that were played on a given date for all supported competitions. ignores
+        fixtures that have not yet been played.
         
         Returns:
             dict: a dict of fixture ids mapped to another dict containing the fixture's data with format:
@@ -307,10 +309,11 @@ class FixturesScraper(BaseScraper):
 
                 for row in rows:
                     match_report_cell = row.select('td.left[data-stat="match_report"]')[0]
-                    if match_report_cell.text != 'Match Report': # game is yet to be played, create temp ids
-                        home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3]
-                        away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3]
-                        fixture_id = (f'{comp_code}-{home}-{away}')
+                    if match_report_cell.text != 'Match Report': # game is yet to be played, skip
+                        continue
+                        # home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3]
+                        # away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3]
+                        # fixture_id = (f'{comp_code}-{home}-{away}')
                     else:
                         fixture_id = (match_report_cell.find('a').get('href').split('/')[3])
 

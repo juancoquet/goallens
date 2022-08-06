@@ -283,8 +283,6 @@ class UpcomingPredictionsViewTest(TestCase):
             likely_ag=2,
         )
 
-    maxDiff = None
-
     def test_uses_upcoming_predictions_template(self):
         response = self.client.get('/predictions/upcoming/')
         self.assertTemplateUsed(response, 'prediction_upcoming.html')

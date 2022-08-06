@@ -13,8 +13,6 @@ from predictions.models import Prediction
 
 class TestCreateSeasonsTeamDict(TestCase):
 
-    maxDiff = None
-
     def setUp(self):
         self.populator = DBPopulator()
 
@@ -120,8 +118,6 @@ class TestAddTeamsToDB(TestCase):
 
 
 class TestCreateSeasonsFixturesDict(TestCase):
-
-    maxDiff = None
 
     def setUp(self):
         self.populator = DBPopulator()
@@ -467,6 +463,10 @@ class TestPredictionPopulation(TestCase):
         self.assertEqual(fixture.goals_away, None)
         self.assertEqual(fixture.xG_home, None)
         self.assertEqual(fixture.xG_away, None)
+
+        # check that predictions were added correctly
+        prediction = Prediction.objects.get(fixture=fixture)
+        self.assertEqual(prediction.fixture.id, '9-b2b47a98-18bb7c10')
         
         # update fixtures with real data from fbref
         self.populator.update_settled_fixtures(on_date=dt.date(2022, 5, 16))

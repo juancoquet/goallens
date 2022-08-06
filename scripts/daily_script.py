@@ -1,3 +1,4 @@
+import datetime as dt
 from data_sourcing.db_population.db_population import DBPopulator
 from params import PARAMS
 from supported_comps import PREDICTION_COMPS
@@ -7,5 +8,8 @@ def run():
     comps = list(PREDICTION_COMPS.keys())
     populator.add_upcoming_predictions_to_db(comps, **PARAMS, within_days=2)
     print('added predictions')
-    populator.update_settled_fixtures()
+    today = dt.date.today()
+    yesterday = today - dt.timedelta(days=1)
+    populator.update_settled_fixtures(yesterday)
+    populator.update_settled_fixtures(today)
     print('updated settled fixtures')

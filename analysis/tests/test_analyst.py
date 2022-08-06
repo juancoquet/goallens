@@ -12,8 +12,6 @@ from predictions.predictor import Predictor
 
 class TestAnalyst(TestCase):
 
-    maxDiff = None
-
     @classmethod
     def setUpTestData(cls):
         with open('predictions/tests/teams.csv', 'r') as f:
