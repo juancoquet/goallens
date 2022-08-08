@@ -241,7 +241,7 @@ class FixturesScraper(BaseScraper):
         upcoming_ids = []
         while curr_date <= from_date + timedelta(days=lookahead):
             url = f'https://fbref.com/en/matches/{curr_date.strftime("%Y-%m-%d")}'
-            self._request_url(url)
+            self._request_url(url, expire_after=60*2)
             table_containers = self.soup.select('div.table_wrapper')
 
             for table_container in table_containers:

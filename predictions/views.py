@@ -73,7 +73,7 @@ def prediction_list_view(request):
     team_q = request.GET.get('team')
     order_q = request.GET.get('order')
     
-    predictions = Prediction.objects.all().order_by('-fixture__date')
+    predictions = Prediction.objects.all().order_by('-fixture__date', '-fixture__time')
     if season_q:
         predictions = predictions.filter(fixture__season=season_q)
     if competition_q:
@@ -84,9 +84,9 @@ def prediction_list_view(request):
             Q(fixture__home__short_name__icontains=team_q) | Q(fixture__away__short_name__icontains=team_q)
         )
     if order_q == 'asc':
-        predictions = predictions.order_by('fixture__date')
+        predictions = predictions.order_by('fixture__date', 'fixture__time')
     elif order_q == 'desc':
-        predictions = predictions.order_by('-fixture__date')
+        predictions = predictions.order_by('-fixture__date', '-fixture__time')
 
     predictions = predictions
     paginator = Paginator(predictions, 50)
@@ -107,7 +107,7 @@ def prediction_list_view(request):
 
 def prediction_upcoming_view(request):
     today = datetime.date.today()
-    upcoming_preds = Prediction.objects.filter(fixture__date__gte=today).order_by('fixture__date')
+    upcoming_preds = Prediction.objects.filter(fixture__date__gte=today).order_by('fixture__date', 'fixture__time')
     premier_league = upcoming_preds.filter(fixture__competition='Premier League')
     la_liga = upcoming_preds.filter(fixture__competition='La Liga')
     ligue_1 = upcoming_preds.filter(fixture__competition='Ligue 1')

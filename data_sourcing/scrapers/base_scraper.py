@@ -7,7 +7,8 @@ from time import sleep
 
 from supported_comps import COMP_CODES
 
-session = requests_cache.CachedSession(cache_name='req_cache', backend='sqlite', expire_after=60*60*24) # expire value in seconds
+EXPIRE_AFTER = 60 * 60 * 24 # expire value in seconds
+session = requests_cache.CachedSession(cache_name='req_cache', backend='sqlite', expire_after=EXPIRE_AFTER)
 
 class BaseScraper():
 
@@ -17,8 +18,11 @@ class BaseScraper():
         self.html = None
         self.soup = None
 
-    def _request_url(self, url, wait=3):
-        response = session.get(url)
+    def _request_url(self, url, wait=3, expire_after=None):
+        if expire_after is None:
+            response = session.get(url)
+        else:
+            response = session.get(url, expire_after=expire_after)
         self.html = response.text
         self.soup = BeautifulSoup(self.html, 'html.parser')
         if not(response.from_cache):

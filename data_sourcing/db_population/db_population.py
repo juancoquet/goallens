@@ -396,9 +396,25 @@ class DBPopulator:
             except Fixture.DoesNotExist as e:
                 # check if the fixture has already been updated
                 if Fixture.objects.filter(id=data['fixture_id']).exists():
-                    continue
-                else:
+                    fixture = Fixture.objects.get(id=data['fixture_id'])
+                    if (
+                        fixture.goals_home == data['goals_home'] and
+                        fixture.goals_away == data['goals_away'] and
+                        fixture.xG_home == data['xG_home'] and
+                        fixture.xG_away == data['xG_away']
+                    ): # fixture is fully up to date
+                        continue
+                    else: # fixture has been partially updated, complete the update
+                        Fixture.objects.filter(id=data['fixture_id']).update(
+                            goals_home=data['goals_home'],
+                            goals_away=data['goals_away'],
+                            xG_home=data['xG_home'],
+                            xG_away=data['xG_away'],
+                        )
+                        continue
+                else: # neither temp_id or fixture_id exist in the database
                     raise e
+
             new_fixture = Fixture.objects.create(
                 id=data['fixture_id'],
                 competition=old_fixture.competition,
