@@ -19,6 +19,19 @@ class BaseScraper():
         self.soup = None
 
     def _request_url(self, url, wait=3, expire_after=None):
+        """requests a url using requests_cache and returns the response object.
+        saves the html and bs4 soup to self.html and self.soup. if the request is not cached,
+        a wait time is added to avoid hitting rate limits. if expire_after is specified, the request is
+        cached for the specified amount of time (fallback to EXPIRE_AFTER if not specified).
+
+        Args:
+            url (str): the url to request.
+            wait (int, optional): wait time after uncached request, in seconds. Defaults to 3.
+            expire_after (int, optional): cache duration, in seconds.
+
+        Returns:
+            _type_: _description_
+        """
         if expire_after is None:
             response = session.get(url)
         else:

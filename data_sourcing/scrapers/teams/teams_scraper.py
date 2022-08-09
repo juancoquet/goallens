@@ -26,7 +26,7 @@ class TeamsScraper(BaseScraper):
         self._request_url(url)
         self._go_to_season(season)
         table = self.soup.select("table[id^='results'][id$='_overall']")[0]
-        team_name_cells = table.select('td.left[data-stat="squad"]')
+        team_name_cells = table.select('td.left[data-stat="team"]')
         team_ids = [cell.find('a').get('href').split('/')[3] for cell in team_name_cells]
         return team_ids
 
@@ -45,7 +45,8 @@ class TeamsScraper(BaseScraper):
         self._request_url(url)
         self._go_to_season(season)
         table = self.soup.select("table[id^='results'][id$='_overall']")[0]
-        team_name_cells = table.select('td.left[data-stat="squad"]')
+        # team_name_cells = table.select('td.left[data-stat="squad"]') # old solution
+        team_name_cells = table.select('td.left[data-stat="team"]')
         team_short_names = [cell.find('a').text for cell in team_name_cells]
         return team_short_names
 
@@ -66,7 +67,8 @@ class TeamsScraper(BaseScraper):
                 print(f'Scraping team name for {_id}')
             self._request_url(url)
             page_heading = self.soup.find('h1').text
-            team_name_re = r'\d{4}-\d{4} (?P<team_name>.+?) Stats'
+            # team_name_re = r'\d{4}-\d{4} (?P<team_name>.+?) Stats' # old solution
+            team_name_re = r'(?P<team_name>.+?) Stats'
             match = re.search(team_name_re, page_heading)
             if match is None:
                 raise ValueError(f'could not find team name for team id {_id}: {url}')

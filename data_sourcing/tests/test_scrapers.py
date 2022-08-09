@@ -126,7 +126,7 @@ class TestFixtureIDsScraper(TestCase):
         output = self.scraper.scrape_fixture_ids('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_IDS
         self.assertEqual(len(output), 380)
-        self.assertEqual(output, expected)
+        self.assertEqual(output.sort(), expected.sort())
 
     @patch('data_sourcing.scrapers.base_scraper.session.get')
     def test_get_future_fixture_ids(self, mock_get):
@@ -371,12 +371,13 @@ class TestUpcomingFixturesScraper(TestCase):
         expected = [
             '9-47c64c55-18bb7c10',
             '9-fd962109-822bd0ba',
-            '9-361ca564-33c895d4',
-            '9-b2b47a98-e4a775cb',
-            '9-5bfb9659-8cec06e1',
             '9-4ba7cbea-8602292d',
+            '9-5bfb9659-8cec06e1',
+            '9-b2b47a98-e4a775cb',
+            '9-361ca564-33c895d4',
             '9-d3fd31cc-cff3d9bb'
         ]
+        self.assertEqual(len(output), len(expected))
         self.assertEqual(output, expected)
 
 
