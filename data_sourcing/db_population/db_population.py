@@ -366,6 +366,7 @@ class DBPopulator:
         scraper = FixturesScraper()
         fixture_temp_ids = []
         for competition in competitions:
+            print(f'adding upcoming predictions for {competition}')
             comp_fixtures = scraper.scrape_upcoming_fixtures(competition, date, within_days)
             fixture_temp_ids.extend(comp_fixtures)
         for _id in fixture_temp_ids:
@@ -379,6 +380,7 @@ class DBPopulator:
                 h_a_weight,
                 h_a_past_games
             )
+            print(f'added prediction for {fixture}')
 
     def update_settled_fixtures(self, on_date=date.today()):
         """
@@ -389,6 +391,7 @@ class DBPopulator:
             on_date (dt.date): the date for which to check newly settled games. Defaults to date.today().
         """
         scraper = FixturesScraper()
+        print(f'updating all settled fixtures on {on_date}')
         fx_data = scraper.scrape_settled_fixtures(on_date)
         for temp_id, data in fx_data.items():
             try:

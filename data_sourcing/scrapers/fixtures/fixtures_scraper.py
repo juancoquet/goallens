@@ -248,6 +248,7 @@ class FixturesScraper(BaseScraper):
         curr_date = from_date
         upcoming_ids = []
         while curr_date <= from_date + timedelta(days=lookahead):
+            print(f'Scraping upcoming fixtures from {curr_date}')
             url = f'https://fbref.com/en/matches/{curr_date.strftime("%Y-%m-%d")}'
             self._request_url(url, expire_after=60*2)
             table_containers = self.soup.select('div.table_wrapper')
@@ -338,9 +339,6 @@ class FixturesScraper(BaseScraper):
                     match_report_cell = row.select('td.left[data-stat="match_report"]')[0]
                     if match_report_cell.text != 'Match Report': # game is yet to be played, skip
                         continue
-                        # home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3]
-                        # away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3]
-                        # fixture_id = (f'{comp_code}-{home}-{away}')
                     else:
                         fixture_id = (match_report_cell.find('a').get('href').split('/')[3])
 
@@ -378,4 +376,5 @@ class FixturesScraper(BaseScraper):
                         'xG_home': home_xG,
                         'xG_away': away_xG
                     }
+                    print(f'scraped {temp_id}', end='\r')
         return new_data
