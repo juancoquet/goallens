@@ -55,7 +55,10 @@ class TeamsScraper(BaseScraper):
         """scrapes team names.
         
         Args:
-            team_ids (list[str]): list of team ids to scrape
+            team_ids (list[str]): list of team ids to scrape.
+            print_progress (bool): whether to print progress to console.
+        Returns:
+            dict: a dictionary of team names keyed by team id. {team_id: team_name}
         """
         team_names = {}
         for _id in team_ids:
@@ -67,11 +70,13 @@ class TeamsScraper(BaseScraper):
                 print(f'Scraping team name for {_id}')
             self._request_url(url)
             page_heading = self.soup.find('h1').text
-            # team_name_re = r'\d{4}-\d{4} (?P<team_name>.+?) Stats' # old solution
-            team_name_re = r'(?P<team_name>.+?) Stats'
-            match = re.search(team_name_re, page_heading)
+            team_name_season_re = r'\d{4}-\d{4} (?P<team_name>.+?) Stats'
+            match = re.search(team_name_season_re, page_heading)
             if match is None:
-                raise ValueError(f'could not find team name for team id {_id}: {url}')
+                team_name_re = r'(?P<team_name>.+?) Stats'
+                match = re.search(team_name_re, page_heading)
+                if match is None:
+                    raise ValueError(f'could not find team name for team id {_id}: {url}')
             team_names[_id] = match.group('team_name')
             if print_progress:
                 print(f'Team name for {_id}: {team_names[_id]}\n')
