@@ -368,6 +368,7 @@ class Predictor:
         past_n_fixtures = Fixture.objects.filter(
             Q(home=fixture.home) | Q(away=fixture.home),
             date__lt=fixture.date,
+            goals_home__isnull=False, goals_away__isnull=False
         ).order_by('-date')[:n]
         if len(past_n_fixtures) < n:
             raise(NotEnoughDataError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
@@ -377,6 +378,7 @@ class Predictor:
         past_n_fixtures = Fixture.objects.filter(
             Q(home=fixture.away) | Q(away=fixture.away),
             date__lt=fixture.date,
+            goals_home__isnull=False, goals_away__isnull=False
         ).order_by('-date')[:n]
         if len(past_n_fixtures) < n:
             raise(NotEnoughDataError(f'fixture {fixture.id} has fewer than {n} past fixtures'))
@@ -402,10 +404,12 @@ class Predictor:
             past_n_home_fixtures = Fixture.objects.filter(
                 home=home_team,
                 date__lt=fixture.date,
+                goals_home__isnull=False, goals_away__isnull=False
             ).order_by('-date')[:past_games]
             past_n_away_fixtures = Fixture.objects.filter(
                 away=home_team,
                 date__lt=fixture.date,
+                goals_home__isnull=False, goals_away__isnull=False
             ).order_by('-date')[:past_games]
             home_goals = [f.goals_home for f in past_n_home_fixtures]
             away_goals = [f.goals_away for f in past_n_away_fixtures]
@@ -419,10 +423,12 @@ class Predictor:
             past_n_home_fixtures = Fixture.objects.filter(
                 home=away_team,
                 date__lt=fixture.date,
+                goals_home__isnull=False, goals_away__isnull=False
             ).order_by('-date')[:past_games]
             past_n_away_fixtures = Fixture.objects.filter(
                 away=away_team,
                 date__lt=fixture.date,
+                goals_home__isnull=False, goals_away__isnull=False
             ).order_by('-date')[:past_games]
             home_goals = [f.goals_home for f in past_n_home_fixtures]
             away_goals = [f.goals_away for f in past_n_away_fixtures]
