@@ -25,6 +25,7 @@ class TestContactView(TestCase):
             'email': 'john@doe.com',
             'subject': 'Test subject',
             'message': 'Test message',
+            'g-recaptcha-response': 'PASSED',
         })
         self.assertContains(response, 'Your message has been sent.')
 
@@ -35,5 +36,6 @@ class TestContactView(TestCase):
             'email': 'john@doe.com',
             'subject': 'Test subject',
             'message': 'Test message',
+            'g-recaptcha-response': 'PASSED',
         })
         self.assertTrue(mock_send_mail.called)

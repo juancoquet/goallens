@@ -28,11 +28,17 @@
         <label for="message">Message</label>
         <textarea class="form-control input--text" id="message" name="message" rows="6" required></textarea>
       </div>
+      <div class="form-group">
+        {{ captcha }}
+      </div>
       <div class="center-contents"><button type="submit" class="btn btn--primary">Send</button></div>
     </form>
   </div>
 
   <div class="message">
+    {% for err in errors %}
+      <p>{{ err }}</p>
+    {% endfor %}
     {% if message_sent %}
       <p class="success-message">&#10004; Your message has been sent.</p>
     {% endif %}

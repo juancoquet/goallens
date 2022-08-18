@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # third party apps
     'django_extensions',
+    'captcha',
     # local
     'contact.apps.ContactConfig',
     'analysis.apps.AnalysisConfig',
@@ -157,3 +158,8 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = EMAIL_ADDRESS
 EMAIL_HOST_PASSWORD = EMAIL_PW
+
+# recaptcha settings
+RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_SITE_KEY')
+RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
+SILENCED_SYSTEM_CHECKS = [os.environ.get('SILENCED_SYSTEM_CHECKS', default=None)]

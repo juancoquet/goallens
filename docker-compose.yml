@@ -11,6 +11,9 @@ services:
     environment:
       - SECRET_KEY=devsecretkey
       - DEBUG=1
+      - RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI # google's test key
+      - RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe # google's test key
+      - SILENCED_SYSTEM_CHECKS=captcha.recaptcha_test_key_error # to avoid errors in dev. do not define this in production
     ports:
       - 8000:8000
       - 35729:35729 # for django livereload

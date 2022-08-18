@@ -19,6 +19,7 @@ django-livereload-server = "*"
 pillow = "==9.1.1"
 django-filter = "==2.4.0"
 uwsgi = "==2.0.20"
+django-recaptcha = "==3.0.0"
 
 [dev-packages]
 
