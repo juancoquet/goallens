@@ -14,6 +14,9 @@ def run(on_date:str=None):
     else:
         on_date = dt.date.today()
     day_before = on_date - dt.timedelta(days=1)
+    two_before = on_date - dt.timedelta(days=2)
+    print(f'updating fixtures for {two_before}')
+    populator.update_fixtures_for_date(two_before)
     print(f'updating fixtures for {day_before}')
     populator.update_settled_fixtures(day_before)
     print(f'updated fixtures for {on_date}')
