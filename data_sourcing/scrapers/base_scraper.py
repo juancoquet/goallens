@@ -7,7 +7,7 @@ from time import sleep
 
 from supported_comps import COMP_CODES
 
-EXPIRE_AFTER = 60 * 60 * 24 # expire value in seconds
+EXPIRE_AFTER = 60 * 60 * 3 # expire value in seconds
 session = requests_cache.CachedSession(cache_name='req_cache', backend='sqlite', expire_after=EXPIRE_AFTER)
 
 class BaseScraper():

@@ -281,6 +281,7 @@ th {
     white-space: nowrap;
     border-bottom: 1px solid var(--dark-grey);
     padding: 0.4rem 0.8rem;
+    background-color: var(--bg);
 }
 
 td {
@@ -293,11 +294,11 @@ td {
     text-align: center;
 }
 
-tr:nth-child(even) {
+tr:nth-child(odd) {
     background-color: #eef1f4;
 }
 
-tr:nth-child(odd) {
+tr:nth-child(even) {
     /* background-color: #eef3f6; */
 }
 
