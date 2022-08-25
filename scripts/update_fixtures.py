@@ -15,7 +15,7 @@ def run(on_date:str=None):
     django.setup()
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    num_failures = test_runner.run_tests([])
+    num_failures = test_runner.run_tests(['data_sourcing'])
     if num_failures > 0:
         now = dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         subject = f'FAILED TESTS | {now}'
@@ -25,6 +25,7 @@ def run(on_date:str=None):
     
     print('\n-----------------------------------' * 3)
     print('all tests passed, updating fixtures')
+    print('\n-----------------------------------' * 3)
     
     populator = DBPopulator()
     comps = list(PREDICTION_COMPS.keys())
