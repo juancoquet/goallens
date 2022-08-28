@@ -12,6 +12,8 @@ from supported_comps import PREDICTION_COMPS
 
 
 def run(on_date:str=None):
+    msg = 'starting update_fixtures.py'
+    send_mail('running script', msg, '', [EMAIL_ADDRESS])
     django.setup()
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
