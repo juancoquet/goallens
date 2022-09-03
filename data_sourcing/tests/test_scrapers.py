@@ -367,7 +367,7 @@ class TestUpcomingFixturesScraper(TestCase):
         cls.scraper = FixturesScraper()
 
     def test_scrape_upcoming_fixtures(self):
-        output = self.scraper.scrape_upcoming_fixtures(from_date=date(2022, 8,4), lookahead=2, competition='Premier League')
+        output = self.scraper.scrape_upcoming_fixtures(from_date=date(2022, 8, 4), lookahead=2, competition='Premier League')
         expected = [
             '9-47c64c55-18bb7c10',
             '9-fd962109-822bd0ba',
@@ -380,6 +380,257 @@ class TestUpcomingFixturesScraper(TestCase):
         self.assertEqual(len(output), len(expected))
         self.assertEqual(output, expected)
 
+    def test_scrape_upcoming_fixtures_datetimes(self):
+        output = self.scraper.scrape_upcoming_fixtures_datetimes(from_date=date(2022, 8, 4), lookahead=2, competition='Premier League')
+        expected = {
+            '9-47c64c55-18bb7c10': {'date': date(2022, 8, 5), 'time': dt_time(20, 0)},
+            '9-fd962109-822bd0ba': {'date': date(2022, 8, 6), 'time': dt_time(12, 30)},
+            '9-4ba7cbea-8602292d': {'date': date(2022, 8, 6), 'time': dt_time(15, 0)},
+            '9-5bfb9659-8cec06e1': {'date': date(2022, 8, 6), 'time': dt_time(15, 0)},
+            '9-b2b47a98-e4a775cb': {'date': date(2022, 8, 6), 'time': dt_time(15, 0)},
+            '9-361ca564-33c895d4': {'date': date(2022, 8, 6), 'time': dt_time(15, 0)},
+            '9-d3fd31cc-cff3d9bb': {'date': date(2022, 8, 6), 'time': dt_time(17, 30)}
+        }
+        self.assertEqual(output, expected)
+
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
+
+class TestUpdateSettledFixtures(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.scraper = FixturesScraper()
+
+    def test_scrape_settled_fixtures(self):
+        output = self.scraper.scrape_settled_fixtures(date(2022, 4, 3))
+        expected_a =  {
+            'fixture_id': 'b22e54c4',
+            'date': date(2022, 4, 3),
+            'time': dt_time(14, 0),
+            'home': '7c21e445',
+            'away': 'd3fd31cc',
+            'goals_home': 2,
+            'goals_away': 1,
+            'xG_home': 1.2,
+            'xG_away': 0.8,
+        }
+        expected_b = {
+            'fixture_id': '6f8a2207',
+            'date': date(2022, 4, 3),
+            'time': dt_time(16, 30),
+            'home': '361ca564',
+            'away': 'b2b47a98',
+            'goals_home': 5,
+            'goals_away': 1,
+            'xG_home': 3.1,
+            'xG_away': 0.6,
+        }
+        self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
+        self.assertEqual(output['9-361ca564-b2b47a98'], expected_b)
+        self.assertEqual(len(output), 34)
 
 class TestUpdateSettledFixtures(TestCase):
 

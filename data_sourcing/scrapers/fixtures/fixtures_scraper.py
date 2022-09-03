@@ -14,6 +14,20 @@ class FixturesScraper(BaseScraper):
     def __init__(self):
         super().__init__()
 
+    def _parse_time(self, time_str: str):
+        """helper function to parse a time string into a datetime.time object."""
+        try:
+            hhmmss = time_str.split(':')
+        except AttributeError:
+            hhmmss = [None] * 3
+        try:
+            hh = int(hhmmss[0])
+            mm = int(hhmmss[1])
+            t = time(hh, mm)
+        except (ValueError, TypeError):
+            t = None
+        return t
+
     def scrape_fixture_ids(self, season: str, competition: str):
         """scrapes all fixture ids for a given season and competition.
         
@@ -36,8 +50,6 @@ class FixturesScraper(BaseScraper):
         for row in rows:
             match_report_cell = row.select('td.left[data-stat="match_report"]')[0]
             if match_report_cell.text != 'Match Report': # game is yet to be played, create temp ids
-                # home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3] # old solution
-                # away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3] # old solution
                 home = row.select('td[data-stat="home_team"]')[0].find('a').get('href').split('/')[3]
                 away = row.select('td[data-stat="away_team"]')[0].find('a').get('href').split('/')[3]
                 fixture_ids.append(f'{comp_code}-{home}-{away}')
@@ -101,19 +113,6 @@ class FixturesScraper(BaseScraper):
         Returns:
             dict: a dict of fixture ids mapped to datetime.time objects {fixture_id: datetime.time}
         """
-        def _parse_time(time_str: str):
-            try:
-                hhmmss = time_str.split(':')
-            except AttributeError:
-                hhmmss = [None] * 3
-            try:
-                hh = int(hhmmss[0])
-                mm = int(hhmmss[1])
-                t = time(hh, mm)
-            except (ValueError, TypeError):
-                t = None
-            return t
-
         self._validate_season(season)
         self._validate_competition(competition)
 
@@ -124,7 +123,7 @@ class FixturesScraper(BaseScraper):
         table = self.soup.select("table[id^='sched_'][id$='_1']")[0]
         rows = table.select('tbody')[0].select('tr:not(.spacer):not(.thead)')
         fixture_ids = self.scrape_fixture_ids(season, competition)
-        times = [_parse_time(row.select('td[data-stat="start_time"]')[0].get('csk')) for row in rows]
+        times = [self._parse_time(row.select('td[data-stat="start_time"]')[0].get('csk')) for row in rows]
         ids_times = dict(zip(fixture_ids, times))
         return ids_times
 
@@ -239,7 +238,7 @@ class FixturesScraper(BaseScraper):
         """scrapes upcoming fixtures temporary ids after given date from the given competition.
         
         Args:
-            comps (list[str]): the competitions to scrape, e.g. ['Premier League', 'La Liga']
+            copetition (str): the competitions to scrape, e.g. 'Premier League'
             from_date (date): the date to start scraping from, e.g. date(2019, 1, 1)
             lookahead (int): the number of days to look ahead, e.g. 2
         Returns:
@@ -254,31 +253,14 @@ class FixturesScraper(BaseScraper):
             table_containers = self.soup.select('div.table_wrapper')
 
             for table_container in table_containers:
-                # ------------------------------------------------ old solution to get comp code
-                # --------------------------------------- fbref dom format changed on 2022-08-09
-                # --------------------------------------------- keeping in case reversion needed
-                # # get comp code
-                # ## couldn't find a clean way of doing this due to poor html formatting on fbref
-                # ## hacky regex solution, but it works
-                # sched_id = table_container.get('id').split('_')[-1]
-                # print(sched_id)
-                # # match an href which contains the comp code related to the schedule id
-                # # (id of the schedule for a comp & season)
-                # href_re = re.compile(f'id="sched_{sched_id}_link" data-label="' + r'<a href="(?P<href>[-a-zA-Z0-9@:%_\+.~#?&//=]*)">')
-                # href = href_re.search(self.html).group('href')
-                # comp_code = int(href.split('/')[3])
-                # ------------------------------------------------------------------------------
                 comp_code = int(table_container.get('id').split('_')[-1])
                 season_re = re.compile(r'(?P<season>[0-9]{4}(-[0-9]{4})?)')
                 season = season_re.search(table_container.get('id')).group('season')
 
                 if comp_code == self.comp_codes[competition]:
-                    # table = self.soup.select(f'table[id="sched_{sched_id}"]')[0] # old solution
                     table = self.soup.select(f'table[id="sched_{season}_{comp_code}"]')[0]
                     rows = table.select('tbody')[0].select('tr:not(.spacer):not(.thead)')
                     for row in rows:
-                        # home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3] # old solution
-                        # away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3] # old solution
                         home = row.select('td[data-stat="home_team"]')[0].find('a').get('href').split('/')[3]
                         away = row.select('td[data-stat="away_team"]')[0].find('a').get('href').split('/')[3]
                         temp_id = f'{self.comp_codes[competition]}-{home}-{away}'
@@ -313,25 +295,11 @@ class FixturesScraper(BaseScraper):
         self._request_url(url)
         table_containers = self.soup.select('div.table_wrapper')
         for table_container in table_containers:
-            # ------------------------------------------------ old solution to get comp code
-            # --------------------------------------- fbref dom format changed on 2022-08-09
-            # --------------------------------------------- keeping in case reversion needed
-            # # get comp code
-            # ## couldn't find a clean way of doing this due to poor html formatting on fbref
-            # ## hacky regex solution, but it works
-            # sched_id = table_container.get('id').split('_')[-1]
-            # # match an href which contains the comp code related to the schedule id
-            # # (id of the schedule for a comp & season)
-            # href_re = re.compile(f'id="sched_{sched_id}_link" data-label="' + r'<a href="(?P<href>[-a-zA-Z0-9@:%_\+.~#?&//=]*)">')
-            # href = href_re.search(self.html).group('href')
-            # comp_code = int(href.split('/')[3])
-            # ------------------------------------------------------------------------------
             comp_code = int(table_container.get('id').split('_')[-1])
             season_re = re.compile(r'(?P<season>[0-9]{4}(-[0-9]{4})?)')
             season = season_re.search(table_container.get('id')).group('season')
 
             if comp_code in list(COMP_CODES.values()):
-                # table = self.soup.select(f'table[id="sched_{sched_id}"]')[0] # old solution
                 table = self.soup.select(f'table[id="sched_{season}_{comp_code}"]')[0]
                 rows = table.select('tbody')[0].select('tr:not(.spacer):not(.thead)')
 
@@ -345,8 +313,6 @@ class FixturesScraper(BaseScraper):
                     time_str = row.select('td[data-stat="start_time"]')[0].get('csk')
                     hh, mm, _ = time_str.split(':')
                     time_ = time(int(hh), int(mm))
-                    # home = row.select('td[data-stat="squad_a"]')[0].find('a').get('href').split('/')[3] # old solution
-                    # away = row.select('td[data-stat="squad_b"]')[0].find('a').get('href').split('/')[3] # old solution
                     home = row.select('td[data-stat="home_team"]')[0].find('a').get('href').split('/')[3]
                     away = row.select('td[data-stat="away_team"]')[0].find('a').get('href').split('/')[3]
                     score = row.select('td[data-stat="score"]')[0].get_text().split('–')
@@ -378,3 +344,37 @@ class FixturesScraper(BaseScraper):
                     }
                     print(f'scraped {temp_id}', end='\r')
         return new_data
+
+    def scrape_upcoming_fixtures_datetimes(self, competition: str, from_date=date.today(), lookahead=2):
+        """scrapes the dates and times of upcoming fixtures to update if they have been changed.
+        Args:
+            copetition (str): the competitions to scrape, e.g. 'Premier League'
+            from_date (date): the date to start scraping from, e.g. date(2019, 1, 1)
+            lookahead (int): the number of days to look ahead, e.g. 2
+        Returns:
+            dict: a dict of fixture ids mapped to another dict containing the fixture's data with format:
+            {temp_fixture_id: {'date': datetime.date, 'time': datetime.time}}
+        """
+        curr_date = from_date
+        upcoming = {}
+        while curr_date <= from_date + timedelta(days=lookahead):
+            url = f'https://fbref.com/en/matches/{curr_date.strftime("%Y-%m-%d")}'
+            self._request_url(url, expire_after=60*2)
+            table_containers = self.soup.select('div.table_wrapper')
+
+            for table_container in table_containers:
+                comp_code = int(table_container.get('id').split('_')[-1])
+                season_re = re.compile(r'(?P<season>[0-9]{4}(-[0-9]{4})?)')
+                season = season_re.search(table_container.get('id')).group('season')
+
+                if comp_code == self.comp_codes[competition]:
+                    table = self.soup.select(f'table[id="sched_{season}_{comp_code}"]')[0]
+                    rows = table.select('tbody')[0].select('tr:not(.spacer):not(.thead)')
+                    for row in rows:
+                        home = row.select('td[data-stat="home_team"]')[0].find('a').get('href').split('/')[3]
+                        away = row.select('td[data-stat="away_team"]')[0].find('a').get('href').split('/')[3]
+                        temp_id = f'{self.comp_codes[competition]}-{home}-{away}'
+                        _time = self._parse_time(row.select('td[data-stat="start_time"]')[0].get('csk'))
+                        upcoming[temp_id] = {'date': curr_date, 'time': _time} 
+            curr_date += timedelta(days=1)
+        return upcoming

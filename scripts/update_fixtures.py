@@ -31,6 +31,7 @@ def run(on_date:str=None):
     
     populator = DBPopulator()
     comps = list(PREDICTION_COMPS.keys())
+    populator.update_upcoming_fixtures_datetimes(comps, within_days=2)
     populator.add_upcoming_predictions_to_db(comps, **PARAMS, within_days=2)
     print('added predictions')
 

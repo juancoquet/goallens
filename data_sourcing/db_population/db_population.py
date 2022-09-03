@@ -433,3 +433,22 @@ class DBPopulator:
             )
             Prediction.objects.filter(fixture=old_fixture).update(fixture=new_fixture)
             old_fixture.delete()
+
+    def update_upcoming_fixtures_datetimes(self, comps: list[str], from_date=date.today(), within_days=2):
+        """
+        checks fbref for upcoming fixtures and updates the dates of those fixtures in the database if the date
+        has changed.
+
+        Args:
+            on_date (dt.date): the date for which to check newly settled games. Defaults to date.today().
+        """
+        scraper = FixturesScraper()
+        upcoming_datetimes = {}
+        for comp in comps:
+            upcoming = scraper.scrape_upcoming_fixtures_datetimes(comp, from_date, within_days)
+            upcoming_datetimes.update(upcoming)
+        for temp_id, datetime_dict in upcoming_datetimes.items():
+            Fixture.objects.filter(id=temp_id).update(
+                date=datetime_dict['date'],
+                time=datetime_dict['time']
+            )

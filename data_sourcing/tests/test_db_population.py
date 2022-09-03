@@ -487,3 +487,24 @@ class TestPredictionPopulation(TestCase):
         self.assertEqual(pred.count(), 0)
         pred = Prediction.objects.filter(fixture__id='a3b3a0d5')
         self.assertEqual(pred.count(), 1)
+
+    def test_update_upcoming_fixtures_datetimes(self):
+        Fixture.objects.create(
+            id='9-b2b47a98-18bb7c10',
+            competition='Premier League',
+            season='2021-2022',
+            date=dt.date(2022, 5, 17), # wrong date to simulate date change
+            home=Team.objects.get(id='b2b47a98'),
+            away=Team.objects.get(id='18bb7c10'),
+        )
+        Fixture.objects.create(
+            id='9-33c895d4-822bd0ba',
+            competition='Premier League',
+            season='2021-2022',
+            date=dt.date(2022, 5, 17),
+            home=Team.objects.get(id='33c895d4'),
+            away=Team.objects.get(id='822bd0ba'),
+        )
+        self.populator.update_upcoming_fixtures_datetimes(['Premier League'], from_date=dt.date(2022, 5, 15))
+        fixture = Fixture.objects.get(id='9-b2b47a98-18bb7c10')
+        self.assertEqual(fixture.date, dt.date(2022, 5, 16))
