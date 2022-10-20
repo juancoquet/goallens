@@ -130,7 +130,7 @@ class TestFixtureIDsScraper(TestCase):
 
     @patch('data_sourcing.scrapers.base_scraper.session.get')
     def test_get_future_fixture_ids(self, mock_get):
-        with open('data_sourcing/tests/mock_response.html', 'r') as f:
+        with open('data_sourcing/tests/mock_response', 'r') as f:
             mock_get.return_value = Mock(text=f.read())
         output = self.scraper.scrape_fixture_ids('2022-2023', competition='Premier League')
         self.assertEqual(len(output), 380)
@@ -280,7 +280,7 @@ class TestFixtureGoalsScraper(TestCase):
 
     @patch('data_sourcing.scrapers.base_scraper.session.get')
     def test_get_future_fixture_goals(self, mock_get):
-        with open('data_sourcing/tests/mock_response.html', 'r') as f:
+        with open('data_sourcing/tests/mock_response', 'r') as f:
             mock_get.return_value = Mock(text=f.read())
         output = self.scraper.scrape_fixture_goals('2022-2023', competition='Premier League')
         self.assertEqual(len(output), 380)
@@ -324,7 +324,7 @@ class TestFixturexGsScraper(TestCase):
 
     @patch('data_sourcing.scrapers.base_scraper.session.get')
     def test_get_future_fixture_xGs(self, mock_get):
-        with open('data_sourcing/tests/mock_response.html', 'r') as f:
+        with open('data_sourcing/tests/mock_response', 'r') as f:
             mock_get.return_value = Mock(text=f.read())
         output = self.scraper.scrape_fixture_xGs('2022-2023', competition='Premier League')
         self.assertEqual(len(output), 380)
