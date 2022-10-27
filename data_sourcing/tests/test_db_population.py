@@ -479,8 +479,8 @@ class TestPredictionPopulation(TestCase):
         fixture = Fixture.objects.get(id='a3b3a0d5')
         self.assertEqual(fixture.goals_home, 2)
         self.assertEqual(fixture.goals_away, 0)
-        self.assertEqual(fixture.xG_home, Decimal('2.1'))
-        self.assertEqual(fixture.xG_away, Decimal('0.6'))
+        self.assertEqual(fixture.xG_home, Decimal('1.7'))
+        self.assertEqual(fixture.xG_away, Decimal('0.7'))
 
         # test that related predictions were updated correctly
         pred = Prediction.objects.filter(fixture__id='9-b2b47a98-18bb7c10')

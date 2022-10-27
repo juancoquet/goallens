@@ -332,9 +332,9 @@ class TestFixturexGsScraper(TestCase):
         self.assertEqual(output[list(output.keys())[-1]], {'home': None, 'away': None})
 
     def test_no_xG_data_returns_none_in_dict(self):
-        output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Championship')
+        output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Ligue 2')
         expeced = EXPECTED_NO_XG_DATA
-        self.assertEqual(len(output), 552)
+        self.assertEqual(len(output), 380)
         self.assertEqual(output, expeced)
 
     def test_unsupported_competition_fails(self):
@@ -648,7 +648,7 @@ class TestUpdateSettledFixtures(TestCase):
             'away': 'd3fd31cc',
             'goals_home': 2,
             'goals_away': 1,
-            'xG_home': 1.2,
+            'xG_home': 1.7,
             'xG_away': 0.8,
         }
         expected_b = {
@@ -659,7 +659,7 @@ class TestUpdateSettledFixtures(TestCase):
             'away': 'b2b47a98',
             'goals_home': 5,
             'goals_away': 1,
-            'xG_home': 3.1,
+            'xG_home': 3.2,
             'xG_away': 0.6,
         }
         self.assertEqual(output['9-7c21e445-d3fd31cc'], expected_a)
