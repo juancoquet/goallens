@@ -378,7 +378,8 @@ class TestUpcomingFixturesScraper(TestCase):
             '9-d3fd31cc-cff3d9bb'
         ]
         self.assertEqual(len(output), len(expected))
-        self.assertEqual(output, expected)
+        for id_ in output:
+            self.assertIn(id_, expected)
 
     def test_scrape_upcoming_fixtures_datetimes(self):
         output = self.scraper.scrape_upcoming_fixtures_datetimes(from_date=date(2022, 8, 4), lookahead=2, competition='Premier League')
