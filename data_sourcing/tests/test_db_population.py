@@ -126,6 +126,9 @@ class TestCreateSeasonsFixturesDict(TestCase):
         d = self.populator._create_season_fixtures_dict(
             seasons=['2019-2020'], competitions=['Premier League']
         )
+        for k, v in EXPECTED_FIXTURES_DICT.items():
+            if d[k] != v:
+                print(f"key: {k} | expected: {v} | actual: {d[k]}")
         self.assertEqual(d, EXPECTED_FIXTURES_DICT)
 
     def test_unsupported_competition_fails(self):

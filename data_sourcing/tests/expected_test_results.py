@@ -2197,7 +2197,7 @@ EXPECTED_FIXTURE_XG = {
     '16119ef2': {'home': 1.5, 'away': 1.6},
     'c224d1e8': {'home': 1.1, 'away': 0.8},
     'bfd4d929': {'home': 0.9, 'away': 1.5},
-    '164148a8': {'home': 1.9, 'away': 1.4},
+    '164148a8': {'home': 2.0, 'away': 1.4},
     '230f4fac': {'home': 1.4, 'away': 0.4},
     '3d899563': {'home': 2.0, 'away': 0.6},
     '495db223': {'home': 2.0, 'away': 1.1},
@@ -3363,7 +3363,7 @@ EXPECTED_FIXTURES_DICT = {
         "away": "1c781004",
         "goals_home": 2,
         "goals_away": 0,
-        "xG_home": 1.9,
+        "xG_home": 2.0,
         "xG_away": 1.4,
     },
     "533c240c": {

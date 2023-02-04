@@ -319,6 +319,9 @@ class TestFixturexGsScraper(TestCase):
     def test_get_fixture_xGs(self):
         output = self.scraper.scrape_fixture_xGs('2019-2020', competition='Premier League')
         expected = EXPECTED_FIXTURE_XG
+        for k, v in expected.items():
+            if output[k] != v:
+                print(k, output[k], '!=', v)
         self.assertEqual(len(output), 380)
         self.assertEqual(output, expected)
 
