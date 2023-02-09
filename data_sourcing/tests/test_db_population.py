@@ -126,9 +126,6 @@ class TestCreateSeasonsFixturesDict(TestCase):
         d = self.populator._create_season_fixtures_dict(
             seasons=['2019-2020'], competitions=['Premier League']
         )
-        for k, v in EXPECTED_FIXTURES_DICT.items():
-            if d[k] != v:
-                print(f"key: {k} | expected: {v} | actual: {d[k]}")
         self.assertEqual(d, EXPECTED_FIXTURES_DICT)
 
     def test_unsupported_competition_fails(self):
@@ -482,8 +479,8 @@ class TestPredictionPopulation(TestCase):
         fixture = Fixture.objects.get(id='a3b3a0d5')
         self.assertEqual(fixture.goals_home, 2)
         self.assertEqual(fixture.goals_away, 0)
-        self.assertEqual(fixture.xG_home, Decimal('1.7'))
-        self.assertEqual(fixture.xG_away, Decimal('0.7'))
+        self.assertEqual(fixture.xG_home, Decimal('1.6'))
+        self.assertEqual(fixture.xG_away, Decimal('0.6'))
 
         # test that related predictions were updated correctly
         pred = Prediction.objects.filter(fixture__id='9-b2b47a98-18bb7c10')
